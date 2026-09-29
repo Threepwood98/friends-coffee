@@ -23,3 +23,15 @@ Status: accepted
 
 - Add required packages in the phase where they are first used instead of installing the entire final stack as inactive dependencies.
 - Defer Prisma, Auth.js, form, Cloudinary, animation, and test packages to their owning phases.
+
+## 2026-09-29 - SQLite and Seed Baseline
+
+Status: accepted
+
+- Pin Prisma ORM and Prisma Client to 6.19.3. This preserves the required `prisma-client-js` generator, schema-based `DATABASE_URL`, and built-in SQLite connector without introducing the Prisma 7 driver-adapter stack.
+- Keep the Prisma CLI, `tsx`, and `dotenv` as production dependencies because Railway runs migrations and the TypeScript seed at application startup.
+- Use ESM throughout the project so every consumer, including the TypeScript seed, waits for SQLite initialization through top-level `await` before accessing the client.
+- Configure SQLite once per application process with WAL mode and a 5000 ms busy timeout before exporting the shared client.
+- Seed the sample catalog atomically only when there are no users, categories, or products. Any existing application data preserves catalog edits and deletions; a completely empty database is treated as uninitialized.
+- Create the configured admin only when its email does not exist. Never promote an existing user or replace an existing password during startup.
+- Require valid admin credentials for the production seed command and hash new admin passwords with bcrypt cost 12.
