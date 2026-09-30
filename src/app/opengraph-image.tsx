@@ -1,5 +1,7 @@
 import { ImageResponse } from "next/og";
 
+import { FriendsWordmark } from "@/components/brand/friends-wordmark";
+import { getFriendsFontBuffer } from "@/lib/friends-font";
 import { exampleBusinessDetails } from "@/lib/site";
 
 export const runtime = "nodejs";
@@ -7,6 +9,8 @@ export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
 export const alt = `${exampleBusinessDetails.name}: carta digital de cafés, dulces y algo para picar.`;
+
+const friendsFont = { name: "Friends", data: getFriendsFontBuffer() };
 
 function CoffeeCupMark() {
   return (
@@ -44,7 +48,7 @@ function CoffeeCupMark() {
 }
 
 export default function OpenGraphImage() {
-  const { name, tagline, shortName } = exampleBusinessDetails;
+  const { tagline, shortName } = exampleBusinessDetails;
 
   return new ImageResponse(
     <div
@@ -90,17 +94,14 @@ export default function OpenGraphImage() {
         >
           {shortName}
         </p>
-        <p
+        <FriendsWordmark
           style={{
-            margin: 0,
+            fontFamily: "Friends",
+            fontWeight: 400,
             fontSize: 84,
-            fontWeight: 800,
             lineHeight: 1.05,
-            color: "#241712",
           }}
-        >
-          {name}
-        </p>
+        />
         <p
           style={{
             margin: 0,
@@ -113,6 +114,9 @@ export default function OpenGraphImage() {
         </p>
       </div>
     </div>,
-    size,
+    {
+      ...size,
+      fonts: [friendsFont],
+    },
   );
 }

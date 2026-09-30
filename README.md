@@ -1,9 +1,9 @@
 # Café de la Esquina — Carta digital
 
 Carta web de una cafetería con precios, disponibilidad y valoraciones, inspirada
-estéticamente en la ambientación de FRIENDS (paleta de la puerta morada, la
-mirilla, el sofá) **sin usar logos, capturas, tipografía ni citas de la serie**:
-solo colores, guiños y ambiente.
+estéticamente en la ambientación de FRIENDS: paleta de la puerta morada, la
+mirilla, el sofá y el lettering de la serie (fuente fan “Gabriel Weiss’
+FRIENDS” autohospedada) para los títulos. Los textos son originales.
 
 La interfaz y todo el contenido están en **español**. El código, los nombres de
 variables y los commits están en inglés (Conventional Commits).

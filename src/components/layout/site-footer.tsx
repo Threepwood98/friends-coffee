@@ -1,4 +1,5 @@
 import { exampleBusinessDetails } from "@/lib/site";
+import { FriendsWordmark } from "@/components/brand/friends-wordmark";
 
 const { address, hours } = exampleBusinessDetails;
 
@@ -12,7 +13,7 @@ export function SiteFooter() {
       <div className="mx-auto grid max-w-6xl gap-8 px-4 py-10 sm:grid-cols-2 lg:grid-cols-3">
         <div className="flex flex-col gap-2">
           <p className="font-heading text-3xl font-normal text-coffee">
-            {exampleBusinessDetails.name}
+            <FriendsWordmark />
           </p>
           <p className="text-sm text-muted-foreground">
             {exampleBusinessDetails.tagline}

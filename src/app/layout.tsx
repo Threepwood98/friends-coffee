@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat_Brush, Geist, Geist_Mono } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
+import localFont from "next/font/local";
 
 import { exampleBusinessDetails, siteUrl } from "@/lib/site";
 
@@ -15,10 +16,9 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
-const caveatBrush = Caveat_Brush({
-  variable: "--font-caveat",
-  subsets: ["latin"],
-  weight: "400",
+const friendsLettering = localFont({
+  src: "./fonts/GABRWFFR.ttf",
+  variable: "--font-friends",
   display: "swap",
 });
 
@@ -52,7 +52,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="es"
-      className={`${caveatBrush.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${friendsLettering.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col">{children}</body>
     </html>

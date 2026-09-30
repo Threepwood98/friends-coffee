@@ -123,9 +123,8 @@ Objetivo Lighthouse móvil en home y detalle: SEO, Accesibilidad y Buenas práct
 
 ## Diseño
 
-- **No usar** logo, capturas, tipografía oficial ni imágenes de la serie. Solo inspiración: colores, guiños y ambiente. No citar frases textuales.
 - Paleta como variables CSS/Tailwind: morado (puerta), amarillo (marco de mirilla), naranja (sofá), crema (fondo), marrón café (texto).
-- Fuentes de Google Fonts: display tipo marcador (*Caveat Brush* o *Permanent Marker*) para títulos y una sans legible para texto.
+- Fuentes: lettering FRIENDS autohospedado (`next/font/local`, `GABRWFFR.TTF`, variable `--font-friends` → `--font-heading`) para títulos y una sans legible (Geist) para texto.
 - Detalles: marco amarillo tipo mirilla en tarjetas de producto, sofá naranja en SVG/CSS en el hero, ratings con tazas.
 - Mobile-first. Probar 360, 768, 1024 y 1440 px. Menú hamburguesa en móvil. Tablas del admin con scroll horizontal o vista en tarjetas. Tap targets ≥ 44 px.
 - Respetar `prefers-reduced-motion`.

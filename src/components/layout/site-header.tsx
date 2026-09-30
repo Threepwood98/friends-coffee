@@ -7,7 +7,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Coffee, Menu, X } from "lucide-react";
 import { cn } from "cn";
 
-import { exampleBusinessDetails, navigation } from "@/lib/site";
+import { navigation } from "@/lib/site";
+import { FriendsWordmark } from "@/components/brand/friends-wordmark";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -27,7 +28,7 @@ export function SiteHeader() {
           <span className="inline-flex size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground">
             <Coffee className="size-5" aria-hidden />
           </span>
-          {exampleBusinessDetails.name}
+          <FriendsWordmark />
         </Link>
 
         <nav aria-label="Principal" className="hidden sm:block">

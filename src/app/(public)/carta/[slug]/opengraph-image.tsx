@@ -1,14 +1,18 @@
 import { ImageResponse } from "next/og";
 
+import { FriendsWordmark } from "@/components/brand/friends-wordmark";
 import { getProductBySlug } from "@/lib/catalog";
 import { formatPrice, resolveProductImage } from "@/lib/format";
+import { getFriendsFontBuffer } from "@/lib/friends-font";
 import { getPrisma } from "@/lib/prisma";
 import { getProductRatingSummary } from "@/lib/ratings";
-import { exampleBusinessDetails } from "@/lib/site";
+import { exampleBusinessDetails, siteUrl } from "@/lib/site";
 
 export const runtime = "nodejs";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
+
+const friendsFont = { name: "Friends", data: getFriendsFontBuffer() };
 
 interface ProductImageProps {
   params: Promise<{ slug: string }>;
@@ -27,25 +31,42 @@ export default async function ProductOpenGraphImage({
           width: "100%",
           height: "100%",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
           gap: 24,
           background: "#FFF8EF",
           color: "#241712",
           fontSize: 48,
-          fontWeight: 700,
-          fontFamily: "'Segoe UI', system-ui, sans-serif",
         }}
       >
-        {exampleBusinessDetails.name}
+        <FriendsWordmark
+          style={{ fontFamily: "Friends", fontWeight: 400, fontSize: 84 }}
+        />
+        <p
+          style={{
+            margin: 0,
+            fontFamily: "'Segoe UI', system-ui, sans-serif",
+            fontWeight: 600,
+            fontSize: 28,
+          }}
+        >
+          Este producto ya no está en la carta
+        </p>
       </div>,
-      size,
+      {
+        ...size,
+        fonts: [friendsFont],
+      },
     );
   }
 
   const prisma = await getPrisma();
   const summary = await getProductRatingSummary(prisma, product.id);
   const imageUrl = resolveProductImage(product);
+  const ogImageUrl = imageUrl.startsWith("/")
+    ? `${siteUrl}${imageUrl}`
+    : imageUrl;
 
   return new ImageResponse(
     <div
@@ -71,7 +92,7 @@ export default async function ProductOpenGraphImage({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
-          src={imageUrl}
+          src={ogImageUrl}
           alt=""
           width="520"
           height="630"
@@ -107,8 +128,9 @@ export default async function ProductOpenGraphImage({
         <p
           style={{
             margin: 0,
+            fontFamily: "Friends",
+            fontWeight: 400,
             fontSize: 76,
-            fontWeight: 800,
             lineHeight: 1.08,
             color: "#241712",
           }}
@@ -151,6 +173,9 @@ export default async function ProductOpenGraphImage({
         </p>
       </div>
     </div>,
-    size,
+    {
+      ...size,
+      fonts: [friendsFont],
+    },
   );
 }

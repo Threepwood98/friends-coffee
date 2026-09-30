@@ -96,8 +96,8 @@ Status: accepted
 
 Status: accepted
 
-- The visual theme is inspired by the series' apartment set (purple door, yellow peephole frame, orange couch, cream walls, coffee-brown text) without using any logo, screenshots, official typography, imagery, or verbatim quotes. All references stay abstract (mirilla, puerta, sofá) and the copy is original.
-- Typography: Google `Caveat Brush` (via `next/font/google`, `display: swap`) becomes the `--font-heading` token for titles and product names; the existing Geist Sans stays as the readable body font.
+- The visual theme was initially inspired only abstractly by the series' apartment set (purple door, yellow peephole frame, orange couch, cream walls, coffee-brown text), without using any logo, screenshots, official typography, imagery, or verbatim quotes. The copy stays original. That "no official material" constraint was later relaxed: see `2026-09-30 – Friends lettering`.
+- Typography (initial): Google `Caveat Brush` (via `next/font/google`, `display: swap`) was the `--font-heading` token for titles and product names; the existing Geist Sans stays as the readable body font. Replaced later by the Friends lettering (see below).
 - The palette lives as CSS custom properties in `:root` (`--door`, `--peephole`, `--sofa`, `--cream`, `--coffee`, `--caramel`) and is mapped through `@theme inline` to Tailwind color utilities (`text-coffee`, `border-peephole`, `via-peephole`, etc.). Semantic tokens were re-derived from that palette (background = cream, foreground = coffee, primary = door purple, accent = sofa orange, secondary = caramel) so every existing component re-themes consistently; dark-mode tokens keep the same hue story.
 - A shared `frame-peephole` utility draws the yellow peephole frame around product cards, category links, and the product detail image using two nested pseudo-element borders.
 - The home hero pairs the headline with an inline SVG `CouchScene` (orange sofa + purple door with a yellow frame and peephole), and the site header/footer use a thin purple→yellow→orange gradient strip as the recurring identity detail.
@@ -124,3 +124,13 @@ Status: accepted
 - Scripts run via `tsx` and load `.env` with `dotenv` (both already in the dependency set); `tsx` does not resolve the `@/` alias, so scripts import `../src/lib/prisma` relatively.
 - E2E with Playwright is intentionally **not** added: optional per AGENTS, the interaction logic (likes/ratings) is already covered by isolated Vitest tests, and a full browser suite would add significant toolchain weight. Documented as a future option in README.
 - Documentation: `README.md` (quickstart, scripts, environment, SEO, quality) plus `docs/deploy.md` (Railway volume in `/data`, migrations in the start command, one replica), `docs/cloudflare.md` (DNS proxy, SSL Full strict, no-cache exclusions, no horizontal scaling) and `docs/backup.md` (VACUUM INTO rationale, scheduling options, restore procedure). All user-facing docs are in Spanish.
+
+## 2026-09-30 - Friends lettering
+
+Status: accepted
+
+- With the AGENTS "no official material" rule removed, the project adopts `GABRWFFR.TTF`, the free fan reproduction of the FRIENDS lettering ("Gabriel Weiss' FRIENDS"), as its display typeface. It is not the original logo font file — a deliberate product decision by the owner who confirmed there is no copyright concern.
+- The font is self-hosted with `next/font/local` from `src/app/fonts/GABRWFFR.TTF` (`--font-friends` → `--font-heading` via the `@theme inline` token), replacing Caveat Brush; Geist Sans/Mono keep body and code, and `display: swap` preserves the CLS budget.
+- Glyph remap: the original file had no Unicode cmap entry for `í ì î ï Í Ì Î Ï ñ Ñ` (present in Spanish headings like "Categorías" / "Para empezar el día"). Those glyphs do not exist in the face, so a one-off `fonteditor-core` build (installed outside the repo, not a dependency) aliases those codepoints to the nearest base letters (`i`/`n`/`I`/`N`), losing the diacritic but avoiding mixed-font fallback. Coverage re-verified against the written cmap tables.
+- A `FriendsWordmark` component renders the brand name with per-letter colors cycling the palette (door purple, sofa orange, coffee, caramel). Letters are real text spans (accessible, no `aria-hidden`), it is fully static so `prefers-reduced-motion` is respected, and it has no client dependency so it also renders inside `next/og`.
+- Open Graph images (default and per product) embed the remapped TTF with `readFileSync` (`src/lib/friends-font.ts`, Node runtime) and render brand/product names in the lettering; the rest of the OG copy stays on the system stack.
