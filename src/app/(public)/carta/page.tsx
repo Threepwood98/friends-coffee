@@ -28,8 +28,8 @@ export default async function CartaPage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-12">
-      <header className="flex flex-col gap-3">
-        <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+      <header className="flex animate-fade-up flex-col gap-3">
+        <h1 className="font-heading text-5xl font-normal tracking-tight text-balance text-coffee sm:text-6xl">
           Nuestra carta
         </h1>
         <p className="max-w-2xl text-lg leading-8 text-muted-foreground">
@@ -59,7 +59,7 @@ export default async function CartaPage() {
           >
             <h2
               id={`${category.slug}-titulo`}
-              className="font-heading text-2xl font-semibold tracking-tight"
+              className="font-heading text-3xl font-normal tracking-tight text-coffee"
             >
               {category.name}
             </h2>

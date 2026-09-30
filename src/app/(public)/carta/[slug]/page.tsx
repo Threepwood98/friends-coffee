@@ -116,7 +116,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       </nav>
 
       <article className="grid gap-8 md:grid-cols-2">
-        <div className="relative aspect-4/3 w-full overflow-hidden rounded-xl bg-muted ring-1 ring-foreground/10">
+        <div className="frame-peephole relative aspect-4/3 w-full overflow-hidden rounded-xl bg-muted ring-1 ring-foreground/10">
           <ProductImage
             imageUrl={product.imageUrl}
             categorySlug={product.category.slug}
@@ -130,7 +130,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           <p className="text-sm font-medium tracking-widest text-muted-foreground uppercase">
             {product.category.name}
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
+          <h1 className="font-heading text-5xl font-normal tracking-tight text-balance text-coffee sm:text-6xl">
             {product.name}
           </h1>
 
@@ -151,7 +151,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </p>
 
           {product.available ? (
-            <p className="rounded-lg border bg-muted/30 px-4 py-3 text-sm">
+            <p className="rounded-lg border border-accent/40 bg-accent/10 px-4 py-3 text-sm">
               Disponible hoy en {exampleBusinessDetails.shortName}. Puedes
               pedirlo en barra al llegar.
             </p>

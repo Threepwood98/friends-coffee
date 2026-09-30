@@ -91,3 +91,15 @@ Status: accepted
 - Admin lists render as responsive cards (mobile-first) with two-step delete confirmation (a `ConfirmDeleteButton` that expands into "Sí, borrar / Cancelar" and calls `router.refresh()` after success); destructive actions are never single-tap.
 - Every product or category mutation revalidates home and the whole `/carta` segment (`revalidatePath("/")` + `revalidatePath("/carta", "layout")`). The `createProductAction` redirects to the products list outside the try/catch so `NEXT_REDIRECT` is never swallowed.
 - Cloudinary server actions degrade gracefully when the `CLOUDINARY_*` env vars are absent: the upload signature action returns an error message and the products CRUD still works without images.
+
+## 2026-09-29 - FRIENDS Visual Theme
+
+Status: accepted
+
+- The visual theme is inspired by the series' apartment set (purple door, yellow peephole frame, orange couch, cream walls, coffee-brown text) without using any logo, screenshots, official typography, imagery, or verbatim quotes. All references stay abstract (mirilla, puerta, sofá) and the copy is original.
+- Typography: Google `Caveat Brush` (via `next/font/google`, `display: swap`) becomes the `--font-heading` token for titles and product names; the existing Geist Sans stays as the readable body font.
+- The palette lives as CSS custom properties in `:root` (`--door`, `--peephole`, `--sofa`, `--cream`, `--coffee`, `--caramel`) and is mapped through `@theme inline` to Tailwind color utilities (`text-coffee`, `border-peephole`, `via-peephole`, etc.). Semantic tokens were re-derived from that palette (background = cream, foreground = coffee, primary = door purple, accent = sofa orange, secondary = caramel) so every existing component re-themes consistently; dark-mode tokens keep the same hue story.
+- A shared `frame-peephole` utility draws the yellow peephole frame around product cards, category links, and the product detail image using two nested pseudo-element borders.
+- The home hero pairs the headline with an inline SVG `CouchScene` (orange sofa + purple door with a yellow frame and peephole), and the site header/footer use a thin purple→yellow→orange gradient strip as the recurring identity detail.
+- Entrance animation is intentional and SEO-safe: a CSS `fade-up` keyframe (opacity + translate) applied to hero/heading blocks, gated behind `prefers-reduced-motion: no-preference`, so the static HTML always contains visible text and content is never hidden under JS-dependent initial states. Framer Motion (`framer-motion@13`) is only used for real interaction: opening/closing the mobile menu with `AnimatePresence`.
+- Rating cups, category pills, and "Disponible" callouts use the sofa/accent and peephole tokens instead of hardcoded amber shortcuts, keeping palette edits centralized in CSS variables.

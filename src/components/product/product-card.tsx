@@ -28,7 +28,12 @@ export function ProductCard({
   className,
 }: ProductCardProps) {
   return (
-    <Card className={cn("relative overflow-hidden pt-0", className)}>
+    <Card
+      className={cn(
+        "frame-peephole relative overflow-hidden pt-0 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-1",
+        className,
+      )}
+    >
       <div className="relative aspect-4/3 w-full overflow-hidden bg-muted">
         <ProductImage
           imageUrl={product.imageUrl}
@@ -40,7 +45,7 @@ export function ProductCard({
       </div>
 
       <CardHeader>
-        <CardTitle>
+        <CardTitle className="font-heading text-2xl font-normal">
           <Link
             href={`/carta/${product.slug}`}
             className="after:absolute after:inset-0 after:content-[''] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"

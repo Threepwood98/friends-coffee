@@ -22,7 +22,7 @@ export default async function AdminLayout({
     <div className="min-h-dvh bg-muted/40">
       <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
         <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-6 gap-y-1 px-4 py-3 sm:px-6">
-          <p className="font-heading text-lg font-medium">
+          <p className="font-heading text-2xl font-normal text-coffee">
             Panel de administración
           </p>
           <AdminNav />

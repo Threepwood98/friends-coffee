@@ -100,9 +100,7 @@ export function RatingSection({
                 aria-pressed={displayedRating === value}
                 className={cn(
                   "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                  selected
-                    ? "text-amber-700 dark:text-amber-500"
-                    : "text-muted-foreground/40",
+                  selected ? "text-accent" : "text-muted-foreground/40",
                 )}
               >
                 <Coffee className="size-7 fill-current" aria-hidden />
