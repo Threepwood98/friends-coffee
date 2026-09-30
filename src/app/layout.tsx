@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+
+import { exampleBusinessDetails, siteUrl } from "@/lib/site";
+
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,8 +16,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Carta de la cafetería",
-  description: "La carta digital de nuestra cafetería.",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: `${exampleBusinessDetails.name} | Carta`,
+    template: `%s | ${exampleBusinessDetails.name}`,
+  },
+  description: exampleBusinessDetails.description,
+  openGraph: {
+    type: "website",
+    locale: "es_ES",
+    siteName: exampleBusinessDetails.name,
+  },
+  twitter: {
+    card: "summary",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

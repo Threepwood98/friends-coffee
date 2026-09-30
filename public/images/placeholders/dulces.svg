@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Dulces">
+  <rect width="800" height="600" fill="#f5f5f4" />
+  <circle cx="400" cy="288" r="168" fill="#e7e5e4" />
+  <path d="M248 396l96-172h120l96 172z" fill="#ffffff" stroke="#57534e" stroke-width="10" stroke-linejoin="round" />
+  <path d="M288 336h240" stroke="#a8a29e" stroke-width="9" stroke-linecap="round" />
+  <path d="M360 252h96" stroke="#a8a29e" stroke-width="9" stroke-linecap="round" />
+  <circle cx="400" cy="224" r="14" fill="#d6d3d1" stroke="#57534e" stroke-width="8" />
+  <path d="M240 396h320" stroke="#57534e" stroke-width="12" stroke-linecap="round" />
+</svg>

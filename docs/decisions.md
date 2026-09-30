@@ -49,3 +49,15 @@ Status: accepted
 - This in-memory limiter is intentionally limited to the required single Railway instance. Counters reset on restart, forwarded client-IP headers depend on the trusted Cloudflare and Railway proxy chain, and both assumptions must be revisited before horizontal scaling or direct-origin exposure.
 - Treat password-account email addresses as unverified login identifiers in this phase. Email verification, password recovery, and explicit account linking require a later product decision and must not be inferred from Google ownership.
 - Fail configuration when only one Google OAuth credential is present. Without both credentials, Google login remains disabled.
+
+## 2026-09-29 - Public Menu Pages
+
+Status: accepted
+
+- Serve home, `/carta`, and `/carta/[slug]` as Server Components with `revalidate = 300`. Product slugs are collected at build time through `generateStaticParams`, so all available catalog pages are prerendered as static HTML and revalidated incrementally, keeping initial HTML free of client-side data fetching.
+- Keep the public chrome static. The site header never calls `auth()`, because doing so would turn every public page dynamic and defeat ISR. It renders a neutral "Iniciar sesión" link; session-aware chrome is introduced in the interaction phase.
+- Route public pages under a `(public)` route group so `/login`, `/registro`, and `/admin` keep their own layouts and the root layout stays generic.
+- Read the catalog exclusively through `src/lib/catalog.ts` (Prisma only). Categories are ordered by `position`, products by `name` within each category; nothing is filtered at the query level so unavailable products remain visible with an "Agotado" badge and a muted price (content stays indexed for search engines).
+- Placeholder images live in `public/images/placeholders/`, one SVG per seeded category plus a generic fallback. Placeholders render through `next/image` with `unoptimized` and fixed aspect ratio, so `dangerouslyAllowSVG` stays disabled; real photos from Cloudinary are then served through the optimizer once uploaded.
+- Store business contact details in `src/lib/site.ts` under a single `exampleBusinessDetails` constant. Content is deliberately fictional (address, phone, hours) until the real business data is provided; the footer marks it as provisional and the JSON-LD phase must consume the same constant so data stays consistent.
+- `next.config.ts` allows remote images only from `res.cloudinary.com`. No other origin is trusted for `next/image`.

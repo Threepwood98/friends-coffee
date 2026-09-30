@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Producto del catálogo">
+  <rect width="800" height="600" fill="#f5f5f4" />
+  <circle cx="400" cy="288" r="168" fill="#e7e5e4" />
+  <circle cx="400" cy="288" r="96" fill="none" stroke="#57534e" stroke-width="10" />
+  <circle cx="400" cy="288" r="44" fill="#d6d3d1" stroke="#57534e" stroke-width="10" />
+  <path d="M400 148v-36M400 464v-36M260 288h-36M576 288h-36" stroke="#a8a29e" stroke-width="9" stroke-linecap="round" />
+</svg>

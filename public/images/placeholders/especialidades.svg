@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Especialidades">
+  <rect width="800" height="600" fill="#f5f5f4" />
+  <circle cx="400" cy="288" r="168" fill="#e7e5e4" />
+  <path d="M318 206h124l22 258H296z" fill="#ffffff" stroke="#57534e" stroke-width="10" stroke-linejoin="round" />
+  <path d="M312 282h136M306 330h148M300 378h160" stroke="#a8a29e" stroke-width="9" stroke-linecap="round" />
+  <path d="M352 206v-24h56v24" fill="none" stroke="#57534e" stroke-width="10" stroke-linejoin="round" />
+  <path d="M380 148V96" stroke="#57534e" stroke-width="10" stroke-linecap="round" />
+</svg>
