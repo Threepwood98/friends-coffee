@@ -87,3 +87,15 @@ export const getProductBySlug = cache(
     });
   },
 );
+
+export async function getProductRedirectSlug(
+  slug: string,
+): Promise<string | null> {
+  const prisma = await getPrisma();
+  const redirect = await prisma.productSlugRedirect.findUnique({
+    where: { slug },
+    select: { product: { select: { slug: true } } },
+  });
+
+  return redirect?.product.slug ?? null;
+}

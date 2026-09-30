@@ -1,13 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ChevronRight } from "lucide-react";
 import { cn } from "cn";
 
 import { ProductImage } from "@/components/product/product-image";
 import { ProductInteractions } from "@/components/product/product-interactions";
 import { Badge } from "@/components/ui/badge";
-import { getProductBySlug, getProductSlugs } from "@/lib/catalog";
+import {
+  getProductBySlug,
+  getProductRedirectSlug,
+  getProductSlugs,
+} from "@/lib/catalog";
 import { getProductComments } from "@/lib/comments";
 import { formatPrice } from "@/lib/format";
 import { getPrisma } from "@/lib/prisma";
@@ -53,6 +57,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
   const product = await getProductBySlug(slug);
 
   if (!product) {
+    const redirectSlug = await getProductRedirectSlug(slug);
+
+    if (redirectSlug) {
+      permanentRedirect(`/carta/${redirectSlug}`);
+    }
+
     notFound();
   }
 

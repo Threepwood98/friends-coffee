@@ -77,3 +77,17 @@ Status: accepted
 - Successful interactions call `revalidatePath("/carta/<slug>")` so the next visit recomputes aggregate rating, ordering by `likeCount`/`createdAt`, and the comment list through ISR.
 - Tests build an empty throwaway SQLite database per run by executing the initial migration against a PrismaClient pointed at a temporary `file:` URL (no `node:sqlite` dependency), exercising validators, rating upserts, like toggles, comment ordering, ownership enforcement, and both rate-limit rules. Vitest gained a `vitest.config.ts` resolving the `@/*` path alias.
 - Ratings intentionally have no rate limit: each user can vote once (composite primary key), so the risk per account is minimal compared to comments and likes.
+
+## 2026-09-29 - Admin Management
+
+Status: accepted
+
+- Protect every `/admin/**` route through the proxy and the admin layout (`await requireAdmin()`); each admin server action calls `requireAdmin()` again and validates input with Zod server-side. Admin forms render as plain server-action forms using `useActionState` and the existing Base UI primitives instead of react-hook-form, keeping the Admin phase dependency-free.
+- Add a new `ProductSlugRedirect` model (`slug` unique id pointing at a product). When the slug of a product changes, the previous slug is upserted in the same `$transaction` as the update, and `/carta/[slug]` issues a permanent 301 (`redirect(..., RedirectType.permanent)`) whenever the looked-up slug resolves through this table.
+- Upload product images directly from the browser to Cloudinary using an unsigned-style upload whose `timestamp`/`folder`/`allowed_formats`/`max_bytes` parameters are signed server-side (`createProductImageUploadSignature`) and validated with `validateImageUploadFile` (JPG/PNG/WebP, ≤ 3 MB) on both client and Zod-checked on the upload path. Images live in folder `friends-coffee/products`; `next/image` keeps trusting only `res.cloudinary.com`.
+- Deleting a Cloudinary asset is best-effort and never blocks an admin operation. `destroyCloudinaryImage` swallows errors and the product delete/update actions derive the public id from the stored URL (`getCloudinaryPublicId`).
+- Admin categorías allow editing name, slug, and position; products carry `available`, price in cents (entered in euros and transformed by Zod), category, optional image, and an auto-generated slug when left blank (`slugify` normalizes accents).
+- Deleting a category that still owns products fails with a friendly P2003-based message instead of cascading; users must move or delete its products first.
+- Admin lists render as responsive cards (mobile-first) with two-step delete confirmation (a `ConfirmDeleteButton` that expands into "Sí, borrar / Cancelar" and calls `router.refresh()` after success); destructive actions are never single-tap.
+- Every product or category mutation revalidates home and the whole `/carta` segment (`revalidatePath("/")` + `revalidatePath("/carta", "layout")`). The `createProductAction` redirects to the products list outside the try/catch so `NEXT_REDIRECT` is never swallowed.
+- Cloudinary server actions degrade gracefully when the `CLOUDINARY_*` env vars are absent: the upload signature action returns an error message and the products CRUD still works without images.
