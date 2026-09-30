@@ -4,7 +4,9 @@ import { ArrowRight, CupSoda } from "lucide-react";
 
 import { CouchScene } from "@/components/layout/couch-scene";
 import { ProductCard } from "@/components/product/product-card";
+import { JsonLd } from "@/components/seo/json-ld";
 import { getFeaturedProducts, getMenuCategories } from "@/lib/catalog";
+import { cafeOrCoffeeShopJsonLd } from "@/lib/seo";
 import { exampleBusinessDetails } from "@/lib/site";
 
 export const revalidate = 300;
@@ -27,6 +29,7 @@ export default async function HomePage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-16 px-4 py-12">
+      <JsonLd data={cafeOrCoffeeShopJsonLd()} />
       <section className="grid items-center gap-8 lg:grid-cols-[1fr_380px]">
         <div className="flex animate-fade-up flex-col gap-6">
           <p className="text-sm font-medium tracking-widest text-muted-foreground uppercase">

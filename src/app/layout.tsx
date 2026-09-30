@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Caveat_Brush, Geist, Geist_Mono } from "next/font/google";
 
 import { exampleBusinessDetails, siteUrl } from "@/lib/site";
@@ -35,8 +35,17 @@ export const metadata: Metadata = {
     siteName: exampleBusinessDetails.name,
   },
   twitter: {
-    card: "summary",
+    card: "summary_large_image",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#FFF8EF" },
+    { media: "(prefers-color-scheme: dark)", color: "#271F15" },
+  ],
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

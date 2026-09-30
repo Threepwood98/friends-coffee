@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 
 import { CategoryNav } from "@/components/product/category-nav";
 import { ProductCard } from "@/components/product/product-card";
+import { JsonLd } from "@/components/seo/json-ld";
 import { getMenuCategories } from "@/lib/catalog";
+import { breadcrumbListJsonLd } from "@/lib/seo";
 import { exampleBusinessDetails } from "@/lib/site";
 
 export const revalidate = 300;
@@ -28,6 +30,12 @@ export default async function CartaPage() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-10 px-4 py-12">
+      <JsonLd
+        data={breadcrumbListJsonLd([
+          { name: "Inicio", href: "/" },
+          { name: "Carta", href: "/carta" },
+        ])}
+      />
       <header className="flex animate-fade-up flex-col gap-3">
         <h1 className="font-heading text-5xl font-normal tracking-tight text-balance text-coffee sm:text-6xl">
           Nuestra carta

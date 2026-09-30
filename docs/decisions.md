@@ -103,3 +103,14 @@ Status: accepted
 - The home hero pairs the headline with an inline SVG `CouchScene` (orange sofa + purple door with a yellow frame and peephole), and the site header/footer use a thin purple→yellow→orange gradient strip as the recurring identity detail.
 - Entrance animation is intentional and SEO-safe: a CSS `fade-up` keyframe (opacity + translate) applied to hero/heading blocks, gated behind `prefers-reduced-motion: no-preference`, so the static HTML always contains visible text and content is never hidden under JS-dependent initial states. Framer Motion (`framer-motion@13`) is only used for real interaction: opening/closing the mobile menu with `AnimatePresence`.
 - Rating cups, category pills, and "Disponible" callouts use the sofa/accent and peephole tokens instead of hardcoded amber shortcuts, keeping palette edits centralized in CSS variables.
+
+## 2026-09-29 - Complete SEO (Phase 8)
+
+Status: accepted
+
+- Structured data: `src/lib/seo.ts` exports typed builders for `CafeOrCoffeeShop` (home, with NAP, `openingHoursSpecification`, `hasMenu`), `BreadcrumbList` (carta and product pages) and `Product` (offers with price in EUR decimal notation, `InStock`/`OutOfStock`). `aggregateRating` is emitted only when there is at least one real rating (`count > 0`); no rating or review is ever invented. Builders are covered by Vitest (`src/lib/seo.test.ts`).
+- JSON-LD is rendered by `src/components/seo/json-ld.tsx`. It uses `dangerouslySetInnerHTML`(the only place in the codebase) because there is no other way to emit a raw `application/ld+json` node; the content is always our own `JSON.stringify` output with `<` escaped (`\u003c`), never user-controlled text, so the security rule for untrusted content keeps applying everywhere else.
+- Open Graph images use `next/og` (bundled, no new dependency) with an explicit Node.js runtime - no edge runtime anywhere. Fonts in the images fall back to system stacks to avoid build-time network fetches. Both `opengraph-image.tsx` (default, brand panel) and `carta/[slug]/opengraph-image.tsx` (dynamic, with product image/name/price/rating summary) follow the file convention, so Next auto-wires og:image, twitter:image and `summary_large_image`.
+- Favicon is an inline SVG (`src/app/icon.svg`) built from the same palette; `manifest.ts` and the `viewport` export set `theme-color` for light/dark (Meta theme-color + Web App Manifest).
+- `sitemap.ts` lists `/`, `/carta` and available products with `lastModified`; `robots.ts` blocks `/admin`, `/api`, `/login` and `/registro` and references the sitemap. Login/registro and admin already carried `noindex, nofollow` in their layouts.
+- NAP in the footer and in JSON-LD come from the same `site.ts` source of truth; footer displays address, telephone and opening hours consistently.

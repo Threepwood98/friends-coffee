@@ -6,6 +6,7 @@ import { cn } from "cn";
 
 import { ProductImage } from "@/components/product/product-image";
 import { ProductInteractions } from "@/components/product/product-interactions";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Badge } from "@/components/ui/badge";
 import {
   getProductBySlug,
@@ -16,6 +17,7 @@ import { getProductComments } from "@/lib/comments";
 import { formatPrice } from "@/lib/format";
 import { getPrisma } from "@/lib/prisma";
 import { getProductRatingSummary } from "@/lib/ratings";
+import { breadcrumbListJsonLd, productJsonLd } from "@/lib/seo";
 import { exampleBusinessDetails } from "@/lib/site";
 
 export const revalidate = 300;
@@ -48,6 +50,11 @@ export async function generateMetadata({
       type: "article",
       title: product.name,
       description: product.description,
+      url: `/carta/${product.slug}`,
+    },
+    twitter: {
+      title: product.name,
+      description: product.description,
     },
   };
 }
@@ -74,6 +81,25 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-12">
+      <JsonLd
+        data={productJsonLd({
+          slug: product.slug,
+          name: product.name,
+          description: product.description,
+          priceCents: product.priceCents,
+          available: product.available,
+          imageUrl: product.imageUrl,
+          ratingSummary: summary,
+        })}
+      />
+      <JsonLd
+        data={breadcrumbListJsonLd([
+          { name: "Inicio", href: "/" },
+          { name: "Carta", href: "/carta" },
+          { name: product.category.name },
+          { name: product.name },
+        ])}
+      />
       <nav aria-label="Migas de pan">
         <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
           <li>
