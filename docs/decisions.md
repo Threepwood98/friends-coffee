@@ -114,3 +114,13 @@ Status: accepted
 - Favicon is an inline SVG (`src/app/icon.svg`) built from the same palette; `manifest.ts` and the `viewport` export set `theme-color` for light/dark (Meta theme-color + Web App Manifest).
 - `sitemap.ts` lists `/`, `/carta` and available products with `lastModified`; `robots.ts` blocks `/admin`, `/api`, `/login` and `/registro` and references the sitemap. Login/registro and admin already carried `noindex, nofollow` in their layouts.
 - NAP in the footer and in JSON-LD come from the same `site.ts` source of truth; footer displays address, telephone and opening hours consistently.
+
+## 2026-09-30 - Quality and Deploy (Phase 9)
+
+Status: accepted
+
+- Backups: `pnpm db:backup` (`scripts/backup.ts`) runs `VACUUM INTO` through the existing Prisma client to produce a consistent snapshot under `backups/` even while the app writes, then optionally uploads it as a Cloudinary **raw** resource (`friends-coffee/backups`) when `CLOUDINARY_*` are set. No sqlite3/CLI dependency is added; the script resolves `DATABASE_URL` relative paths the same way Prisma does (against the schema directory) so `file:./dev.db` maps to `prisma/dev.db`.
+- Restore: `pnpm db:restore <snapshot>` (`scripts/restore.ts`) validates the SQLite file magic header before copying, keeps a `.pre-restore-<timestamp>` safety copy of the current database, and requires the app to be stopped (SQLite single instance). It does not run migrations implicitly.
+- Scripts run via `tsx` and load `.env` with `dotenv` (both already in the dependency set); `tsx` does not resolve the `@/` alias, so scripts import `../src/lib/prisma` relatively.
+- E2E with Playwright is intentionally **not** added: optional per AGENTS, the interaction logic (likes/ratings) is already covered by isolated Vitest tests, and a full browser suite would add significant toolchain weight. Documented as a future option in README.
+- Documentation: `README.md` (quickstart, scripts, environment, SEO, quality) plus `docs/deploy.md` (Railway volume in `/data`, migrations in the start command, one replica), `docs/cloudflare.md` (DNS proxy, SSL Full strict, no-cache exclusions, no horizontal scaling) and `docs/backup.md` (VACUUM INTO rationale, scheduling options, restore procedure). All user-facing docs are in Spanish.

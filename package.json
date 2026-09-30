@@ -9,6 +9,8 @@
     "start": "next start",
     "postinstall": "prisma generate",
     "db:seed:prod": "prisma db seed -- --require-admin",
+    "db:backup": "tsx scripts/backup.ts",
+    "db:restore": "tsx scripts/restore.ts",
     "lint": "eslint .",
     "test": "vitest run",
     "typecheck": "tsc --noEmit",
