@@ -13,14 +13,20 @@ async function configureSqlite() {
   await prisma.$queryRawUnsafe("PRAGMA busy_timeout = 5000");
 }
 
-const prismaInitialization =
-  globalForPrisma.prismaInitialization ?? configureSqlite();
-
 if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
-  globalForPrisma.prismaInitialization = prismaInitialization;
 }
 
-await prismaInitialization;
+function initializePrisma() {
+  if (!globalForPrisma.prismaInitialization) {
+    globalForPrisma.prismaInitialization = configureSqlite();
+  }
 
-export { prisma };
+  return globalForPrisma.prismaInitialization;
+}
+
+export async function getPrisma() {
+  await initializePrisma();
+
+  return prisma;
+}

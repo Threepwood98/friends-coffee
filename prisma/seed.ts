@@ -1,8 +1,10 @@
 import { hash } from "bcrypt";
 import { z } from "zod";
 
-import { prisma } from "../src/lib/prisma";
+import { getPrisma } from "../src/lib/prisma";
 import { userRoleSchema } from "../src/lib/validators/user";
+
+const prisma = await getPrisma();
 
 const BCRYPT_COST = 12;
 const REQUIRE_ADMIN_FLAG = "--require-admin";
