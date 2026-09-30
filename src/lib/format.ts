@@ -3,6 +3,11 @@ const currencyFormatter = new Intl.NumberFormat("es-ES", {
   currency: "EUR",
 });
 
+const dateTimeFormatter = new Intl.DateTimeFormat("es-ES", {
+  dateStyle: "medium",
+  timeStyle: "short",
+});
+
 const PLACEHOLDER_BY_CATEGORY: Record<string, string> = {
   cafes: "/images/placeholders/cafes.svg",
   especialidades: "/images/placeholders/especialidades.svg",
@@ -14,6 +19,10 @@ export const DEFAULT_PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 
 export function formatPrice(priceCents: number): string {
   return currencyFormatter.format(priceCents / 100);
+}
+
+export function formatDateTime(value: Date): string {
+  return dateTimeFormatter.format(value);
 }
 
 interface ImageSourceCandidate {

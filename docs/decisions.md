@@ -61,3 +61,19 @@ Status: accepted
 - Placeholder images live in `public/images/placeholders/`, one SVG per seeded category plus a generic fallback. Placeholders render through `next/image` with `unoptimized` and fixed aspect ratio, so `dangerouslyAllowSVG` stays disabled; real photos from Cloudinary are then served through the optimizer once uploaded.
 - Store business contact details in `src/lib/site.ts` under a single `exampleBusinessDetails` constant. Content is deliberately fictional (address, phone, hours) until the real business data is provided; the footer marks it as provisional and the JSON-LD phase must consume the same constant so data stays consistent.
 - `next.config.ts` allows remote images only from `res.cloudinary.com`. No other origin is trusted for `next/image`.
+
+## 2026-09-29 - Product Interactions
+
+Status: accepted
+
+- Keep product pages statically prerendered during the interaction phase: rating summary and comments are read by Server Components at render time, while per-user state (own rating, liked comments, user id, admin flag) is fetched after mount by a single `getMyInteractionState` server action in the client `ProductInteractions` orchestrator.
+- Session-sensitive UI never relies on hidden buttons alone. Every mutation runs through a server action that calls `requireUser()` and validates input with Zod server-side; the comment deletion path also re-checks ownership or the `ADMIN` role in the database layer (`deleteProductComment` throwing `ProductCommentForbiddenError`).
+- Server Core keeps the business logic bankable: `src/lib/ratings.ts`, `src/lib/comments.ts`, and `src/lib/likes.ts` accept either a `PrismaClient` or a `Prisma.TransactionClient`, so callers can replay the exact flows without HTTP.
+- Likes live in a `prisma.$transaction`: the `CommentLike` row and the increment/decrement of `Comment.likeCount` change together. A like can never drive the counter below zero (`Math.max(0, likeCount - 1)`); `CommentLike` rows cascade when their comment is deleted, so no explicit cleanup is needed.
+- Comments are flattened into a serializable `ProductCommentDto` (server-formatted `createdAtLabel`, resolved author name) so the client can reuse it for both SSR rendering and optimistic insertions.
+- Client state is derived at render time from the hydrated server snapshot instead of being copied into effects: rating selection, the "Inicia sesión" prompts, the comment form, and like toggles read `state` once `isHydrated` flips. Likes use per-comment local overrides (liked/count) computed against the hydrated baseline, giving instant optimistic feedback without `useOptimistic`.
+- Logged-out users clicking a cup or a like are redirected to `/login?callbackUrl=/carta/<slug>`. `requireUser` gained an optional `returnTo` argument for this purpose.
+- Rate-limit comments to 20 per IP and 10 per IP/email in 10 minutes, and likes to 40 per IP and 20 per IP/email in 15 minutes, reusing the in-memory store from the auth phase (single Railway instance only).
+- Successful interactions call `revalidatePath("/carta/<slug>")` so the next visit recomputes aggregate rating, ordering by `likeCount`/`createdAt`, and the comment list through ISR.
+- Tests build an empty throwaway SQLite database per run by executing the initial migration against a PrismaClient pointed at a temporary `file:` URL (no `node:sqlite` dependency), exercising validators, rating upserts, like toggles, comment ordering, ownership enforcement, and both rate-limit rules. Vitest gained a `vitest.config.ts` resolving the `@/*` path alias.
+- Ratings intentionally have no rate limit: each user can vote once (composite primary key), so the risk per account is minimal compared to comments and likes.

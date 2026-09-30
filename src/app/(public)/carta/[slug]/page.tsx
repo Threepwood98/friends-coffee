@@ -5,9 +5,13 @@ import { ChevronRight } from "lucide-react";
 import { cn } from "cn";
 
 import { ProductImage } from "@/components/product/product-image";
+import { ProductInteractions } from "@/components/product/product-interactions";
 import { Badge } from "@/components/ui/badge";
 import { getProductBySlug, getProductSlugs } from "@/lib/catalog";
+import { getProductComments } from "@/lib/comments";
 import { formatPrice } from "@/lib/format";
+import { getPrisma } from "@/lib/prisma";
+import { getProductRatingSummary } from "@/lib/ratings";
 import { exampleBusinessDetails } from "@/lib/site";
 
 export const revalidate = 300;
@@ -51,6 +55,12 @@ export default async function ProductPage({ params }: ProductPageProps) {
   if (!product) {
     notFound();
   }
+
+  const prisma = await getPrisma();
+  const [summary, comments] = await Promise.all([
+    getProductRatingSummary(prisma, product.id),
+    getProductComments(prisma, product.id),
+  ]);
 
   return (
     <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-12">
@@ -152,6 +162,13 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </div>
         </div>
       </article>
+
+      <ProductInteractions
+        productId={product.id}
+        productSlug={product.slug}
+        summary={summary}
+        comments={comments}
+      />
     </div>
   );
 }

@@ -22,6 +22,8 @@ interface RateLimitResult {
 
 const LOGIN_WINDOW_MS = 15 * 60 * 1000;
 const REGISTRATION_WINDOW_MS = 60 * 60 * 1000;
+const COMMENT_WINDOW_MS = 10 * 60 * 1000;
+const LIKE_WINDOW_MS = 15 * 60 * 1000;
 const MAX_RATE_LIMIT_ENTRIES = 10_000;
 const PRUNE_INTERVAL_MS = 60 * 1000;
 
@@ -202,6 +204,43 @@ export function consumeRegistrationRateLimit(
       key: `auth:register:identity:${clientIp}:${email}`,
       limit: 3,
       windowMs: REGISTRATION_WINDOW_MS,
+    },
+  ]);
+}
+
+export function consumeCommentRateLimit(
+  headers: HeaderReader,
+  identity: string,
+) {
+  const clientIp = getClientIp(headers);
+
+  return consumeRules([
+    {
+      key: `comments:ip:${clientIp}`,
+      limit: 20,
+      windowMs: COMMENT_WINDOW_MS,
+    },
+    {
+      key: `comments:identity:${clientIp}:${identity}`,
+      limit: 10,
+      windowMs: COMMENT_WINDOW_MS,
+    },
+  ]);
+}
+
+export function consumeLikeRateLimit(headers: HeaderReader, identity: string) {
+  const clientIp = getClientIp(headers);
+
+  return consumeRules([
+    {
+      key: `likes:ip:${clientIp}`,
+      limit: 40,
+      windowMs: LIKE_WINDOW_MS,
+    },
+    {
+      key: `likes:identity:${clientIp}:${identity}`,
+      limit: 20,
+      windowMs: LIKE_WINDOW_MS,
     },
   ]);
 }
