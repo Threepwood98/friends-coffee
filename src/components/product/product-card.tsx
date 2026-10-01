@@ -1,15 +1,9 @@
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { MessageCircle, Star } from "lucide-react";
 import { cn } from "cn";
 
 import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import type { MenuProduct } from "@/lib/catalog";
 import { formatPrice } from "@/lib/format";
 
@@ -31,18 +25,21 @@ export function ProductCard({
   return (
     <Card
       className={cn(
-        "friends-raised group relative gap-0 overflow-hidden rounded-[1.65rem] border-0 bg-card py-0 ring-1 ring-coffee/10 motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-1",
+        "group relative mx-auto w-full max-w-sm gap-1 overflow-hidden pt-0 pb-2 font-heading text-xs text-coffee motion-safe:transition-transform motion-safe:duration-300 motion-safe:hover:-translate-y-1",
         className,
       )}
     >
-      <div className="relative aspect-square w-full overflow-hidden bg-secondary/25 sm:aspect-4/3">
+      <div className="relative aspect-square w-full overflow-hidden bg-secondary/25">
         <ProductImage
           imageUrl={product.imageUrl}
           categorySlug={categorySlug}
           alt=""
           sizes="(min-width: 1280px) 18rem, (min-width: 768px) 30vw, 46vw"
           priority={priority}
-          className="motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-105"
+          className={cn(
+            "motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-105",
+            !product.available && "grayscale brightness-75",
+          )}
         />
         {!product.available && (
           <Badge
@@ -54,33 +51,30 @@ export function ProductCard({
         )}
       </div>
 
-      <CardHeader className="gap-2 px-3 pt-4 sm:px-5 sm:pt-5">
-        <CardTitle className="line-clamp-2 font-heading text-lg leading-tight font-normal sm:text-2xl">
-          <Link
-            href={`/menu/${product.slug}`}
-            className="after:absolute after:inset-0 after:content-[''] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
-          >
-            {product.name}
-          </Link>
-        </CardTitle>
-        <CardDescription className="hidden line-clamp-2 leading-6 sm:block">
-          {product.description}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="flex items-center justify-between gap-2 px-3 pt-3 pb-4 sm:px-5 sm:pt-4 sm:pb-5">
-        <span
-          className={cn(
-            "text-base font-bold text-primary tabular-nums sm:text-lg",
-            !product.available && "text-muted-foreground",
-          )}
+      <h3 className="px-4 pt-2 text-center">
+        <Link
+          href={`/menu/${product.slug}`}
+          className="after:absolute after:inset-0 after:content-[''] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         >
-          {formatPrice(product.priceCents)}
-        </span>
-        <span className="inline-flex size-9 items-center justify-center rounded-full bg-secondary/45 text-coffee transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
-          <ArrowUpRight className="size-4" aria-hidden />
-        </span>
-      </CardContent>
+          {product.name}
+        </Link>
+      </h3>
+
+      <div className="flex items-center justify-between px-4">
+        <span className="tabular-nums">{formatPrice(product.price)}</span>
+        <div className="flex gap-3">
+          <span className="flex items-center gap-1">
+            <MessageCircle className="size-4" aria-hidden />
+            <span className="sr-only">Comentarios:</span>
+            {product.commentCount ?? 0}
+          </span>
+          <span className="flex items-center gap-1">
+            <Star className="size-4" aria-hidden />
+            <span className="sr-only">Valoración media:</span>
+            {product.ratingAverage?.toFixed(1) ?? "–"}
+          </span>
+        </div>
+      </div>
     </Card>
   );
 }

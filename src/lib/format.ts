@@ -1,8 +1,3 @@
-const currencyFormatter = new Intl.NumberFormat("es-ES", {
-  style: "currency",
-  currency: "EUR",
-});
-
 const dateTimeFormatter = new Intl.DateTimeFormat("es-ES", {
   dateStyle: "medium",
   timeStyle: "short",
@@ -18,8 +13,8 @@ const PLACEHOLDER_BY_CATEGORY: Record<string, string> = {
 
 export const DEFAULT_PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";
 
-export function formatPrice(priceCents: number): string {
-  return currencyFormatter.format(priceCents / 100);
+export function formatPrice(price: number): string {
+  return `$ ${price}`;
 }
 
 export function formatDateTime(value: Date): string {

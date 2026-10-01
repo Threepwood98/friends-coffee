@@ -6,20 +6,12 @@ import {
   resolveProductImage,
 } from "./format";
 
-function normalizeSpacing(value: string): string {
-  return value.replace(/\u00a0/g, " ");
-}
-
 describe("formatPrice", () => {
-  it("formats integer cents as Spanish euro amounts", () => {
-    expect(normalizeSpacing(formatPrice(220))).toBe("2,20 €");
-    expect(normalizeSpacing(formatPrice(590))).toBe("5,90 €");
-    expect(normalizeSpacing(formatPrice(0))).toBe("0,00 €");
-    expect(normalizeSpacing(formatPrice(1000))).toBe("10,00 €");
-  });
-
-  it("keeps two decimals for single-cent prices", () => {
-    expect(normalizeSpacing(formatPrice(205))).toBe("2,05 €");
+  it("formats amounts as Cuban pesos", () => {
+    expect(formatPrice(170)).toBe("$ 170");
+    expect(formatPrice(250)).toBe("$ 250");
+    expect(formatPrice(0)).toBe("$ 0");
+    expect(formatPrice(1000)).toBe("$ 1000");
   });
 });
 

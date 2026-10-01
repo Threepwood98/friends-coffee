@@ -50,7 +50,7 @@ export async function generateMetadata({
 
   return {
     title: product.name,
-    description: `${product.description} ${formatPrice(product.priceCents)} en ${exampleBusinessDetails.name}.`,
+    description: `${product.description} ${formatPrice(product.price)} en ${exampleBusinessDetails.name}.`,
     alternates: { canonical: `/menu/${product.slug}` },
     openGraph: {
       type: "article",
@@ -92,7 +92,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           slug: product.slug,
           name: product.name,
           description: product.description,
-          priceCents: product.priceCents,
+          price: product.price,
           available: product.available,
           imageUrl: product.imageUrl,
           ratingSummary: summary,
@@ -177,7 +177,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
                 !product.available && "text-muted-foreground",
               )}
             >
-              {formatPrice(product.priceCents)}
+              {formatPrice(product.price)}
             </span>
             {!product.available && <Badge variant="outline">Agotado</Badge>}
             {summary.count > 0 ? (

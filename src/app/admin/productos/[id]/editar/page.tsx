@@ -31,7 +31,7 @@ export default async function AdminEditProductPage({
         slug: true,
         name: true,
         description: true,
-        priceCents: true,
+        price: true,
         available: true,
         imageUrl: true,
         categoryId: true,

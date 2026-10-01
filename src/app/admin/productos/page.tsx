@@ -31,7 +31,7 @@ export default async function AdminProductsPage() {
       slug: true,
       name: true,
       available: true,
-      priceCents: true,
+      price: true,
       imageUrl: true,
       category: { select: { name: true } },
     },
@@ -94,7 +94,7 @@ export default async function AdminProductsPage() {
                       {product.available ? "Disponible" : "Oculto"}
                     </Badge>
                     <span className="font-heading text-lg font-medium">
-                      {formatPrice(product.priceCents)}
+                      {formatPrice(product.price)}
                     </span>
                   </div>
                 </CardAction>

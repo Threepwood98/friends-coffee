@@ -2,11 +2,11 @@ import { exampleBusinessDetails, siteUrl } from "@/lib/site";
 import type { RatingSummaryDto } from "@/lib/interaction-types";
 
 /**
- * Asigna un valor numérico en céntimos a notación decimal con punto,
+ * Devuelve el precio en pesos cubanos en notación decimal con punto,
  * el formato que exige schema.org para `Offer.price`.
  */
-export function toEuros(priceCents: number): string {
-  return (priceCents / 100).toFixed(2);
+export function toPesos(price: number): string {
+  return price.toFixed(2);
 }
 
 export function absoluteUrl(path: string): string {
@@ -53,7 +53,7 @@ export function cafeOrCoffeeShopJsonLd() {
     email: business.email,
     image: absoluteUrl("/opengraph-image"),
     servesCuisine: "Café",
-    priceRange: "€€",
+    priceRange: "$",
     address: {
       "@type": "PostalAddress",
       streetAddress: business.address.streetAddress,
@@ -76,7 +76,7 @@ export function productJsonLd(input: {
   slug: string;
   name: string;
   description: string;
-  priceCents: number;
+  price: number;
   available: boolean;
   imageUrl: string | null;
   ratingSummary: RatingSummaryDto;
@@ -104,8 +104,8 @@ export function productJsonLd(input: {
       : {}),
     offers: {
       "@type": "Offer",
-      price: toEuros(input.priceCents),
-      priceCurrency: "EUR",
+      price: toPesos(input.price),
+      priceCurrency: "CUP",
       url,
       availability: input.available
         ? "https://schema.org/InStock"

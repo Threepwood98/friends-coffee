@@ -26,7 +26,7 @@ export interface ProductFormProduct {
   slug: string;
   name: string;
   description: string;
-  priceCents: number;
+  price: number;
   available: boolean;
   imageUrl: string | null;
   categoryId: string;
@@ -109,18 +109,16 @@ export function ProductForm({ categories, product }: ProductFormProps) {
 
         <div className="grid gap-5 sm:grid-cols-2">
           <Field>
-            <FieldLabel htmlFor="product-price">Precio (€)</FieldLabel>
+            <FieldLabel htmlFor="product-price">Precio (CUP)</FieldLabel>
             <Input
               id="product-price"
-              name="priceEuros"
+              name="priceCup"
               type="number"
-              inputMode="decimal"
-              step="0.01"
+              inputMode="numeric"
+              step="1"
               min="0"
-              defaultValue={
-                product ? (product.priceCents / 100).toFixed(2) : ""
-              }
-              placeholder="0.00"
+              defaultValue={product ? String(product.price) : ""}
+              placeholder="0"
               className="h-11"
               disabled={isPending}
               required

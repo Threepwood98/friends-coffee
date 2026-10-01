@@ -68,7 +68,7 @@ model Product {
   slug        String    @unique
   name        String
   description String
-  priceCents  Int
+  price  Int
   imageUrl    String?
   available   Boolean   @default(true)
   categoryId  String

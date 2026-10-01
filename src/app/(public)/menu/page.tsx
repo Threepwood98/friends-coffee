@@ -1,6 +1,5 @@
 /* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
-import { CheckCircle2, Coffee, Layers3 } from "lucide-react";
 
 import { CategoryNav } from "@/components/product/category-nav";
 import { ProductCard } from "@/components/product/product-card";
@@ -37,7 +36,7 @@ export default async function MenuPage() {
           <img
             src="/images/friends_couch.png"
             alt="friends_frame"
-            className="h-auto w-4/5"
+            className="h-auto w-64"
           />
         </CardContent>
       </Card>
@@ -59,32 +58,21 @@ export default async function MenuPage() {
             key={category.id}
             id={category.slug}
             aria-labelledby={`${category.slug}-titulo`}
-            className="flex scroll-mt-36 flex-col gap-5"
+            className="flex scroll-mt-36 flex-col px-4"
           >
-            <div className="flex flex-col items-start justify-between gap-3 border-b border-coffee/10 pb-3 sm:flex-row sm:items-end sm:gap-4">
-              <div className="min-w-0">
-                <p className="friends-kicker mb-1 text-[0.68rem] font-semibold text-primary">
-                  Sección de la carta
-                </p>
-                <h2
-                  id={`${category.slug}-titulo`}
-                  className="font-heading text-4xl font-normal tracking-tight text-coffee sm:text-5xl"
-                >
-                  {category.name}
-                </h2>
-              </div>
-              <span className="inline-flex min-h-9 items-center rounded-full bg-secondary/45 px-3 text-xs font-semibold text-coffee">
-                {category.products.length}{" "}
-                {category.products.length === 1 ? "producto" : "productos"}
-              </span>
-            </div>
+            <h2
+              id={`${category.slug}`}
+              className="font-heading text-xl text-coffee sm:text-5xl"
+            >
+              {category.name}
+            </h2>
 
             {category.products.length === 0 ? (
               <p className="friends-surface p-5 text-sm text-muted-foreground">
                 No hay productos en esta categoría todavía.
               </p>
             ) : (
-              <ul className="grid grid-cols-2 gap-3 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
+              <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
                 {category.products.map((product) => (
                   <li key={product.id}>
                     <ProductCard

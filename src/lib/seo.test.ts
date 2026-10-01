@@ -4,15 +4,15 @@ import {
   breadcrumbListJsonLd,
   cafeOrCoffeeShopJsonLd,
   productJsonLd,
-  toEuros,
   toJsonLdJson,
+  toPesos,
 } from "@/lib/seo";
 
-describe("toEuros", () => {
-  it("converts integer cents to decimal notation", () => {
-    expect(toEuros(250)).toBe("2.50");
-    expect(toEuros(40)).toBe("0.40");
-    expect(toEuros(1995)).toBe("19.95");
+describe("toPesos", () => {
+  it("formats whole pesos in decimal notation", () => {
+    expect(toPesos(250)).toBe("250.00");
+    expect(toPesos(40)).toBe("40.00");
+    expect(toPesos(1995)).toBe("1995.00");
   });
 });
 
@@ -75,7 +75,7 @@ describe("productJsonLd", () => {
     slug: "espresso",
     name: "Espresso",
     description: "Un espresso corto",
-    priceCents: 250,
+    price: 250,
     available: true,
     imageUrl: null,
     ratingSummary: { average: null, count: 0 },
@@ -100,11 +100,11 @@ describe("productJsonLd", () => {
     });
   });
 
-  it("exposes the offer in EUR with schema availability", () => {
+  it("exposes the offer in CUP with schema availability", () => {
     expect(productJsonLd(base).offers).toEqual({
       "@type": "Offer",
-      price: "2.50",
-      priceCurrency: "EUR",
+      price: "250.00",
+      priceCurrency: "CUP",
       url: expect.stringContaining("/menu/espresso"),
       availability: "https://schema.org/InStock",
     });

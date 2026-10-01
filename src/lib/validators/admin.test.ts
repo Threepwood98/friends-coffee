@@ -2,7 +2,6 @@ import { describe, expect, it } from "vitest";
 
 import {
   categoryFormSchema,
-  priceToCents,
   productFormSchema,
   slugify,
 } from "@/lib/validators/admin";
@@ -30,27 +29,39 @@ const validProductForm = {
   name: "Cortado",
   slug: "",
   description: "Espresso con un chorrito de leche.",
-  priceEuros: "2.5",
+  priceCup: "250",
   categoryId: "cat-1",
   available: "on",
   imageUrl: "",
 };
 
 describe("productFormSchema", () => {
-  it("parses euros as a number", () => {
+  it("parses pesos as a whole number", () => {
     const result = productFormSchema.safeParse(validProductForm);
 
     expect(result.success).toBe(true);
 
     if (result.success) {
-      expect(result.data.priceEuros).toBe(2.5);
+      expect(result.data.priceCup).toBe(250);
     }
   });
 
-  it("uses priceToCents to convert to integer cents with rounding", () => {
-    expect(priceToCents(2.5)).toBe(250);
-    expect(priceToCents(3.333)).toBe(333);
-    expect(priceToCents(0)).toBe(0);
+  it("rejects a fractional price", () => {
+    const result = productFormSchema.safeParse({
+      ...validProductForm,
+      priceCup: "170.5",
+    });
+
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts any amount without an upper limit", () => {
+    const result = productFormSchema.safeParse({
+      ...validProductForm,
+      priceCup: "500000",
+    });
+
+    expect(result.success).toBe(true);
   });
 
   it("treats a missing availability checkbox as false", () => {
@@ -78,16 +89,7 @@ describe("productFormSchema", () => {
   it("rejects a negative price", () => {
     const result = productFormSchema.safeParse({
       ...validProductForm,
-      priceEuros: "-1",
-    });
-
-    expect(result.success).toBe(false);
-  });
-
-  it("rejects an oversized price", () => {
-    const result = productFormSchema.safeParse({
-      ...validProductForm,
-      priceEuros: "1000",
+      priceCup: "-1",
     });
 
     expect(result.success).toBe(false);

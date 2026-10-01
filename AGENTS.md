@@ -61,7 +61,7 @@ Reglas de integridad:
 - `CommentLike`: PK compuesta `(userId, commentId)`. Un like por usuario y comentario.
 - `Comment.likeCount` es un contador guardado. Se actualiza **siempre** dentro de `prisma.$transaction` junto con la creación o el borrado del `CommentLike`.
 - Comentarios: índice `(productId, likeCount, createdAt)`. Orden de lectura: `likeCount` descendente, empate por `createdAt` descendente.
-- Precio siempre en céntimos (entero). Slug único por producto.
+- Precio en pesos cubanos (CUP) como número entero sin decimales ni multiplicador. Slug único por producto.
 
 ## Base de datos (SQLite en Railway)
 

@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { mkdtempSync, readFileSync, readdirSync, rmSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { PrismaClient } from "@prisma/client";
@@ -28,13 +28,7 @@ import {
   ratingValueSchema,
 } from "./validators/interactions";
 
-const MIGRATION_PATH = path.join(
-  process.cwd(),
-  "prisma",
-  "migrations",
-  "20260929201156_init",
-  "migration.sql",
-);
+const MIGRATIONS_DIR = path.join(process.cwd(), "prisma", "migrations");
 
 let prisma: PrismaClient;
 let tempDir: string;
@@ -44,17 +38,24 @@ async function createDatabase() {
   const databasePath = path.join(tempDir, "test.db").replaceAll("\\", "/");
   const prisma = new PrismaClient({ datasourceUrl: `file:${databasePath}` });
 
-  const sql = readFileSync(MIGRATION_PATH, "utf8");
-  const statements = sql
-    .split("\n")
-    .filter((line) => !line.trim().startsWith("--"))
-    .join("\n")
-    .split(";")
-    .map((statement) => statement.trim())
-    .filter(Boolean);
+  const migrationFiles = readdirSync(MIGRATIONS_DIR, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .flatMap((entry) => path.join(MIGRATIONS_DIR, entry.name, "migration.sql"));
 
-  for (const statement of statements) {
-    await prisma.$executeRawUnsafe(statement);
+  for (const migrationFile of migrationFiles) {
+    const sql = readFileSync(migrationFile, "utf8");
+    const statements = sql
+      .split("\n")
+      .filter((line) => !line.trim().startsWith("--"))
+      .join("\n")
+      .split(";")
+      .map((statement) => statement.trim())
+      .filter(Boolean);
+
+    for (const statement of statements) {
+      await prisma.$executeRawUnsafe(statement);
+    }
   }
 
   return prisma;
@@ -85,7 +86,7 @@ async function seedProduct() {
       slug: `producto-${randomUUID()}`,
       name: "Producto de prueba",
       description: "Descripción de prueba.",
-      priceCents: 350,
+      price: 350,
       categoryId: category.id,
     },
   });

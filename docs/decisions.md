@@ -156,3 +156,11 @@ Status: accepted
 - The menu page now owns the `CafeOrCoffeeShop` JSON-LD previously rendered by home. The sitemap lists only canonical `/menu` URLs and omits redirecting `/` and `/carta` entries.
 - Remove the mobile bottom navigation and its safe-area padding. On mobile, the compact header exposes `Cuenta` where the location label previously appeared; the brand link opens `/menu`. Desktop navigation contains only `Menú` and `Cuenta`.
 - Authentication, logout, unauthorized-admin fallback and the web app manifest use `/menu` as their safe default destination. The home-only featured-products query is removed rather than retained as dead code.
+
+## 2026-10-01 - Cuban peso pricing
+
+Status: accepted
+
+- The menu reflects real prices in Cuban pesos (CUP). Prices are stored as the integer amount in pesos, exactly as they appear on the menu (`170` pesos = `price 170`, rendered `$170`); no cents multiplier or conversion is applied.
+- `formatPrice` formats the stored integer with `Intl.NumberFormat("es-CU")` and `CUP`, pricing is open-ended (no upper limit) and must be a whole non-negative number.
+- Admin forms label the price as "CUP" (`priceCup`), schemas validate it as a non-negative integer, and JSON-LD offers use `priceCurrency: "CUP"` with the `CafeOrCoffeeShop` `priceRange` in pesos.

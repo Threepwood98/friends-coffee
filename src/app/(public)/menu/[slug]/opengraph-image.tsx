@@ -145,7 +145,7 @@ export default async function ProductOpenGraphImage({
             color: "#4C2E8F",
           }}
         >
-          {formatPrice(product.priceCents)}
+          {formatPrice(product.price)}
         </p>
         <p
           style={{

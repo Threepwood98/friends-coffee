@@ -20,10 +20,7 @@ export const productFormSchema = z.object({
     .trim()
     .min(1, "Escribe una descripción.")
     .max(1000, "La descripción no puede superar los 1000 caracteres."),
-  priceEuros: z.coerce
-    .number()
-    .min(0)
-    .max(999.99, "El precio no puede superar 999,99 €."),
+  priceCup: z.coerce.number().int().min(0),
   categoryId: z.string().trim().min(1, "Elige una categoría."),
   available: z.preprocess(
     (value) =>
@@ -34,10 +31,6 @@ export const productFormSchema = z.object({
 });
 
 export type ProductFormInput = z.infer<typeof productFormSchema>;
-
-export function priceToCents(priceEuros: number): number {
-  return Math.round(priceEuros * 100);
-}
 
 export const categoryFormSchema = z.object({
   name: z.string().trim().min(1, "Escribe un nombre.").max(50),

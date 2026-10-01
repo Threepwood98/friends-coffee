@@ -7,7 +7,7 @@ const productSelect = {
   slug: true,
   name: true,
   description: true,
-  priceCents: true,
+  price: true,
   imageUrl: true,
   available: true,
 } as const;
@@ -22,9 +22,11 @@ export interface MenuProduct {
   slug: string;
   name: string;
   description: string;
-  priceCents: number;
+  price: number;
   imageUrl: string | null;
   available: boolean;
+  commentCount?: number;
+  ratingAverage?: number | null;
 }
 
 export interface MenuCategory {
