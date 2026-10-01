@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { MessageCircle, Star } from "lucide-react";
+import { MessageCircle, StarIcon } from "lucide-react";
 import { cn } from "cn";
 
 import { Badge } from "@/components/ui/badge";
@@ -69,7 +69,7 @@ export function ProductCard({
             {product.commentCount ?? 0}
           </span>
           <span className="flex items-center gap-1">
-            <Star className="size-4" aria-hidden />
+            <StarIcon className="size-4" aria-hidden />
             <span className="sr-only">Valoración media:</span>
             {product.ratingAverage?.toFixed(1) ?? "–"}
           </span>

@@ -4,9 +4,10 @@ import { notFound, permanentRedirect } from "next/navigation";
 import {
   ArrowLeft,
   CheckCircle2,
-  ChevronRight,
   CircleOff,
   Coffee,
+  MessageCircle,
+  StarIcon,
 } from "lucide-react";
 import { cn } from "cn";
 
@@ -86,7 +87,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
   ]);
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-8 sm:gap-10 sm:py-12">
+    <div className="mx-auto flex max-w-7xl flex-col gap-8 sm:gap-10 sm:py-12">
       <JsonLd
         data={productJsonLd({
           slug: product.slug,
@@ -105,70 +106,62 @@ export default async function ProductPage({ params }: ProductPageProps) {
           { name: product.name },
         ])}
       />
-      <nav
-        aria-label="Migas de pan"
-        className="overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-      >
-        <ol className="flex w-max items-center gap-1 rounded-full border border-coffee/10 bg-card/85 px-3 text-sm text-muted-foreground shadow-sm backdrop-blur">
-          <li>
-            <Link
-              href="/menu"
-              className="inline-flex min-h-11 items-center hover:text-foreground"
-            >
-              Menú
-            </Link>
-          </li>
-          <li aria-hidden>
-            <ChevronRight className="size-4" />
-          </li>
-          <li>
-            <Link
-              href={`/menu#${product.category.slug}`}
-              className="inline-flex min-h-11 items-center hover:text-foreground"
-            >
-              {product.category.name}
-            </Link>
-          </li>
-          <li aria-hidden>
-            <ChevronRight className="size-4" />
-          </li>
-          <li
-            aria-current="page"
-            className="py-3 pr-2 font-medium text-foreground"
-          >
-            {product.name}
-          </li>
-        </ol>
-      </nav>
-
-      <article className="grid gap-0 md:grid-cols-2 md:gap-7">
-        <div className="friends-surface friends-raised relative z-10 aspect-square w-full overflow-hidden p-2.5 sm:p-4 md:aspect-4/3">
-          <div className="relative h-full w-full overflow-hidden rounded-[1.45rem] bg-secondary/25 sm:rounded-[1.75rem]">
-            <ProductImage
-              imageUrl={product.imageUrl}
-              categorySlug={product.category.slug}
-              alt={product.name}
-              sizes="(min-width: 1280px) 38rem, (min-width: 768px) 50vw, 92vw"
-              priority
-            />
+      <div className="relative aspect-square rounded-b-4xl overflow-hidden">
+        <ProductImage
+          imageUrl={product.imageUrl}
+          categorySlug={product.category.slug}
+          alt={product.name}
+          sizes="(min-width: 1280px) 38rem, (min-width: 768px) 50vw, 92vw"
+          priority
+        />
+      </div>
+      <div className="flex flex-col gap-2 w-full px-4 justify-center">
+        <h1 className="font-heading leading-none text-coffee text-3xl sm:text-6xl">
+          {product.name}
+        </h1>
+        <div className="flex items-center justify-between font-heading text-coffee text-2xl">
+          <span className="tabular-nums">{formatPrice(product.price)}</span>
+          <div className="flex gap-3">
+            <span className="flex items-center gap-1">
+              <MessageCircle aria-hidden />
+              <span className="sr-only">Comentarios:</span>
+              {product.commentCount ?? 0}
+            </span>
+            <span className="flex items-center gap-1">
+              <StarIcon aria-hidden />
+              <span className="sr-only">Valoración media:</span>
+              {product.ratingAverage?.toFixed(1) ?? "–"}
+            </span>
           </div>
-          <span className="absolute top-5 left-5 inline-flex min-h-10 items-center gap-2 rounded-full border border-card bg-card/95 px-3 text-xs font-semibold text-coffee shadow-sm backdrop-blur sm:top-7 sm:left-7">
-            {product.available ? (
-              <CheckCircle2 className="size-4 text-accent" aria-hidden />
-            ) : (
-              <CircleOff className="size-4 text-muted-foreground" aria-hidden />
-            )}
-            {product.available ? "Disponible hoy" : "Agotado hoy"}
-          </span>
         </div>
-
+        <div className="flex w-full gap-2">
+          {/* valoracion delproducto */}
+          <StarIcon aria-hidden />
+          <StarIcon aria-hidden />
+          <StarIcon aria-hidden />
+          <StarIcon aria-hidden />
+          <StarIcon aria-hidden />
+        </div>
+        <div>
+          <span className="font-heading text-coffee text-2xl">
+            Descripción:
+          </span>
+          <p className="text-xl text-muted-foreground">{product.description}</p>
+        </div>
+        <div>
+          <span className="font-heading text-coffee text-2xl">
+            Comentarios:
+          </span>
+          <p className="text-xl text-muted-foreground">
+            Aun no hay comentarios
+          </p>
+        </div>
+      </div>
+      {/* <article className="grid gap-0 md:grid-cols-2 md:gap-7">
         <div className="friends-surface relative -mt-7 flex flex-col gap-5 px-6 pt-12 pb-7 sm:px-8 sm:pb-8 md:mt-0 md:p-9">
           <p className="friends-kicker text-xs font-semibold text-primary">
             {product.category.name}
           </p>
-          <h1 className="font-heading text-5xl leading-none font-normal tracking-tight text-balance text-coffee sm:text-6xl">
-            {product.name}
-          </h1>
 
           <div className="flex flex-wrap items-center gap-3">
             <span
@@ -231,14 +224,14 @@ export default async function ProductPage({ params }: ProductPageProps) {
             </Link>
           </div>
         </div>
-      </article>
+      </article> */}
 
-      <ProductInteractions
+      {/* <ProductInteractions
         productId={product.id}
         productSlug={product.slug}
         summary={summary}
         comments={comments}
-      />
+      /> */}
     </div>
   );
 }
