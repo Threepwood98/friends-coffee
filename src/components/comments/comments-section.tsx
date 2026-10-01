@@ -125,11 +125,24 @@ export function CommentsSection({
   return (
     <section
       aria-labelledby="comments-heading"
-      className="flex scroll-mt-24 flex-col gap-5 rounded-xl border bg-card p-5"
+      className="friends-surface friends-raised flex scroll-mt-28 flex-col gap-6 p-6 sm:p-8"
     >
-      <h2 id="comments-heading" className="text-lg font-semibold">
-        Comentarios
-      </h2>
+      <div className="flex items-end justify-between gap-4">
+        <div>
+          <p className="friends-kicker mb-1 text-[0.68rem] font-semibold text-primary">
+            La sobremesa
+          </p>
+          <h2
+            id="comments-heading"
+            className="font-heading text-3xl font-normal text-coffee sm:text-4xl"
+          >
+            Comentarios
+          </h2>
+        </div>
+        <span className="inline-flex min-h-9 items-center rounded-full bg-secondary/45 px-3 text-xs font-semibold text-coffee tabular-nums">
+          {items.length}
+        </span>
+      </div>
 
       {message ? (
         <p role="alert" className="text-sm text-destructive">
@@ -161,7 +174,7 @@ export function CommentsSection({
             maxLength={COMMENT_MAX_LENGTH}
             rows={3}
             placeholder="¿Qué te ha parecido? (máx. 500 caracteres)"
-            className="min-h-20"
+            className="min-h-28 rounded-2xl bg-background/70 p-4"
             disabled={isSending}
           />
           <div className="flex items-center justify-between gap-3">
@@ -191,7 +204,7 @@ export function CommentsSection({
       ) : null}
 
       {items.length > 0 ? (
-        <ul className="flex flex-col divide-y">
+        <ul className="flex flex-col gap-3">
           {items.map((comment) => {
             const liked = isLiked(comment.id);
             const likeCount = displayedLikeCount(comment.id, comment.likeCount);
@@ -199,16 +212,21 @@ export function CommentsSection({
             return (
               <li
                 key={comment.id}
-                className="flex flex-col gap-2 py-4 first:pt-2 last:pb-0"
+                className="flex flex-col gap-3 rounded-2xl border border-coffee/10 bg-secondary/20 p-4 sm:p-5"
               >
-                <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="font-medium">{comment.authorName}</span>
-                  <span aria-hidden className="text-muted-foreground">
-                    ·
+                <div className="flex items-center gap-3">
+                  <span
+                    aria-hidden
+                    className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary font-heading text-xl text-primary-foreground"
+                  >
+                    {comment.authorName.trim()[0]?.toUpperCase() ?? "F"}
                   </span>
-                  <time className="text-sm text-muted-foreground">
-                    {comment.createdAtLabel}
-                  </time>
+                  <div className="min-w-0">
+                    <p className="truncate font-medium">{comment.authorName}</p>
+                    <time className="text-xs text-muted-foreground">
+                      {comment.createdAtLabel}
+                    </time>
+                  </div>
                 </div>
 
                 <p className="text-sm leading-6 break-words">{comment.text}</p>

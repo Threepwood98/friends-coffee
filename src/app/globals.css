@@ -159,6 +159,45 @@
   }
 }
 
+@layer components {
+  .friends-canvas {
+    background-color: var(--cream);
+    background-image:
+      radial-gradient(
+        circle at 14% 10%,
+        color-mix(in oklch, var(--peephole) 22%, transparent) 0 2px,
+        transparent 3px
+      ),
+      radial-gradient(
+        circle at 86% 28%,
+        color-mix(in oklch, var(--door) 12%, transparent) 0 2px,
+        transparent 3px
+      );
+    background-size:
+      42px 42px,
+      58px 58px;
+  }
+
+  .friends-surface {
+    border: 1px solid color-mix(in oklch, var(--coffee) 12%, transparent);
+    border-radius: 1.75rem;
+    background: color-mix(in oklch, var(--card) 94%, var(--cream));
+    box-shadow: 0 24px 60px -34px
+      color-mix(in oklch, var(--coffee) 58%, transparent);
+  }
+
+  .friends-raised {
+    box-shadow:
+      0 18px 40px -28px color-mix(in oklch, var(--coffee) 52%, transparent),
+      0 3px 0 color-mix(in oklch, var(--coffee) 8%, transparent);
+  }
+
+  .friends-kicker {
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+  }
+}
+
 @layer base {
   * {
     @apply border-border outline-ring/50;

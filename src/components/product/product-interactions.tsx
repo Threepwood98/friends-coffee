@@ -63,7 +63,7 @@ export function ProductInteractions({
   const resolvedState = isLoaded ? state : GUEST_STATE;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5 sm:gap-7">
       <RatingSection
         productId={productId}
         productSlug={productSlug}

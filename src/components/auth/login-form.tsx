@@ -82,7 +82,7 @@ export function LoginForm({ callbackUrl, initialMessage }: LoginFormProps) {
                 placeholder="tu@correo.es"
                 disabled={isPending}
                 aria-invalid={fieldState.invalid}
-                className="h-11"
+                className="h-12 rounded-2xl bg-background/80 px-4"
                 required
               />
               {fieldState.invalid ? (
@@ -105,7 +105,7 @@ export function LoginForm({ callbackUrl, initialMessage }: LoginFormProps) {
                 autoComplete="current-password"
                 disabled={isPending}
                 aria-invalid={fieldState.invalid}
-                className="h-11"
+                className="h-12 rounded-2xl bg-background/80 px-4"
                 required
               />
               {fieldState.invalid ? (
@@ -116,7 +116,12 @@ export function LoginForm({ callbackUrl, initialMessage }: LoginFormProps) {
         />
       </FieldGroup>
 
-      <Button type="submit" className="h-11 w-full" disabled={isPending}>
+      <Button
+        type="submit"
+        variant="accent"
+        className="h-12 w-full rounded-full"
+        disabled={isPending}
+      >
         {isPending ? <Spinner data-icon="inline-start" /> : null}
         {isPending ? "Entrando..." : "Entrar"}
       </Button>

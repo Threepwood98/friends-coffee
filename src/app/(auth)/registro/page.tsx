@@ -3,16 +3,9 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { isGoogleAuthConfigured } from "@/auth";
+import { AuthShell } from "@/components/auth/auth-shell";
 import { GoogleSignInForm } from "@/components/auth/google-sign-in-form";
 import { RegisterForm } from "@/components/auth/register-form";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { FieldSeparator } from "@/components/ui/field";
 import { getCurrentUser } from "@/lib/auth";
 import { getSafeCallbackUrl } from "@/lib/validators/auth";
@@ -44,34 +37,12 @@ export default async function RegistrationPage({
   }
 
   return (
-    <main className="flex min-h-screen flex-1 items-center justify-center bg-muted/30 px-4 py-10 sm:px-6">
-      <Card className="w-full max-w-md [--card-spacing:--spacing(6)]">
-        <CardHeader className="text-center">
-          <p className="text-sm font-medium tracking-widest text-muted-foreground uppercase">
-            Haz sitio en el sofá
-          </p>
-          <CardTitle>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Crea tu cuenta
-            </h1>
-          </CardTitle>
-          <CardDescription>
-            Guarda tus valoraciones y comparte cada sobremesa.
-          </CardDescription>
-        </CardHeader>
-
-        <CardContent className="flex flex-col gap-5">
-          <RegisterForm callbackUrl={callbackUrl} />
-
-          {isGoogleAuthConfigured ? (
-            <>
-              <FieldSeparator>o continúa con</FieldSeparator>
-              <GoogleSignInForm callbackUrl={callbackUrl} />
-            </>
-          ) : null}
-        </CardContent>
-
-        <CardFooter className="justify-center text-center text-sm text-muted-foreground">
+    <AuthShell
+      eyebrow="Haz sitio en el sofá"
+      title="Crea tu cuenta"
+      description="Guarda tus valoraciones y comparte cada sobremesa."
+      footer={
+        <>
           ¿Ya tienes cuenta?&nbsp;
           <Link
             href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
@@ -79,8 +50,17 @@ export default async function RegistrationPage({
           >
             Entra aquí
           </Link>
-        </CardFooter>
-      </Card>
-    </main>
+        </>
+      }
+    >
+      <RegisterForm callbackUrl={callbackUrl} />
+
+      {isGoogleAuthConfigured ? (
+        <>
+          <FieldSeparator>o continúa con</FieldSeparator>
+          <GoogleSignInForm callbackUrl={callbackUrl} />
+        </>
+      ) : null}
+    </AuthShell>
   );
 }

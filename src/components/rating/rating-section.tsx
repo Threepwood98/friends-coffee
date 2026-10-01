@@ -75,13 +75,21 @@ export function RatingSection({
   return (
     <section
       aria-labelledby="rating-heading"
-      className="flex flex-col gap-4 rounded-xl border bg-card p-5"
+      className="friends-surface friends-raised flex flex-col gap-5 p-6 sm:p-8"
     >
-      <h2 id="rating-heading" className="text-lg font-semibold">
-        Valora este producto
-      </h2>
+      <div>
+        <p className="friends-kicker mb-1 text-[0.68rem] font-semibold text-primary">
+          Tu taza cuenta
+        </p>
+        <h2
+          id="rating-heading"
+          className="font-heading text-3xl font-normal text-coffee sm:text-4xl"
+        >
+          Valora este producto
+        </h2>
+      </div>
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
         <div
           role="group"
           aria-label="Puntuación con tazas"
@@ -99,8 +107,10 @@ export function RatingSection({
                 aria-label={`Valorar con ${value} taza${value === 1 ? "" : "s"} de 5`}
                 aria-pressed={displayedRating === value}
                 className={cn(
-                  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                  selected ? "text-accent" : "text-muted-foreground/40",
+                  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-full transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
+                  selected
+                    ? "bg-accent/20 text-coffee"
+                    : "bg-secondary/30 text-muted-foreground/40",
                 )}
               >
                 <Coffee className="size-7 fill-current" aria-hidden />
@@ -109,7 +119,9 @@ export function RatingSection({
           })}
         </div>
 
-        <p className="text-sm text-muted-foreground">{summaryText}</p>
+        <p className="rounded-full bg-secondary/35 px-4 py-2 text-sm text-muted-foreground">
+          {summaryText}
+        </p>
       </div>
 
       {isHydrated && !state.isAuthed ? (

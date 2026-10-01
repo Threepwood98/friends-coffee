@@ -134,3 +134,15 @@ Status: accepted
 - Glyph remap: the original file had no Unicode cmap entry for `í ì î ï Í Ì Î Ï ñ Ñ` (present in Spanish headings like "Categorías" / "Para empezar el día"). Those glyphs do not exist in the face, so a one-off `fonteditor-core` build (installed outside the repo, not a dependency) aliases those codepoints to the nearest base letters (`i`/`n`/`I`/`N`), losing the diacritic but avoiding mixed-font fallback. Coverage re-verified against the written cmap tables.
 - A `FriendsWordmark` component renders the brand name with per-letter colors cycling the palette (door purple, sofa orange, coffee, caramel). Letters are real text spans (accessible, no `aria-hidden`), it is fully static so `prefers-reduced-motion` is respected, and it has no client dependency so it also renders inside `next/og`.
 - Open Graph images (default and per product) embed the remapped TTF with `readFileSync` (`src/lib/friends-font.ts`, Node runtime) and render brand/product names in the lettering; the rest of the OG copy stays on the system stack.
+
+## 2026-09-30 - Public mobile-first redesign
+
+Status: accepted
+
+- Use `public/example_app.png` as structural inspiration only: compact mobile hierarchy, large rounded surfaces, prominent imagery and a persistent bottom navigation. The screenshot is not rendered, cropped or shipped as page content, and the implementation keeps the existing FRIENDS palette, lettering and original copy.
+- Apply the new shell only to public and authentication routes. Shared opt-in utilities (`friends-canvas`, `friends-surface`, `friends-raised`, `friends-kicker`) avoid changing the global Base UI cards, forms or admin screens.
+- Keep public catalog pages as Server Components and preserve their ISR, metadata and structured data. Only route-aware navigation and product interactions cross a client boundary; no public shell component reads the session.
+- Replace the mobile drawer with a three-destination bottom navigation (`Inicio`, `Carta`, `Cuenta`) that respects the device safe area. Desktop keeps a compact sticky header. Both expose real destinations only; no search, cart, quantity or ordering controls are invented from the visual reference.
+- Add `/cuenta` as a protected, dynamic page using `requireUser("/cuenta")`. It is excluded from robots and offers profile context, logout and an admin shortcut only when the persisted role is `ADMIN`.
+- Authentication and 404 pages use standalone split layouts with the existing `CouchScene`, so their visual context does not require the public header or footer. Form behavior, validation, callback URLs and server actions remain unchanged.
+- Keep touch targets at least 44 pixels, visible keyboard focus, semantic headings and text-based comments. Product and category placeholders are local SVGs recolored with the same centralized palette; unavailable products remain visible and indexable.

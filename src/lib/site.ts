@@ -3,13 +3,13 @@ export const siteUrl =
   "http://localhost:3000";
 
 export const exampleBusinessDetails = {
-  name: "Café de la Esquina",
-  shortName: "El Rincón",
-  tagline: "Café de especialidad y sobremesa desde 1994",
+  name: "Friends Coffee",
+  shortName: "Friends",
+  tagline: "I'll be there for you",
   description:
-    "Carta digital de Café de la Esquina: cafés de especialidad, dulces caseras y algo para picar. Consulta precios y disponibilidad sin esperas.",
+    "Carta digital de Friends Coffee: cafés de especialidad, dulces caseros y algo para picar. Consulta precios y disponibilidad sin esperas.",
   telephone: "+34 910 000 000",
-  email: "hola@cafe-de-la-esquina.example",
+  email: "email@friends.coffee",
   address: {
     streetAddress: "Calle Mayor 12",
     postalCode: "28013",
@@ -37,5 +37,5 @@ export const exampleBusinessDetails = {
 export const navigation = [
   { href: "/", label: "Inicio" },
   { href: "/carta", label: "Carta" },
-  { href: "/login", label: "Iniciar sesión" },
+  { href: "/cuenta", label: "Cuenta" },
 ] as const;

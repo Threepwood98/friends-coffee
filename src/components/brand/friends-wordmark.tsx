@@ -8,12 +8,14 @@ interface FriendsWordmarkProps {
   text?: string;
   className?: string;
   style?: CSSProperties;
+  tone?: "inherit" | "multicolor";
 }
 
 export function FriendsWordmark({
   text,
   className,
   style,
+  tone = "multicolor",
 }: FriendsWordmarkProps) {
   const chars = Array.from(text ?? exampleBusinessDetails.name);
 
@@ -26,7 +28,10 @@ export function FriendsWordmark({
           <span
             key={`${index}-${char}`}
             style={{
-              color: lettersPalette[index % lettersPalette.length],
+              color:
+                tone === "inherit"
+                  ? "currentColor"
+                  : lettersPalette[index % lettersPalette.length],
             }}
           >
             {char}
