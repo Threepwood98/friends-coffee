@@ -6,7 +6,7 @@ export function CategoryNav({ categories }: CategoryNavProps) {
   return (
     <nav
       aria-label="Categorías de la carta"
-      className="sticky top-[4.45rem] z-30 -mx-4 overflow-x-auto border-y border-coffee/10 bg-card/90 px-4 py-3 backdrop-blur-md [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="sticky top-15 z-10 px-4 py-2 overflow-x-auto backdrop-blur-xs scrollbar-none [&::-webkit-scrollbar]:hidden"
     >
       <ul className="flex w-max gap-2">
         {categories.map((category) => (
