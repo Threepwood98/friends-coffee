@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { getPrisma } from "../src/lib/prisma";
 import { userRoleSchema } from "../src/lib/validators/user";
+import { catalog, catalogProductCount } from "./catalog";
 
 const prisma = await getPrisma();
 
@@ -21,107 +22,6 @@ const adminCredentialsSchema = z.object({
     .min(12)
     .refine((password) => Buffer.byteLength(password, "utf8") <= 72),
 });
-
-const catalog = [
-  {
-    name: "Cafés",
-    slug: "cafes",
-    position: 1,
-    products: [
-      {
-        name: "El espresso de siempre",
-        slug: "espresso-de-siempre",
-        description:
-          "Doble extracción de nuestro blend con notas de cacao, avellana tostada y un final de caramelo.",
-        priceCents: 220,
-      },
-      {
-        name: "El americano de la tertulia",
-        slug: "americano-de-la-tertulia",
-        description:
-          "Espresso largo con agua caliente, aroma intenso y cuerpo ligero para alargar la conversación.",
-        priceCents: 260,
-      },
-      {
-        name: "El cappuccino del reencuentro",
-        slug: "cappuccino-del-reencuentro",
-        description:
-          "Espresso, leche vaporizada y una nube de espuma terminada con un toque delicado de canela.",
-        priceCents: 330,
-      },
-    ],
-  },
-  {
-    name: "Especialidades",
-    slug: "especialidades",
-    position: 2,
-    products: [
-      {
-        name: "El latte de caramelo del sofá",
-        slug: "latte-caramelo-del-sofa",
-        description:
-          "Café espresso con leche cremosa y caramelo casero, equilibrado para una pausa larga y cómoda.",
-        priceCents: 390,
-      },
-      {
-        name: "El mocha de la mirilla",
-        slug: "mocha-de-la-mirilla",
-        description:
-          "Chocolate negro, espresso y leche sedosa coronados con cacao puro y una pizca de sal marina.",
-        priceCents: 410,
-      },
-      {
-        name: "El cold brew del vecindario",
-        slug: "cold-brew-del-vecindario",
-        description:
-          "Infusión en frío durante dieciséis horas, servida con hielo y un giro fresco de piel de naranja.",
-        priceCents: 380,
-      },
-    ],
-  },
-  {
-    name: "Dulces",
-    slug: "dulces",
-    position: 3,
-    products: [
-      {
-        name: "La tarta de queso naranja",
-        slug: "tarta-queso-naranja",
-        description:
-          "Tarta de queso horneada con base crujiente y una compota suave de naranja preparada en casa.",
-        priceCents: 450,
-      },
-      {
-        name: "La cookie para compartir",
-        slug: "cookie-chocolate-compartida",
-        description:
-          "Galleta de mantequilla con chocolate negro y con leche, centro tierno y escamas de sal.",
-        priceCents: 290,
-      },
-    ],
-  },
-  {
-    name: "Salados",
-    slug: "salados",
-    position: 4,
-    products: [
-      {
-        name: "El bagel del descanso",
-        slug: "bagel-del-descanso",
-        description:
-          "Bagel tostado con queso crema, aguacate, tomate aliñado y brotes frescos de temporada.",
-        priceCents: 560,
-      },
-      {
-        name: "El croissant de pavo y brie",
-        slug: "croissant-pavo-brie",
-        description:
-          "Croissant de mantequilla relleno de pavo asado, queso brie y mostaza suave con miel.",
-        priceCents: 590,
-      },
-    ],
-  },
-] as const;
 
 async function seedCatalog() {
   const created = await prisma.$transaction(async (transaction) => {
@@ -156,7 +56,7 @@ async function seedCatalog() {
 
   console.info(
     created
-      ? "Seeded 4 categories and 10 products."
+      ? `Seeded ${catalog.length} categories and ${catalogProductCount} products.`
       : "Catalog already initialized; no changes applied.",
   );
 }

@@ -35,10 +35,11 @@ describe("resolveProductImage", () => {
 
   it("falls back to the placeholder of the product category", () => {
     const cases = [
-      ["cafes", "/images/placeholders/cafes.svg"],
-      ["especialidades", "/images/placeholders/especialidades.svg"],
-      ["dulces", "/images/placeholders/dulces.svg"],
-      ["salados", "/images/placeholders/salados.svg"],
+      ["especialidades-cafe", "/images/placeholders/cafes.svg"],
+      ["especialidades-frias", "/images/placeholders/especialidades.svg"],
+      ["snacks", "/images/placeholders/salados.svg"],
+      ["cocteleria", "/images/placeholders/especialidades.svg"],
+      ["tragos-al-straight", "/images/placeholders/especialidades.svg"],
     ] as const;
 
     for (const [slug, expected] of cases) {
@@ -59,7 +60,10 @@ describe("resolveProductImage", () => {
 
   it("treats an empty string as a missing image", () => {
     expect(
-      resolveProductImage({ imageUrl: "", category: { slug: "dulces" } }),
-    ).toBe("/images/placeholders/dulces.svg");
+      resolveProductImage({
+        imageUrl: "",
+        category: { slug: "especialidades-cafe" },
+      }),
+    ).toBe("/images/placeholders/cafes.svg");
   });
 });

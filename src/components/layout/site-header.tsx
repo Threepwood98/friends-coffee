@@ -2,11 +2,10 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Coffee, UserRound } from "lucide-react";
+import { UserRound } from "lucide-react";
 import { cn } from "cn";
 
 import { navigation } from "@/lib/site";
-import { FriendsWordmark } from "@/components/brand/friends-wordmark";
 
 export function SiteHeader() {
   const pathname = usePathname();
@@ -20,12 +19,17 @@ export function SiteHeader() {
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
         <Link
           href="/menu"
-          className="flex min-h-11 items-center gap-2.5 font-heading text-2xl font-normal tracking-tight text-coffee focus-visible:rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring sm:text-3xl"
+          aria-label="Friends Coffee — Menú"
+          className="flex min-h-11 shrink-0 items-center rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         >
-          <span className="inline-flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
-            <Coffee className="size-5" aria-hidden />
-          </span>
-          <FriendsWordmark />
+          {/* eslint-disable-next-line @next/next/no-img-element -- static local SVG, no optimization needed */}
+          <img
+            src="/images/Friends_logo.svg"
+            alt="Friends Coffee"
+            width={1185}
+            height={196}
+            className="h-7 w-auto sm:h-8"
+          />
         </Link>
 
         <Link
