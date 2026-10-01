@@ -49,7 +49,7 @@ export function AuthShell({
           />
 
           <Link
-            href="/"
+            href="/menu"
             className="relative inline-flex w-fit min-h-11 items-center gap-2.5 rounded-xl font-heading text-2xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-peephole"
           >
             <span className="inline-flex size-10 items-center justify-center rounded-2xl bg-peephole text-primary">

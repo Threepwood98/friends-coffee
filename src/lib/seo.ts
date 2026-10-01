@@ -45,10 +45,10 @@ export function cafeOrCoffeeShopJsonLd() {
   return {
     "@context": "https://schema.org",
     "@type": "CafeOrCoffeeShop",
-    "@id": absoluteUrl("/#cafeteria"),
+    "@id": absoluteUrl("/menu#cafeteria"),
     name: business.name,
     description: business.description,
-    url: siteUrl,
+    url: absoluteUrl("/menu"),
     telephone: business.telephone,
     email: business.email,
     image: absoluteUrl("/opengraph-image"),
@@ -68,7 +68,7 @@ export function cafeOrCoffeeShopJsonLd() {
       opens: entry.opens,
       closes: entry.closes,
     })),
-    hasMenu: absoluteUrl("/carta"),
+    hasMenu: absoluteUrl("/menu"),
   } as const;
 }
 
@@ -81,7 +81,7 @@ export function productJsonLd(input: {
   imageUrl: string | null;
   ratingSummary: RatingSummaryDto;
 }) {
-  const url = absoluteUrl(`/carta/${input.slug}`);
+  const url = absoluteUrl(`/menu/${input.slug}`);
 
   return {
     "@context": "https://schema.org",

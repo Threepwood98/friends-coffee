@@ -62,7 +62,7 @@ export default async function AdminCategoriesPage() {
                     <CardHeader>
                       <CardTitle>{category.name}</CardTitle>
                       <CardDescription>
-                        /carta/{category.slug} · posición {category.position}
+                        /menu/{category.slug} · posición {category.position}
                       </CardDescription>
                       <CardAction>
                         <FolderOpen

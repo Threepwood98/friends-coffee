@@ -15,7 +15,7 @@ import type { ProductCommentDto } from "@/lib/interaction-types";
 const COMMENT_MAX_LENGTH = 500;
 
 function loginUrl(productSlug: string) {
-  return `/login?callbackUrl=${encodeURIComponent(`/carta/${productSlug}`)}`;
+  return `/login?callbackUrl=${encodeURIComponent(`/menu/${productSlug}`)}`;
 }
 
 interface CommentsSectionProps {

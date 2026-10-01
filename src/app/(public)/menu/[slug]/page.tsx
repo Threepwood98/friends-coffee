@@ -51,12 +51,12 @@ export async function generateMetadata({
   return {
     title: product.name,
     description: `${product.description} ${formatPrice(product.priceCents)} en ${exampleBusinessDetails.name}.`,
-    alternates: { canonical: `/carta/${product.slug}` },
+    alternates: { canonical: `/menu/${product.slug}` },
     openGraph: {
       type: "article",
       title: product.name,
       description: product.description,
-      url: `/carta/${product.slug}`,
+      url: `/menu/${product.slug}`,
     },
     twitter: {
       title: product.name,
@@ -73,7 +73,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
     const redirectSlug = await getProductRedirectSlug(slug);
 
     if (redirectSlug) {
-      permanentRedirect(`/carta/${redirectSlug}`);
+      permanentRedirect(`/menu/${redirectSlug}`);
     }
 
     notFound();
@@ -100,8 +100,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       />
       <JsonLd
         data={breadcrumbListJsonLd([
-          { name: "Inicio", href: "/" },
-          { name: "Carta", href: "/carta" },
+          { name: "Menú", href: "/menu" },
           { name: product.category.name },
           { name: product.name },
         ])}
@@ -113,10 +112,10 @@ export default async function ProductPage({ params }: ProductPageProps) {
         <ol className="flex w-max items-center gap-1 rounded-full border border-coffee/10 bg-card/85 px-3 text-sm text-muted-foreground shadow-sm backdrop-blur">
           <li>
             <Link
-              href="/"
+              href="/menu"
               className="inline-flex min-h-11 items-center hover:text-foreground"
             >
-              Inicio
+              Menú
             </Link>
           </li>
           <li aria-hidden>
@@ -124,18 +123,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
           </li>
           <li>
             <Link
-              href="/carta"
-              className="inline-flex min-h-11 items-center hover:text-foreground"
-            >
-              Carta
-            </Link>
-          </li>
-          <li aria-hidden>
-            <ChevronRight className="size-4" />
-          </li>
-          <li>
-            <Link
-              href={`/carta#${product.category.slug}`}
+              href={`/menu#${product.category.slug}`}
               className="inline-flex min-h-11 items-center hover:text-foreground"
             >
               {product.category.name}
@@ -235,7 +223,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
           <div>
             <Link
-              href="/carta"
+              href="/menu"
               className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/25 px-5 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <ArrowLeft className="size-4" aria-hidden />

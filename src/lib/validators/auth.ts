@@ -57,18 +57,18 @@ export function getSafeCallbackUrl(value: unknown) {
   const candidate = Array.isArray(value) ? value[0] : value;
 
   if (typeof candidate !== "string" || !candidate.startsWith("/")) {
-    return "/";
+    return "/menu";
   }
 
   try {
     const parsedUrl = new URL(candidate, "http://local");
 
     if (parsedUrl.origin !== "http://local") {
-      return "/";
+      return "/menu";
     }
 
     return `${parsedUrl.pathname}${parsedUrl.search}${parsedUrl.hash}`;
   } catch {
-    return "/";
+    return "/menu";
   }
 }

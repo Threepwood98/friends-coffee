@@ -154,5 +154,5 @@ export async function signInWithGoogleAction(formData: FormData) {
 }
 
 export async function logoutAction() {
-  await signOut({ redirectTo: "/" });
+  await signOut({ redirectTo: "/menu" });
 }

@@ -136,7 +136,7 @@ export default async function AdminDashboardPage() {
       </section>
 
       <div className="flex flex-wrap items-center gap-3">
-        <LinkButton href="/carta" variant="outline" className="min-h-11">
+        <LinkButton href="/menu" variant="outline" className="min-h-11">
           Ver carta pública
         </LinkButton>
         <form action={logoutAction}>

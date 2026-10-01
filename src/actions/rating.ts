@@ -41,7 +41,7 @@ export async function submitRatingAction(
   });
 
   if (product) {
-    revalidatePath(`/carta/${product.slug}`);
+    revalidatePath(`/menu/${product.slug}`);
   }
 
   return { message: "" };

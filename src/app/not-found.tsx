@@ -36,19 +36,13 @@ export default function NotFound() {
             La página que buscas no está en la carta. Quizá se quedó en el sofá
             o tras la puerta morada.
           </p>
-          <div className="flex flex-col gap-3 sm:flex-row lg:justify-start">
+          <div className="flex justify-center lg:justify-start">
             <Link
-              href="/"
+              href="/menu"
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/85 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <ArrowLeft className="size-4" aria-hidden />
-              Volver al inicio
-            </Link>
-            <Link
-              href="/carta"
-              className="inline-flex min-h-12 items-center justify-center rounded-full border border-primary/25 px-6 text-sm font-semibold text-primary transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            >
-              Ver la carta
+              Volver al menú
             </Link>
           </div>
         </div>

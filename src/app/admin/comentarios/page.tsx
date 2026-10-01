@@ -65,7 +65,7 @@ export default async function AdminCommentsPage() {
                   <CardTitle>
                     {comment.user.name ?? "Cliente"} ·{" "}
                     <Link
-                      href={`/carta/${comment.product.slug}`}
+                      href={`/menu/${comment.product.slug}`}
                       className="text-primary underline-offset-4 hover:underline"
                     >
                       {comment.product.name}

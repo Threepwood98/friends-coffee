@@ -62,7 +62,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
 
   if (currentUser) {
     redirect(
-      callbackUrl === "/" && currentUser.role === "ADMIN"
+      callbackUrl === "/menu" && currentUser.role === "ADMIN"
         ? "/admin"
         : callbackUrl,
     );

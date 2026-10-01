@@ -30,7 +30,7 @@ export default async function RegistrationPage({
 
   if (currentUser) {
     redirect(
-      callbackUrl === "/" && currentUser.role === "ADMIN"
+      callbackUrl === "/menu" && currentUser.role === "ADMIN"
         ? "/admin"
         : callbackUrl,
     );

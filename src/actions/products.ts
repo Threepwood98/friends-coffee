@@ -49,8 +49,7 @@ function resolveProductSlug(input: ProductFormInput): string {
 }
 
 function revalidateCatalog() {
-  revalidatePath("/");
-  revalidatePath("/carta", "layout");
+  revalidatePath("/menu", "layout");
 }
 
 export async function deleteProductAction(

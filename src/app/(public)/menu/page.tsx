@@ -5,18 +5,18 @@ import { CategoryNav } from "@/components/product/category-nav";
 import { ProductCard } from "@/components/product/product-card";
 import { JsonLd } from "@/components/seo/json-ld";
 import { getMenuCategories } from "@/lib/catalog";
-import { breadcrumbListJsonLd } from "@/lib/seo";
+import { cafeOrCoffeeShopJsonLd } from "@/lib/seo";
 import { exampleBusinessDetails } from "@/lib/site";
 
 export const revalidate = 300;
 
 export const metadata: Metadata = {
-  title: "Carta",
+  title: "Menú",
   description: `Toda la carta de ${exampleBusinessDetails.name} organizada por categorías: cafés, especialidades, dulces y salados, con su precio y disponibilidad actual.`,
-  alternates: { canonical: "/carta" },
+  alternates: { canonical: "/menu" },
 };
 
-export default async function CartaPage() {
+export default async function MenuPage() {
   const categories = await getMenuCategories();
 
   const productCount = categories.reduce(
@@ -31,12 +31,7 @@ export default async function CartaPage() {
 
   return (
     <div className="mx-auto flex max-w-7xl flex-col gap-10 px-4 py-8 sm:py-12">
-      <JsonLd
-        data={breadcrumbListJsonLd([
-          { name: "Inicio", href: "/" },
-          { name: "Carta", href: "/carta" },
-        ])}
-      />
+      <JsonLd data={cafeOrCoffeeShopJsonLd()} />
       <header className="friends-surface relative isolate flex animate-fade-up flex-col gap-5 overflow-hidden bg-primary p-7 text-primary-foreground sm:p-10 lg:p-12">
         <div
           aria-hidden

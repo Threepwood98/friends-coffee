@@ -32,8 +32,7 @@ function resolveCategorySlug(input: CategoryFormInput): string {
 }
 
 function revalidateCatalog() {
-  revalidatePath("/");
-  revalidatePath("/carta", "layout");
+  revalidatePath("/menu", "layout");
 }
 
 export async function createCategoryAction(

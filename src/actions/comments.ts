@@ -64,7 +64,7 @@ export async function createCommentAction(
   });
 
   if (product) {
-    revalidatePath(`/carta/${product.slug}`);
+    revalidatePath(`/menu/${product.slug}`);
   }
 
   return { message: "", comment };
@@ -93,7 +93,7 @@ export async function deleteCommentAction(
   }
 
   if (commentSlug) {
-    revalidatePath(`/carta/${commentSlug}`);
+    revalidatePath(`/menu/${commentSlug}`);
   }
 
   return { message: "" };

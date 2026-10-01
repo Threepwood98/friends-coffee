@@ -57,19 +57,6 @@ export async function getMenuCategories(): Promise<MenuCategory[]> {
   });
 }
 
-export async function getFeaturedProducts(
-  limit: number,
-): Promise<MenuProductDetail[]> {
-  const prisma = await getPrisma();
-
-  return prisma.product.findMany({
-    where: { available: true },
-    orderBy: [{ category: { position: "asc" } }, { name: "asc" }],
-    take: limit,
-    select: { ...productSelect, category: { select: categorySlugSelect } },
-  });
-}
-
 export async function getProductSlugs(): Promise<string[]> {
   const prisma = await getPrisma();
   const products = await prisma.product.findMany({ select: { slug: true } });

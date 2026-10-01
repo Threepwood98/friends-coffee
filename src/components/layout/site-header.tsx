@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Coffee, MapPin } from "lucide-react";
+import { Coffee, UserRound } from "lucide-react";
 import { cn } from "cn";
 
 import { navigation } from "@/lib/site";
@@ -19,7 +19,7 @@ export function SiteHeader() {
       />
       <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3">
         <Link
-          href="/"
+          href="/menu"
           className="flex min-h-11 items-center gap-2.5 font-heading text-2xl font-normal tracking-tight text-coffee focus-visible:rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring sm:text-3xl"
         >
           <span className="inline-flex size-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-sm">
@@ -28,10 +28,14 @@ export function SiteHeader() {
           <FriendsWordmark />
         </Link>
 
-        <div className="flex items-center gap-1.5 rounded-full border border-peephole bg-card px-3 py-2 text-xs font-medium text-coffee sm:hidden">
-          <MapPin className="size-4 text-primary" aria-hidden />
-          Madrid
-        </div>
+        <Link
+          href="/cuenta"
+          aria-current={pathname.startsWith("/cuenta") ? "page" : undefined}
+          className="inline-flex min-h-11 items-center gap-1.5 rounded-full border border-peephole bg-card px-3 text-xs font-semibold text-coffee transition-colors hover:bg-primary hover:text-primary-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring aria-[current]:border-primary aria-[current]:bg-primary aria-[current]:text-primary-foreground sm:hidden"
+        >
+          <UserRound className="size-4" aria-hidden />
+          Cuenta
+        </Link>
 
         <nav aria-label="Principal" className="hidden sm:block">
           <ul className="flex items-center gap-1">
@@ -40,13 +44,7 @@ export function SiteHeader() {
                 <Link
                   href={item.href}
                   aria-current={
-                    item.href === "/"
-                      ? pathname === "/"
-                        ? "page"
-                        : undefined
-                      : pathname.startsWith(item.href)
-                        ? "page"
-                        : undefined
+                    pathname.startsWith(item.href) ? "page" : undefined
                   }
                   className={cn(
                     "inline-flex min-h-11 items-center rounded-full px-4 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent/15 hover:text-coffee focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",

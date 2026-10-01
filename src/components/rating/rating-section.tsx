@@ -14,7 +14,7 @@ const averageFormatter = new Intl.NumberFormat("es-ES", {
 });
 
 function loginUrl(productSlug: string) {
-  return `/login?callbackUrl=${encodeURIComponent(`/carta/${productSlug}`)}`;
+  return `/login?callbackUrl=${encodeURIComponent(`/menu/${productSlug}`)}`;
 }
 
 interface RatingSectionProps {

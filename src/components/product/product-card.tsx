@@ -57,7 +57,7 @@ export function ProductCard({
       <CardHeader className="gap-2 px-3 pt-4 sm:px-5 sm:pt-5">
         <CardTitle className="line-clamp-2 font-heading text-lg leading-tight font-normal sm:text-2xl">
           <Link
-            href={`/carta/${product.slug}`}
+            href={`/menu/${product.slug}`}
             className="after:absolute after:inset-0 after:content-[''] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
           >
             {product.name}

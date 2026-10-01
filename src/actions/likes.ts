@@ -41,7 +41,7 @@ export async function toggleLikeAction(
     const commentSlug = await getCommentProductSlug(prisma, commentId);
 
     if (commentSlug) {
-      revalidatePath(`/carta/${commentSlug}`);
+      revalidatePath(`/menu/${commentSlug}`);
     }
 
     return { ...result, message: "" };

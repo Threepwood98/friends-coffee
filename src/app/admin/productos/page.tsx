@@ -106,7 +106,7 @@ export default async function AdminProductsPage() {
                 >
                   Editar
                 </LinkButton>
-                <LinkButton href={`/carta/${product.slug}`} variant="ghost">
+                <LinkButton href={`/menu/${product.slug}`} variant="ghost">
                   Ver en carta
                   <ArrowRight className="size-4" aria-hidden />
                 </LinkButton>

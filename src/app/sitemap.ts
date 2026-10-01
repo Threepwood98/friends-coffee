@@ -14,10 +14,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseLastModified = new Date();
 
   return [
-    { url: `${siteUrl}/`, lastModified: baseLastModified },
-    { url: `${siteUrl}/carta`, lastModified: baseLastModified },
+    { url: `${siteUrl}/menu`, lastModified: baseLastModified },
     ...products.map((product) => ({
-      url: `${siteUrl}/carta/${product.slug}`,
+      url: `${siteUrl}/menu/${product.slug}`,
       lastModified: product.updatedAt,
     })),
   ];

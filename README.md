@@ -1,6 +1,6 @@
-# Café de la Esquina — Carta digital
+# Friends Coffee — Menú digital
 
-Carta web de una cafetería con precios, disponibilidad y valoraciones, inspirada
+Menú web de una cafetería con precios, disponibilidad y valoraciones, inspirado
 estéticamente en la ambientación de FRIENDS: paleta de la puerta morada, la
 mirilla, el sofá y el lettering de la serie (fuente fan “Gabriel Weiss’
 FRIENDS” autohospedada) para los títulos. Los textos son originales.
@@ -10,7 +10,7 @@ variables y los commits están en inglés (Conventional Commits).
 
 ## Funcionalidades
 
-- Sin login: ver la home, la carta y el detalle de cada producto (con ISR).
+- Sin login: ver el menú y el detalle de cada producto (con ISR).
 - Con login (Google o email/contraseña): valorar con tazas ☕ (1–5), comentar,
   dar like a comentarios (toggle) y borrar el propio comentario.
 - Admin: CRUD de categorías y productos, subida de imágenes (Cloudinary) y
@@ -119,18 +119,19 @@ pnpm db:restore backups/friends-coffee-2026-09-30T04-16-00-037Z.db
 
 ## SEO
 
-Objetivo Lighthouse móvil (home y detalle): SEO, Accesibilidad y Buenas
+Objetivo Lighthouse móvil (menú y detalle): SEO, Accesibilidad y Buenas
 prácticas ≥ 95; Rendimiento ≥ 90. Resumen implementado:
 
 - `metadataBase`, template de títulos, descripciones, canonical, Open Graph y
   Twitter cards (`summary_large_image`), con `generateMetadata` dinámico en
-  `/carta/[slug]`.
-- `app/sitemap.ts` (home, carta y productos disponibles con `lastModified`) y
+  `/menu/[slug]`.
+- `app/sitemap.ts` (menú y productos disponibles con `lastModified`) y
   `app/robots.ts` (bloquea `/admin`, `/api`, `/login`, `/registro`).
-- JSON-LD: `CafeOrCoffeeShop` (home, con NAP y horarios), `Product` con
+- JSON-LD: `CafeOrCoffeeShop` (menú, con NAP y horarios), `Product` con
   `offers` y `aggregateRating` **solo con valoraciones reales**,
   `BreadcrumbList` en internas.
-- Redirección 301 si cambia el slug de un producto; ISR con `revalidate` y
+- Redirección permanente de `/` y las antiguas URLs `/carta/**` hacia `/menu`,
+  además de la redirección si cambia el slug de un producto; ISR con `revalidate` y
   `revalidatePath`; el HTML trae nombre, descripción, precio y comentarios
   sin depender de JS de cliente.
 - Imágenes OG: por defecto (`/opengraph-image`) y dinámicas por producto.

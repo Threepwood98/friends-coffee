@@ -146,3 +146,13 @@ Status: accepted
 - Add `/cuenta` as a protected, dynamic page using `requireUser("/cuenta")`. It is excluded from robots and offers profile context, logout and an admin shortcut only when the persisted role is `ADMIN`.
 - Authentication and 404 pages use standalone split layouts with the existing `CouchScene`, so their visual context does not require the public header or footer. Form behavior, validation, callback URLs and server actions remain unchanged.
 - Keep touch targets at least 44 pixels, visible keyboard focus, semantic headings and text-based comments. Product and category placeholders are local SVGs recolored with the same centralized palette; unavailable products remain visible and indexable.
+
+## 2026-09-30 - Menu as canonical entry point
+
+Status: accepted
+
+- Remove the standalone home page and make `/menu` the canonical public entry point. `/` permanently redirects to `/menu`; the former `/carta/:path*` URLs permanently redirect to `/menu/:path*` so bookmarks and indexed product links remain valid.
+- Move the catalog and product route tree to `app/(public)/menu`. Canonicals, Open Graph product URLs, schema.org offers, interaction callbacks, admin links and cache revalidation all use `/menu` directly instead of relying on redirects.
+- The menu page now owns the `CafeOrCoffeeShop` JSON-LD previously rendered by home. The sitemap lists only canonical `/menu` URLs and omits redirecting `/` and `/carta` entries.
+- Remove the mobile bottom navigation and its safe-area padding. On mobile, the compact header exposes `Cuenta` where the location label previously appeared; the brand link opens `/menu`. Desktop navigation contains only `Menú` and `Cuenta`.
+- Authentication, logout, unauthorized-admin fallback and the web app manifest use `/menu` as their safe default destination. The home-only featured-products query is removed rather than retained as dead code.

@@ -25,7 +25,7 @@ const friendsLettering = localFont({
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: `${exampleBusinessDetails.name} | Carta`,
+    default: `${exampleBusinessDetails.name} | Menú`,
     template: `%s | ${exampleBusinessDetails.name}`,
   },
   description: exampleBusinessDetails.description,

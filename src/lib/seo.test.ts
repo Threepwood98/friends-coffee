@@ -28,8 +28,8 @@ describe("toJsonLdJson", () => {
 describe("breadcrumbListJsonLd", () => {
   it("maps items to ListItem with sequential positions", () => {
     const data = breadcrumbListJsonLd([
-      { name: "Inicio", href: "/" },
-      { name: "Carta", href: "/carta" },
+      { name: "Menú", href: "/menu" },
+      { name: "Cafés" },
       { name: "Espresso" },
     ]);
 
@@ -37,10 +37,14 @@ describe("breadcrumbListJsonLd", () => {
     expect(data.itemListElement[0]).toEqual({
       "@type": "ListItem",
       position: 1,
-      name: "Inicio",
-      item: expect.stringMatching(/\/$/),
+      name: "Menú",
+      item: expect.stringContaining("/menu"),
     });
-    expect(data.itemListElement[1].item).toContain("/carta");
+    expect(data.itemListElement[1]).toEqual({
+      "@type": "ListItem",
+      position: 2,
+      name: "Cafés",
+    });
     expect(data.itemListElement[2]).toEqual({
       "@type": "ListItem",
       position: 3,
@@ -57,7 +61,8 @@ describe("cafeOrCoffeeShopJsonLd", () => {
     expect(data.name).toBeTruthy();
     expect(data.telephone).toBeTruthy();
     expect(data.address.addressCountry).toBe("ES");
-    expect(data.hasMenu).toContain("/carta");
+    expect(data.url).toContain("/menu");
+    expect(data.hasMenu).toContain("/menu");
     expect(data.openingHoursSpecification.length).toBeGreaterThan(0);
     expect(data.openingHoursSpecification[0]).toMatchObject({
       "@type": "OpeningHoursSpecification",
@@ -100,7 +105,7 @@ describe("productJsonLd", () => {
       "@type": "Offer",
       price: "2.50",
       priceCurrency: "EUR",
-      url: expect.stringContaining("/carta/espresso"),
+      url: expect.stringContaining("/menu/espresso"),
       availability: "https://schema.org/InStock",
     });
   });

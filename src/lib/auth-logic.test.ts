@@ -68,12 +68,12 @@ describe("authentication validators", () => {
   });
 
   it("allows only same-origin callback paths", () => {
-    expect(getSafeCallbackUrl("/carta/cafe?tab=opiniones#comentarios")).toBe(
-      "/carta/cafe?tab=opiniones#comentarios",
+    expect(getSafeCallbackUrl("/menu/cafe?tab=opiniones#comentarios")).toBe(
+      "/menu/cafe?tab=opiniones#comentarios",
     );
-    expect(getSafeCallbackUrl("https://example.com/admin")).toBe("/");
-    expect(getSafeCallbackUrl("//example.com/admin")).toBe("/");
-    expect(getSafeCallbackUrl("/\\example.com/admin")).toBe("/");
+    expect(getSafeCallbackUrl("https://example.com/admin")).toBe("/menu");
+    expect(getSafeCallbackUrl("//example.com/admin")).toBe("/menu");
+    expect(getSafeCallbackUrl("/\\example.com/admin")).toBe("/menu");
   });
 });
 

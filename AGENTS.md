@@ -80,7 +80,7 @@ Objetivo: costo mínimo, sin servicio de BD aparte.
 
 ## Reglas de negocio
 
-- Sin login: ver home, carta y detalle de producto.
+- Sin login: ver menú y detalle de producto. `/` redirige permanentemente a `/menu`.
 - Con login: votar (1–5, iconos de taza ☕), comentar (1–500 caracteres), dar like (toggle), borrar su propio comentario.
 - Admin: CRUD de productos y categorías, subir imágenes, borrar cualquier comentario.
 - Like sin sesión: redirigir a login.
@@ -103,10 +103,10 @@ Objetivo: costo mínimo, sin servicio de BD aparte.
 
 Todo lo siguiente es obligatorio:
 
-1. `metadataBase` desde `NEXT_PUBLIC_SITE_URL`, `title.template`, description, canonical, Open Graph y Twitter cards. `generateMetadata` dinámico en `/carta/[slug]`.
-2. `app/sitemap.ts` dinámico (home, carta, productos disponibles con `lastModified`) y `app/robots.ts` (bloquear `/admin`, `/api`, `/login`; referenciar el sitemap).
+1. `metadataBase` desde `NEXT_PUBLIC_SITE_URL`, `title.template`, description, canonical, Open Graph y Twitter cards. `generateMetadata` dinámico en `/menu/[slug]`.
+2. `app/sitemap.ts` dinámico (menú y productos disponibles con `lastModified`) y `app/robots.ts` (bloquear `/admin`, `/api`, `/login`; referenciar el sitemap).
 3. JSON-LD:
-   - Home: `CafeOrCoffeeShop` (nombre, dirección, teléfono, horarios, `menu`).
+   - Menú: `CafeOrCoffeeShop` (nombre, dirección, teléfono, horarios, `menu`).
    - Producto: `Product` con `offers`. `aggregateRating` y `review` **solo con datos reales**, nunca inventados.
    - `BreadcrumbList` en páginas internas.
 4. URLs limpias con slug. Redirección 301 si cambia el slug de un producto.
@@ -119,14 +119,14 @@ Todo lo siguiente es obligatorio:
 11. 404 personalizada con guiño a la serie.
 12. Textos únicos por página. Datos NAP en el footer, consistentes con el JSON-LD.
 
-Objetivo Lighthouse móvil en home y detalle: SEO, Accesibilidad y Buenas prácticas ≥ 95; Rendimiento ≥ 90.
+Objetivo Lighthouse móvil en menú y detalle: SEO, Accesibilidad y Buenas prácticas ≥ 95; Rendimiento ≥ 90.
 
 ## Diseño
 
 - Paleta como variables CSS/Tailwind: morado (puerta), amarillo (marco de mirilla), naranja (sofá), crema (fondo), marrón café (texto).
 - Fuentes: lettering FRIENDS autohospedado (`next/font/local`, `GABRWFFR.TTF`, variable `--font-friends` → `--font-heading`) para títulos y una sans legible (Geist) para texto.
 - Detalles: marco amarillo tipo mirilla en tarjetas de producto, sofá naranja en SVG/CSS en el hero, ratings con tazas.
-- Mobile-first. Probar 360, 768, 1024 y 1440 px. Menú hamburguesa en móvil. Tablas del admin con scroll horizontal o vista en tarjetas. Tap targets ≥ 44 px.
+- Mobile-first. Probar 360, 768, 1024 y 1440 px. Cabecera compacta con acceso a cuenta en móvil. Tablas del admin con scroll horizontal o vista en tarjetas. Tap targets ≥ 44 px.
 - Respetar `prefers-reduced-motion`.
 
 ## Estructura
@@ -134,7 +134,7 @@ Objetivo Lighthouse móvil en home y detalle: SEO, Accesibilidad y Buenas práct
 ```
 src/
   app/
-    (public)/ page.tsx, carta/page.tsx, carta/[slug]/page.tsx
+    (public)/ menu/page.tsx, menu/[slug]/page.tsx, cuenta/page.tsx
     (auth)/ login/, registro/
     admin/ (productos, categorías, comentarios)
     api/auth/[...nextauth]/route.ts
@@ -151,7 +151,7 @@ docs/ decisions.md
 1. Setup: proyecto, Tailwind, shadcn/ui, ESLint/Prettier, tsconfig estricto, `.env.example`.
 2. Datos: schema Prisma con `provider = "sqlite"`, migración, seed idempotente (categorías, ~10 productos, admin desde `ADMIN_EMAIL`/`ADMIN_PASSWORD`), PRAGMAs WAL y `busy_timeout`.
 3. Auth: Auth.js, registro/login, roles, proxy, `requireUser()`/`requireAdmin()`.
-4. Público: layout, home, carta, detalle con ISR y metadata básica.
+4. Público: layout, menú y detalle con ISR y metadata básica.
 5. Interacción: ratings, comentarios, likes con orden por likes, UI optimista, rate limiting.
 6. Admin: CRUD productos y categorías, Cloudinary, moderación, revalidación.
 7. Diseño FRIENDS: tema, animaciones, 404, pulido responsive.

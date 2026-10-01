@@ -35,7 +35,6 @@ export const exampleBusinessDetails = {
 } as const;
 
 export const navigation = [
-  { href: "/", label: "Inicio" },
-  { href: "/carta", label: "Carta" },
+  { href: "/menu", label: "Menú" },
   { href: "/cuenta", label: "Cuenta" },
 ] as const;

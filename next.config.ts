@@ -1,6 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  redirects() {
+    return [
+      {
+        source: "/",
+        destination: "/menu",
+        permanent: true,
+      },
+      {
+        source: "/carta/:path*",
+        destination: "/menu/:path*",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       {
