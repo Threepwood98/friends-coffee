@@ -20,6 +20,7 @@ import {
   getProductComments,
   getCommentProductSlug,
 } from "./comments";
+import { getMenuCategories } from "./catalog";
 import { toggleCommentLike } from "./likes";
 import { consumeCommentRateLimit, consumeLikeRateLimit } from "./rate-limit";
 import { getProductRatingSummary, upsertProductRating } from "./ratings";
@@ -169,9 +170,14 @@ describe("product ratings", () => {
     });
 
     const summary = await getProductRatingSummary(prisma, product.id);
+    const categories = await getMenuCategories(prisma);
+    const menuProduct = categories
+      .flatMap((category) => category.products)
+      .find((candidate) => candidate.id === product.id);
 
     expect(summary.count).toBe(2);
     expect(summary.average).toBe(3.5);
+    expect(menuProduct?.ratingAverage).toBe(3.5);
   });
 });
 
@@ -211,6 +217,14 @@ describe("product comments", () => {
       likeCount: 3,
       authorName: "Usuario de prueba",
     });
+    expect(comments[0]?.createdAt).toMatch(/^\d{4}-\d{2}-\d{2}T/);
+
+    const categories = await getMenuCategories(prisma);
+    const menuProduct = categories
+      .flatMap((category) => category.products)
+      .find((candidate) => candidate.id === product.id);
+
+    expect(menuProduct?.commentCount).toBe(2);
   });
 
   it("allows the author to delete their own comment", async () => {
@@ -297,29 +311,23 @@ describe("comment likes", () => {
     });
 
     expect(
-      (
-        await toggleCommentLike(prisma, {
-          userId: userA.id,
-          commentId: comment.id,
-        })
-      ).liked,
-    ).toBe(true);
+      await toggleCommentLike(prisma, {
+        userId: userA.id,
+        commentId: comment.id,
+      }),
+    ).toEqual({ liked: true, likeCount: 1 });
     expect(
-      (
-        await toggleCommentLike(prisma, {
-          userId: userB.id,
-          commentId: comment.id,
-        })
-      ).liked,
-    ).toBe(true);
+      await toggleCommentLike(prisma, {
+        userId: userB.id,
+        commentId: comment.id,
+      }),
+    ).toEqual({ liked: true, likeCount: 2 });
     expect(
-      (
-        await toggleCommentLike(prisma, {
-          userId: userA.id,
-          commentId: comment.id,
-        })
-      ).liked,
-    ).toBe(false);
+      await toggleCommentLike(prisma, {
+        userId: userA.id,
+        commentId: comment.id,
+      }),
+    ).toEqual({ liked: false, likeCount: 1 });
 
     const refreshed = await prisma.comment.findUniqueOrThrow({
       where: { id: comment.id },

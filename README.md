@@ -11,7 +11,7 @@ variables y los commits están en inglés (Conventional Commits).
 ## Funcionalidades
 
 - Sin login: ver el menú y el detalle de cada producto (con ISR).
-- Con login (Google o email/contraseña): valorar con tazas ☕ (1–5), comentar,
+- Con login (Google o email/contraseña): valorar con estrellas (1–5), comentar,
   dar like a comentarios (toggle) y borrar el propio comentario.
 - Admin: CRUD de categorías y productos, subida de imágenes (Cloudinary) y
   moderación de comentarios.

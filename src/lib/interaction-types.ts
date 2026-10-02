@@ -1,6 +1,7 @@
 export interface ProductCommentDto {
   id: string;
   text: string;
+  createdAt: string;
   createdAtLabel: string;
   likeCount: number;
   authorName: string;

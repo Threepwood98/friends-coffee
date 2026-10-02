@@ -3,7 +3,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 export async function toggleCommentLike(
   db: PrismaClient,
   input: { userId: string; commentId: string },
-): Promise<{ liked: boolean }> {
+): Promise<{ liked: boolean; likeCount: number }> {
   return db.$transaction(async (tx: Prisma.TransactionClient) => {
     const existing = await tx.commentLike.findUnique({
       where: {
@@ -29,24 +29,26 @@ export async function toggleCommentLike(
           },
         },
       });
-      await tx.comment.update({
+      const updatedComment = await tx.comment.update({
         where: { id: input.commentId },
         data: {
           likeCount: Math.max(0, (comment?.likeCount ?? 0) - 1),
         },
+        select: { likeCount: true },
       });
 
-      return { liked: false };
+      return { liked: false, likeCount: updatedComment.likeCount };
     }
 
     await tx.commentLike.create({
       data: { userId: input.userId, commentId: input.commentId },
     });
-    await tx.comment.update({
+    const updatedComment = await tx.comment.update({
       where: { id: input.commentId },
       data: { likeCount: { increment: 1 } },
+      select: { likeCount: true },
     });
 
-    return { liked: true };
+    return { liked: true, likeCount: updatedComment.likeCount };
   });
 }

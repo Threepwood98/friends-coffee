@@ -9,6 +9,10 @@ import { formatPrice } from "@/lib/format";
 
 import { ProductImage } from "./product-image";
 
+const ratingFormatter = new Intl.NumberFormat("es-ES", {
+  maximumFractionDigits: 1,
+});
+
 interface ProductCardProps {
   product: MenuProduct;
   categorySlug: string;
@@ -22,6 +26,11 @@ export function ProductCard({
   priority = false,
   className,
 }: ProductCardProps) {
+  const ratingLabel =
+    product.ratingAverage == null
+      ? "Sin valoraciones"
+      : `Valoración media: ${ratingFormatter.format(product.ratingAverage)} de 5`;
+
   return (
     <Card
       className={cn(
@@ -43,6 +52,7 @@ export function ProductCard({
         />
         {!product.available && (
           <Badge
+            id={`product-${product.id}-availability`}
             variant="outline"
             className="absolute top-3 left-3 border-card bg-card/95 text-coffee shadow-sm"
           >
@@ -54,6 +64,9 @@ export function ProductCard({
       <h3 className="px-4 pt-2 text-center">
         <Link
           href={`/menu/${product.slug}`}
+          aria-describedby={
+            product.available ? undefined : `product-${product.id}-availability`
+          }
           className="after:absolute after:inset-0 after:content-[''] focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-ring"
         >
           {product.name}
@@ -61,17 +74,33 @@ export function ProductCard({
       </h3>
 
       <div className="flex items-center justify-between px-4">
-        <span className="tabular-nums">{formatPrice(product.price)}</span>
+        <span
+          aria-label={`Precio: ${product.price} pesos cubanos`}
+          className="tabular-nums"
+        >
+          {formatPrice(product.price)}
+        </span>
         <div className="flex gap-3">
-          <span className="flex items-center gap-1">
+          <span
+            className="flex items-center gap-1"
+            aria-label={`${product.commentCount} ${product.commentCount === 1 ? "comentario" : "comentarios"}`}
+          >
             <MessageCircle className="size-4" aria-hidden />
-            <span className="sr-only">Comentarios:</span>
-            {product.commentCount ?? 0}
+            <span aria-hidden>{product.commentCount}</span>
           </span>
-          <span className="flex items-center gap-1">
-            <StarIcon className="size-4" aria-hidden />
-            <span className="sr-only">Valoración media:</span>
-            {product.ratingAverage?.toFixed(1) ?? "–"}
+          <span className="flex items-center gap-1" aria-label={ratingLabel}>
+            <StarIcon
+              className={cn(
+                "size-4",
+                product.ratingAverage != null && "fill-current text-accent",
+              )}
+              aria-hidden
+            />
+            <span aria-hidden>
+              {product.ratingAverage == null
+                ? "–"
+                : ratingFormatter.format(product.ratingAverage)}
+            </span>
           </span>
         </div>
       </div>

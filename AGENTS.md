@@ -81,7 +81,7 @@ Objetivo: costo mínimo, sin servicio de BD aparte.
 ## Reglas de negocio
 
 - Sin login: ver menú y detalle de producto. `/` redirige permanentemente a `/menu`.
-- Con login: votar (1–5, iconos de taza ☕), comentar (1–500 caracteres), dar like (toggle), borrar su propio comentario.
+- Con login: votar (1–5, iconos de estrella), comentar (1–500 caracteres), dar like (toggle), borrar su propio comentario.
 - Admin: CRUD de productos y categorías, subir imágenes, borrar cualquier comentario.
 - Like sin sesión: redirigir a login.
 - Like con `useOptimistic` para respuesta instantánea.
@@ -125,7 +125,7 @@ Objetivo Lighthouse móvil en menú y detalle: SEO, Accesibilidad y Buenas prác
 
 - Paleta como variables CSS/Tailwind: morado (puerta), amarillo (marco de mirilla), naranja (sofá), crema (fondo), marrón café (texto).
 - Fuentes: lettering FRIENDS autohospedado (`next/font/local`, `GABRWFFR.TTF`, variable `--font-friends` → `--font-heading`) para títulos y una sans legible (Geist) para texto.
-- Detalles: marco amarillo tipo mirilla en tarjetas de producto, sofá naranja en SVG/CSS en el hero, ratings con tazas.
+- Detalles: marco amarillo tipo mirilla en tarjetas de producto, sofá naranja en SVG/CSS en el hero, ratings con estrellas.
 - Mobile-first. Probar 360, 768, 1024 y 1440 px. Cabecera compacta con acceso a cuenta en móvil. Tablas del admin con scroll horizontal o vista en tarjetas. Tap targets ≥ 44 px.
 - Respetar `prefers-reduced-motion`.
 

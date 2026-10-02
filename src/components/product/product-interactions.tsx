@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import {
   getMyInteractionState,
@@ -26,6 +26,7 @@ interface ProductInteractionsProps {
   productSlug: string;
   summary: RatingSummaryDto;
   comments: ProductCommentDto[];
+  children: ReactNode;
 }
 
 export function ProductInteractions({
@@ -33,6 +34,7 @@ export function ProductInteractions({
   productSlug,
   summary,
   comments,
+  children,
 }: ProductInteractionsProps) {
   const [state, setState] = useState<MyInteractionState>(GUEST_STATE);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -63,7 +65,7 @@ export function ProductInteractions({
   const resolvedState = isLoaded ? state : GUEST_STATE;
 
   return (
-    <div className="flex flex-col gap-5 sm:gap-7">
+    <div className="flex flex-col gap-4">
       <RatingSection
         productId={productId}
         productSlug={productSlug}
@@ -71,6 +73,7 @@ export function ProductInteractions({
         state={resolvedState}
         isHydrated={isLoaded}
       />
+      {children}
       <CommentsSection
         productId={productId}
         productSlug={productSlug}

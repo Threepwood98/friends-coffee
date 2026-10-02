@@ -11,6 +11,7 @@ import { consumeLikeRateLimit } from "@/lib/rate-limit";
 
 export interface ToggleLikeActionState {
   liked: boolean;
+  likeCount?: number;
   message: string;
 }
 

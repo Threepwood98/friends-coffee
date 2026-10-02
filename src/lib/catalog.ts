@@ -1,3 +1,4 @@
+import type { PrismaClient } from "@prisma/client";
 import { cache } from "react";
 
 import { getPrisma } from "@/lib/prisma";
@@ -17,7 +18,7 @@ const categorySlugSelect = {
   slug: true,
 } as const;
 
-export interface MenuProduct {
+interface ProductData {
   id: string;
   slug: string;
   name: string;
@@ -25,8 +26,11 @@ export interface MenuProduct {
   price: number;
   imageUrl: string | null;
   available: boolean;
-  commentCount?: number;
-  ratingAverage?: number | null;
+}
+
+export interface MenuProduct extends ProductData {
+  commentCount: number;
+  ratingAverage: number | null;
 }
 
 export interface MenuCategory {
@@ -37,33 +41,57 @@ export interface MenuCategory {
   products: MenuProduct[];
 }
 
-export interface MenuProductDetail extends MenuProduct {
+export interface MenuProductDetail extends ProductData {
   category: { name: string; slug: string };
 }
 
-export async function getMenuCategories(): Promise<MenuCategory[]> {
-  const prisma = await getPrisma();
+export async function getMenuCategories(
+  db?: PrismaClient,
+): Promise<MenuCategory[]> {
+  const prisma = db ?? (await getPrisma());
 
-  return prisma.category.findMany({
-    orderBy: { position: "asc" },
-    select: {
-      id: true,
-      name: true,
-      slug: true,
-      position: true,
-      products: {
-        orderBy: { name: "asc" },
-        select: productSelect,
+  const [categories, ratingAggregates, commentAggregates] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: { position: "asc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        position: true,
+        products: {
+          orderBy: { name: "asc" },
+          select: productSelect,
+        },
       },
-    },
-  });
-}
+    }),
+    prisma.rating.groupBy({
+      by: ["productId"],
+      _avg: { value: true },
+    }),
+    prisma.comment.groupBy({
+      by: ["productId"],
+      _count: { _all: true },
+    }),
+  ]);
 
-export async function getProductSlugs(): Promise<string[]> {
-  const prisma = await getPrisma();
-  const products = await prisma.product.findMany({ select: { slug: true } });
+  const ratingsByProduct = new Map(
+    ratingAggregates.map((rating) => [rating.productId, rating._avg.value]),
+  );
+  const commentsByProduct = new Map(
+    commentAggregates.map((comment) => [
+      comment.productId,
+      comment._count._all,
+    ]),
+  );
 
-  return products.map((product) => product.slug);
+  return categories.map((category) => ({
+    ...category,
+    products: category.products.map((product) => ({
+      ...product,
+      commentCount: commentsByProduct.get(product.id) ?? 0,
+      ratingAverage: ratingsByProduct.get(product.id) ?? null,
+    })),
+  }));
 }
 
 export const getProductBySlug = cache(

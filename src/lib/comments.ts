@@ -32,6 +32,7 @@ function toCommentDto(comment: CommentWithAuthor): ProductCommentDto {
   return {
     id: comment.id,
     text: comment.text,
+    createdAt: comment.createdAt.toISOString(),
     createdAtLabel: formatDateTime(comment.createdAt),
     likeCount: comment.likeCount,
     authorName: comment.user.name ?? "Anónimo",

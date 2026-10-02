@@ -1,8 +1,9 @@
 "use client";
 
-import { Coffee } from "lucide-react";
+import { StarIcon } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 import { submitRatingAction } from "@/actions/rating";
 import type { MyInteractionState } from "@/actions/interactions";
@@ -36,35 +37,67 @@ export function RatingSection({
   const [optimisticRating, setOptimisticRating] = useState<number | null>(null);
   const [optimisticSummary, setOptimisticSummary] =
     useState<RatingSummaryDto | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
   const displayedRating =
     optimisticRating ?? (isHydrated ? state.rating : null);
   const displayedSummary = optimisticSummary ?? summary;
 
   function handleRate(value: number) {
+    if (!isHydrated || isPending) {
+      return;
+    }
+
     if (!state.isAuthed) {
       router.push(loginUrl(productSlug));
       return;
     }
 
+    const previousRating = displayedRating;
+    const previousSummary = displayedSummary;
+    const totalBeforeVote =
+      (previousSummary.average ?? 0) * previousSummary.count;
+    const nextSummary =
+      previousRating == null
+        ? {
+            average: (totalBeforeVote + value) / (previousSummary.count + 1),
+            count: previousSummary.count + 1,
+          }
+        : {
+            average:
+              previousSummary.count > 0
+                ? (totalBeforeVote - previousRating + value) /
+                  previousSummary.count
+                : value,
+            count: Math.max(1, previousSummary.count),
+          };
+
+    setMessage(null);
     setOptimisticRating(value);
+    setOptimisticSummary(nextSummary);
 
-    if (state.rating == null) {
-      if (summary.count > 0) {
-        const previousAverage = summary.average ?? 0;
-        const nextAverage =
-          (previousAverage * summary.count + value) / (summary.count + 1);
+    startTransition(async () => {
+      try {
+        const result = await submitRatingAction(productId, value);
 
-        setOptimisticSummary({
-          average: Number(nextAverage.toFixed(1)),
-          count: summary.count + 1,
-        });
-      } else {
-        setOptimisticSummary({ average: value, count: 1 });
+        if (result.message || result.rating == null || !result.summary) {
+          setOptimisticRating(previousRating);
+          setOptimisticSummary(previousSummary);
+          setMessage(
+            result.message || "No hemos podido guardar tu valoración.",
+          );
+          return;
+        }
+
+        setOptimisticRating(result.rating);
+        setOptimisticSummary(result.summary);
+      } catch {
+        setOptimisticRating(previousRating);
+        setOptimisticSummary(previousSummary);
+        setMessage("No hemos podido guardar tu valoración.");
       }
-    }
-
-    void submitRatingAction(productId, value);
+    });
   }
 
   const summaryText =
@@ -74,25 +107,14 @@ export function RatingSection({
 
   return (
     <section
-      aria-labelledby="rating-heading"
-      className="friends-surface friends-raised flex flex-col gap-5 p-6 sm:p-8"
+      aria-label="Valorar producto"
+      aria-busy={isPending}
+      className="flex flex-col gap-2"
     >
-      <div>
-        <p className="friends-kicker mb-1 text-[0.68rem] font-semibold text-primary">
-          Tu taza cuenta
-        </p>
-        <h2
-          id="rating-heading"
-          className="font-heading text-3xl font-normal text-coffee sm:text-4xl"
-        >
-          Valora este producto
-        </h2>
-      </div>
-
-      <div className="flex flex-col items-start gap-4 sm:flex-row sm:items-center">
+      <div className="flex flex-wrap items-center gap-3">
         <div
           role="group"
-          aria-label="Puntuación con tazas"
+          aria-label="Puntuación con estrellas"
           className="flex items-center gap-1"
         >
           {[1, 2, 3, 4, 5].map((value) => {
@@ -104,35 +126,41 @@ export function RatingSection({
                 key={value}
                 type="button"
                 onClick={() => handleRate(value)}
-                aria-label={`Valorar con ${value} taza${value === 1 ? "" : "s"} de 5`}
+                aria-label={`Valorar con ${value} estrella${value === 1 ? "" : "s"} de 5`}
                 aria-pressed={displayedRating === value}
+                disabled={!isHydrated || isPending}
                 className={cn(
-                  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-full transition-transform hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
-                  selected
-                    ? "bg-accent/20 text-coffee"
-                    : "bg-secondary/30 text-muted-foreground/40",
+                  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg transition-transform hover:scale-110 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-60",
+                  selected ? "text-accent" : "text-coffee/25",
                 )}
               >
-                <Coffee className="size-7 fill-current" aria-hidden />
+                <StarIcon
+                  className={cn("size-7", selected && "fill-current")}
+                  aria-hidden
+                />
               </button>
             );
           })}
         </div>
 
-        <p className="rounded-full bg-secondary/35 px-4 py-2 text-sm text-muted-foreground">
-          {summaryText}
-        </p>
+        <p className="text-sm text-muted-foreground">{summaryText}</p>
       </div>
 
       {isHydrated && !state.isAuthed ? (
         <p className="text-sm text-muted-foreground">
-          <a
+          <Link
             href={loginUrl(productSlug)}
             className="font-medium underline underline-offset-4 hover:text-foreground"
           >
             Inicia sesión
-          </a>{" "}
+          </Link>{" "}
           para dejar tu valoración.
+        </p>
+      ) : null}
+
+      {message ? (
+        <p role="alert" className="text-sm text-destructive">
+          {message}
         </p>
       ) : null}
     </section>

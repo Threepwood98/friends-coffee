@@ -3,12 +3,15 @@
 import { revalidatePath } from "next/cache";
 
 import { requireUser } from "@/lib/auth";
+import type { RatingSummaryDto } from "@/lib/interaction-types";
 import { getPrisma } from "@/lib/prisma";
-import { upsertProductRating } from "@/lib/ratings";
+import { getProductRatingSummary, upsertProductRating } from "@/lib/ratings";
 import { ratingValueSchema } from "@/lib/validators/interactions";
 
 export interface SubmitRatingActionState {
   message: string;
+  rating?: number;
+  summary?: RatingSummaryDto;
 }
 
 export async function submitRatingAction(
@@ -35,14 +38,18 @@ export async function submitRatingAction(
     return { message: "No hemos podido guardar tu valoración." };
   }
 
-  const product = await prisma.product.findUnique({
-    where: { id: productId },
-    select: { slug: true },
-  });
+  const [product, summary] = await Promise.all([
+    prisma.product.findUnique({
+      where: { id: productId },
+      select: { slug: true },
+    }),
+    getProductRatingSummary(prisma, productId),
+  ]);
 
   if (product) {
     revalidatePath(`/menu/${product.slug}`);
+    revalidatePath("/menu");
   }
 
-  return { message: "" };
+  return { message: "", rating: parsed.data, summary };
 }

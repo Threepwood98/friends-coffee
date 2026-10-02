@@ -65,6 +65,7 @@ export async function createCommentAction(
 
   if (product) {
     revalidatePath(`/menu/${product.slug}`);
+    revalidatePath("/menu");
   }
 
   return { message: "", comment };
@@ -82,11 +83,15 @@ export async function deleteCommentAction(
   const commentSlug = await getCommentProductSlug(prisma, commentId);
 
   try {
-    await deleteProductComment(prisma, {
+    const deleted = await deleteProductComment(prisma, {
       commentId,
       actorId: user.id,
       actorRole: user.role,
     });
+
+    if (!deleted) {
+      return { message: "El comentario ya no existe." };
+    }
   } catch (error) {
     console.error("Comment deletion failed.", error);
     return { message: "No hemos podido borrar el comentario." };
@@ -94,6 +99,7 @@ export async function deleteCommentAction(
 
   if (commentSlug) {
     revalidatePath(`/menu/${commentSlug}`);
+    revalidatePath("/menu");
   }
 
   return { message: "" };

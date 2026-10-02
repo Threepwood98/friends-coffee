@@ -1,8 +1,9 @@
 "use client";
 
 import { ThumbsUp, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useOptimistic, useState, useTransition } from "react";
 
 import { createCommentAction, deleteCommentAction } from "@/actions/comments";
 import type { MyInteractionState } from "@/actions/interactions";
@@ -13,6 +14,13 @@ import { cn } from "cn";
 import type { ProductCommentDto } from "@/lib/interaction-types";
 
 const COMMENT_MAX_LENGTH = 500;
+
+interface LikeState {
+  liked: boolean;
+  likeCount: number;
+}
+
+type LikeStates = Record<string, LikeState>;
 
 function loginUrl(productSlug: string) {
   return `/login?callbackUrl=${encodeURIComponent(`/menu/${productSlug}`)}`;
@@ -37,40 +45,37 @@ export function CommentsSection({
   const [items, setItems] = useState<ProductCommentDto[]>(comments);
   const [text, setText] = useState("");
   const [isSending, setIsSending] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
-  const [likeOverrides, setLikeOverrides] = useState<Record<string, boolean>>(
-    {},
+  const [confirmedLikes, setConfirmedLikes] = useState<LikeStates>({});
+  const [optimisticLikes, setOptimisticLike] = useOptimistic(
+    confirmedLikes,
+    (current: LikeStates, update: { commentId: string; state: LikeState }) => ({
+      ...current,
+      [update.commentId]: update.state,
+    }),
   );
+  const [isLikePending, startLikeTransition] = useTransition();
 
-  function isLiked(commentId: string) {
-    const override = likeOverrides[commentId];
+  function getLikeState(comment: ProductCommentDto): LikeState {
+    const override = optimisticLikes[comment.id];
 
-    if (override !== undefined) {
+    if (override) {
       return override;
     }
 
-    return isHydrated && state.likedCommentIds.includes(commentId);
+    return {
+      liked: isHydrated && state.likedCommentIds.includes(comment.id),
+      likeCount: comment.likeCount,
+    };
   }
 
-  function displayedLikeCount(commentId: string, serverCount: number) {
-    const baseLiked = isHydrated
-      ? state.likedCommentIds.includes(commentId)
-      : false;
-    const liked = likeOverrides[commentId] ?? baseLiked;
-
-    if (liked === baseLiked) {
-      return serverCount;
-    }
-
-    return Math.max(0, serverCount + (liked ? 1 : -1));
-  }
-
-  function handleSubmit() {
+  async function handleSubmit() {
     setMessage(null);
     setIsSending(true);
 
-    createCommentAction(productId, text).then((result) => {
-      setIsSending(false);
+    try {
+      const result = await createCommentAction(productId, text);
 
       if (result.message) {
         setMessage(result.message);
@@ -78,36 +83,71 @@ export function CommentsSection({
       }
 
       if (result.comment) {
-        setItems((current) => [result.comment!, ...current]);
+        setItems((current) => [...current, result.comment!]);
       }
 
       setText("");
-    });
+    } catch {
+      setMessage("No hemos podido publicar tu comentario.");
+    } finally {
+      setIsSending(false);
+    }
   }
 
-  function handleToggleLike(commentId: string) {
+  function handleToggleLike(comment: ProductCommentDto) {
+    if (!isHydrated || isLikePending) {
+      return;
+    }
+
     if (!state.isAuthed) {
       router.push(loginUrl(productSlug));
       return;
     }
 
-    const baseLiked = isHydrated
-      ? state.likedCommentIds.includes(commentId)
-      : false;
-    const current = likeOverrides[commentId] ?? baseLiked;
+    const current = getLikeState(comment);
+    const next = {
+      liked: !current.liked,
+      likeCount: Math.max(0, current.likeCount + (current.liked ? -1 : 1)),
+    };
 
-    setLikeOverrides((previous) => ({
-      ...previous,
-      [commentId]: !current,
-    }));
+    setMessage(null);
+    startLikeTransition(async () => {
+      setOptimisticLike({ commentId: comment.id, state: next });
 
-    void toggleLikeAction(commentId);
+      try {
+        const result = await toggleLikeAction(comment.id);
+
+        if (result.message || result.likeCount == null) {
+          setMessage(result.message || "No hemos podido actualizar el like.");
+          return;
+        }
+
+        const likeCount = result.likeCount;
+
+        setConfirmedLikes((previous) => ({
+          ...previous,
+          [comment.id]: {
+            liked: result.liked,
+            likeCount,
+          },
+        }));
+      } catch {
+        setMessage("No hemos podido actualizar el like.");
+      }
+    });
   }
 
-  function handleDelete(commentId: string) {
-    setMessage(null);
+  async function handleDelete(commentId: string) {
+    if (!window.confirm("¿Quieres borrar este comentario?")) {
+      return;
+    }
 
-    deleteCommentAction(commentId).then((result) => {
+    setMessage(null);
+    setDeletingId(commentId);
+
+    try {
+      const result = await deleteCommentAction(commentId);
+
       if (result.message) {
         setMessage(result.message);
         return;
@@ -116,33 +156,35 @@ export function CommentsSection({
       setItems((current) =>
         current.filter((comment) => comment.id !== commentId),
       );
-    });
+    } catch {
+      setMessage("No hemos podido borrar el comentario.");
+    } finally {
+      setDeletingId(null);
+    }
   }
 
   const canDelete = (comment: ProductCommentDto) =>
     state.isAdmin || (isHydrated && comment.authorId === state.userId);
 
+  const displayedItems = items
+    .map((comment) => ({ ...comment, ...getLikeState(comment) }))
+    .toSorted(
+      (first, second) =>
+        second.likeCount - first.likeCount ||
+        Date.parse(second.createdAt) - Date.parse(first.createdAt),
+    );
+
   return (
     <section
       aria-labelledby="comments-heading"
-      className="friends-surface friends-raised flex scroll-mt-28 flex-col gap-6 p-6 sm:p-8"
+      className="flex scroll-mt-28 flex-col gap-4"
     >
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <p className="friends-kicker mb-1 text-[0.68rem] font-semibold text-primary">
-            La sobremesa
-          </p>
-          <h2
-            id="comments-heading"
-            className="font-heading text-3xl font-normal text-coffee sm:text-4xl"
-          >
-            Comentarios
-          </h2>
-        </div>
-        <span className="inline-flex min-h-9 items-center rounded-full bg-secondary/45 px-3 text-xs font-semibold text-coffee tabular-nums">
-          {items.length}
-        </span>
-      </div>
+      <h2
+        id="comments-heading"
+        className="font-heading text-2xl font-normal text-coffee"
+      >
+        Comentarios:
+      </h2>
 
       {message ? (
         <p role="alert" className="text-sm text-destructive">
@@ -158,7 +200,7 @@ export function CommentsSection({
             if (!text.trim()) {
               return;
             }
-            handleSubmit();
+            void handleSubmit();
           }}
         >
           <label htmlFor={`comment-${productId}`} className="sr-only">
@@ -173,8 +215,8 @@ export function CommentsSection({
             }}
             maxLength={COMMENT_MAX_LENGTH}
             rows={3}
-            placeholder="¿Qué te ha parecido? (máx. 500 caracteres)"
-            className="min-h-28 rounded-2xl bg-background/70 p-4"
+            placeholder="¿Qué te ha parecido?…"
+            className="min-h-28 rounded-xl bg-background/70 p-4"
             disabled={isSending}
           />
           <div className="flex items-center justify-between gap-3">
@@ -187,43 +229,43 @@ export function CommentsSection({
               className="min-h-11"
               disabled={isSending || !text.trim()}
             >
-              {isSending ? "Publicando..." : "Publicar comentario"}
+              {isSending ? "Publicando…" : "Publicar comentario"}
             </Button>
           </div>
         </form>
       ) : isHydrated ? (
         <p className="text-sm text-muted-foreground">
-          <a
+          <Link
             href={loginUrl(productSlug)}
             className="font-medium underline underline-offset-4 hover:text-foreground"
           >
             Inicia sesión
-          </a>{" "}
+          </Link>{" "}
           para comentar y dar like.
         </p>
       ) : null}
 
-      {items.length > 0 ? (
-        <ul className="flex flex-col gap-3">
-          {items.map((comment) => {
-            const liked = isLiked(comment.id);
-            const likeCount = displayedLikeCount(comment.id, comment.likeCount);
-
+      {displayedItems.length > 0 ? (
+        <ul className="flex flex-col">
+          {displayedItems.map((comment) => {
             return (
               <li
                 key={comment.id}
-                className="flex flex-col gap-3 rounded-2xl border border-coffee/10 bg-secondary/20 p-4 sm:p-5"
+                className="flex flex-col gap-3 border-t border-coffee/10 py-4 first:border-t-0"
               >
                 <div className="flex items-center gap-3">
                   <span
                     aria-hidden
-                    className="inline-flex size-10 shrink-0 items-center justify-center rounded-2xl bg-primary font-heading text-xl text-primary-foreground"
+                    className="inline-flex size-10 shrink-0 items-center justify-center rounded-full bg-primary font-heading text-xl text-primary-foreground"
                   >
                     {comment.authorName.trim()[0]?.toUpperCase() ?? "F"}
                   </span>
                   <div className="min-w-0">
                     <p className="truncate font-medium">{comment.authorName}</p>
-                    <time className="text-xs text-muted-foreground">
+                    <time
+                      dateTime={comment.createdAt}
+                      className="text-xs text-muted-foreground"
+                    >
                       {comment.createdAtLabel}
                     </time>
                   </div>
@@ -236,16 +278,17 @@ export function CommentsSection({
                     type="button"
                     variant="ghost"
                     size="sm"
-                    aria-pressed={liked}
-                    aria-label={`${liked ? "Quitar" : "Dar"} like a ${comment.authorName}`}
+                    aria-pressed={comment.liked}
+                    aria-label={`${comment.liked ? "Quitar" : "Dar"} like a ${comment.authorName}`}
                     className="min-h-11"
-                    onClick={() => handleToggleLike(comment.id)}
+                    disabled={!isHydrated || isLikePending}
+                    onClick={() => handleToggleLike(comment)}
                   >
                     <ThumbsUp
-                      className={cn("size-4", liked && "fill-current")}
+                      className={cn("size-4", comment.liked && "fill-current")}
                       aria-hidden
                     />
-                    <span className="tabular-nums">{likeCount}</span>
+                    <span className="tabular-nums">{comment.likeCount}</span>
                   </Button>
 
                   {canDelete(comment) ? (
@@ -255,10 +298,13 @@ export function CommentsSection({
                       size="sm"
                       aria-label="Borrar comentario"
                       className="min-h-11 text-destructive hover:text-destructive"
+                      disabled={deletingId !== null}
                       onClick={() => handleDelete(comment.id)}
                     >
                       <Trash2 className="size-4" aria-hidden />
-                      <span className="text-sm">Borrar</span>
+                      <span className="text-sm">
+                        {deletingId === comment.id ? "Borrando…" : "Borrar"}
+                      </span>
                     </Button>
                   ) : null}
                 </div>
