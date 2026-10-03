@@ -1,4 +1,6 @@
-import { hash } from "bcrypt";
+import { randomUUID } from "node:crypto";
+
+import { hashPassword } from "better-auth/crypto";
 import { z } from "zod";
 
 import { getPrisma } from "../src/lib/prisma";
@@ -7,7 +9,6 @@ import { catalog, catalogProductCount } from "./catalog";
 
 const prisma = await getPrisma();
 
-const BCRYPT_COST = 12;
 const REQUIRE_ADMIN_FLAG = "--require-admin";
 const ADMIN_ROLE = userRoleSchema.parse("ADMIN");
 
@@ -17,10 +18,7 @@ const adminCredentialsSchema = z.object({
     .trim()
     .email()
     .transform((email) => email.toLowerCase()),
-  password: z
-    .string()
-    .min(12)
-    .refine((password) => Buffer.byteLength(password, "utf8") <= 72),
+  password: z.string().min(8).max(128),
 });
 
 async function seedCatalog() {
@@ -87,7 +85,7 @@ function readAdminCredentials() {
 
   if (!credentials.success) {
     throw new Error(
-      "Admin credentials are invalid. Use a valid email and a password of at least 12 characters and at most 72 bytes.",
+      "Admin credentials are invalid. Use a valid email and a password between 8 and 128 characters.",
     );
   }
 
@@ -114,19 +112,55 @@ async function seedAdmin(
       );
     }
 
+    const credentialAccount = await prisma.account.findFirst({
+      where: {
+        userId: existingUser.id,
+        providerId: "credential",
+        accountId: existingUser.id,
+      },
+      select: { id: true },
+    });
+
+    if (!credentialAccount) {
+      await prisma.account.create({
+        data: {
+          id: randomUUID(),
+          accountId: existingUser.id,
+          providerId: "credential",
+          userId: existingUser.id,
+          password: await hashPassword(credentials.password),
+        },
+      });
+
+      console.info("Credential account added to the existing admin.");
+      return;
+    }
+
     console.info("Admin already exists; no changes applied.");
     return;
   }
 
-  const passwordHash = await hash(credentials.password, BCRYPT_COST);
+  const userId = randomUUID();
+  const password = await hashPassword(credentials.password);
 
-  await prisma.user.create({
-    data: {
-      email: credentials.email,
-      name: "Administrador",
-      passwordHash,
-      role: ADMIN_ROLE,
-    },
+  await prisma.$transaction(async (transaction) => {
+    await transaction.user.create({
+      data: {
+        id: userId,
+        email: credentials.email,
+        name: "Administrador",
+        role: ADMIN_ROLE,
+      },
+    });
+    await transaction.account.create({
+      data: {
+        id: randomUUID(),
+        accountId: userId,
+        providerId: "credential",
+        userId,
+        password,
+      },
+    });
   });
 
   console.info("Admin created.");

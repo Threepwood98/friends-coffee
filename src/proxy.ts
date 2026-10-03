@@ -1,12 +1,9 @@
-import NextAuth from "next-auth";
+import { getSessionCookie } from "better-auth/cookies";
+import type { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 
-import authConfig from "@/auth.config";
-
-const { auth } = NextAuth(authConfig);
-
-export const proxy = auth((request) => {
-  if (!request.auth?.user) {
+export function proxy(request: NextRequest) {
+  if (!getSessionCookie(request)) {
     const loginUrl = new URL("/login", request.nextUrl.origin);
     loginUrl.searchParams.set(
       "callbackUrl",
@@ -17,7 +14,7 @@ export const proxy = auth((request) => {
   }
 
   return NextResponse.next();
-});
+}
 
 export const config = {
   matcher: ["/admin/:path*"],

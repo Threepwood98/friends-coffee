@@ -1,11 +1,5 @@
 import { z } from "zod";
 
-const MAX_BCRYPT_BYTES = 72;
-
-function fitsBcryptLimit(password: string) {
-  return new TextEncoder().encode(password).byteLength <= MAX_BCRYPT_BYTES;
-}
-
 const emailSchema = z
   .string()
   .trim()
@@ -17,12 +11,11 @@ const emailSchema = z
 const loginPasswordSchema = z
   .string()
   .min(1, "Escribe tu contraseña.")
-  .max(72, "La contraseña es demasiado larga.")
-  .refine(fitsBcryptLimit, "La contraseña es demasiado larga.");
+  .max(128, "La contraseña es demasiado larga.");
 
 const registrationPasswordSchema = loginPasswordSchema.min(
-  12,
-  "La contraseña debe tener al menos 12 caracteres.",
+  8,
+  "La contraseña debe tener al menos 8 caracteres.",
 );
 
 export const loginSchema = z.object({

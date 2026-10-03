@@ -67,6 +67,7 @@ async function seedUser(
 ) {
   return prisma.user.create({
     data: {
+      id: randomUUID(),
       email: overrides.email ?? `${randomUUID()}@test.local`,
       name: overrides.name ?? "Usuario de prueba",
       role: overrides.role ?? "USER",

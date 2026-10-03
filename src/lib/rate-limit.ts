@@ -20,8 +20,6 @@ interface RateLimitResult {
   retryAfterSeconds: number;
 }
 
-const LOGIN_WINDOW_MS = 15 * 60 * 1000;
-const REGISTRATION_WINDOW_MS = 60 * 60 * 1000;
 const COMMENT_WINDOW_MS = 10 * 60 * 1000;
 const LIKE_WINDOW_MS = 15 * 60 * 1000;
 const MAX_RATE_LIMIT_ENTRIES = 10_000;
@@ -121,21 +119,6 @@ function consumeRules(rules: RateLimitRule[]) {
   return { allowed: true, retryAfterSeconds: 0 };
 }
 
-function refundRateLimitAttempt(key: string) {
-  const entry = rateLimitStore.get(key);
-
-  if (!entry) {
-    return;
-  }
-
-  if (entry.attempts <= 1) {
-    rateLimitStore.delete(key);
-    return;
-  }
-
-  entry.attempts -= 1;
-}
-
 function getClientIp(headers: HeaderReader) {
   const candidates = [
     headers.get("cf-connecting-ip"),
@@ -152,60 +135,6 @@ function getClientIp(headers: HeaderReader) {
   }
 
   return "unknown";
-}
-
-function getLoginKeys(headers: HeaderReader, email: string) {
-  const clientIp = getClientIp(headers);
-
-  return {
-    ipKey: `auth:login:ip:${clientIp}`,
-    identityKey: `auth:login:identity:${clientIp}:${email}`,
-  };
-}
-
-export function consumeLoginRateLimit(headers: HeaderReader, email: string) {
-  const { ipKey, identityKey } = getLoginKeys(headers, email);
-
-  return consumeRules([
-    { key: ipKey, limit: 20, windowMs: LOGIN_WINDOW_MS },
-    { key: identityKey, limit: 5, windowMs: LOGIN_WINDOW_MS },
-  ]);
-}
-
-export function clearLoginIdentityRateLimit(
-  headers: HeaderReader,
-  email: string,
-) {
-  const { identityKey } = getLoginKeys(headers, email);
-
-  rateLimitStore.delete(identityKey);
-}
-
-export function recordSuccessfulLogin(headers: HeaderReader, email: string) {
-  const { ipKey } = getLoginKeys(headers, email);
-
-  clearLoginIdentityRateLimit(headers, email);
-  refundRateLimitAttempt(ipKey);
-}
-
-export function consumeRegistrationRateLimit(
-  headers: HeaderReader,
-  email: string,
-) {
-  const clientIp = getClientIp(headers);
-
-  return consumeRules([
-    {
-      key: `auth:register:ip:${clientIp}`,
-      limit: 5,
-      windowMs: REGISTRATION_WINDOW_MS,
-    },
-    {
-      key: `auth:register:identity:${clientIp}:${email}`,
-      limit: 3,
-      windowMs: REGISTRATION_WINDOW_MS,
-    },
-  ]);
 }
 
 export function consumeCommentRateLimit(

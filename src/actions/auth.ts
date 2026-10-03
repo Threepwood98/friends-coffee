@@ -1,16 +1,10 @@
 "use server";
 
-import { Prisma } from "@prisma/client";
-import { hash } from "bcrypt";
+import { APIError } from "better-auth/api";
 import { headers } from "next/headers";
-import { AuthError, CredentialsSignin } from "next-auth";
+import { redirect } from "next/navigation";
 
-import { isGoogleAuthConfigured, signIn, signOut } from "@/auth";
-import { getPrisma } from "@/lib/prisma";
-import {
-  clearLoginIdentityRateLimit,
-  consumeRegistrationRateLimit,
-} from "@/lib/rate-limit";
+import { auth, isGoogleAuthConfigured } from "@/lib/auth.server";
 import {
   getSafeCallbackUrl,
   loginSchema,
@@ -18,13 +12,25 @@ import {
   type AuthActionState,
 } from "@/lib/validators/auth";
 
-const BCRYPT_COST = 12;
+function getAuthErrorCode(error: APIError) {
+  const code = error.body?.code;
 
-function getAuthErrorMessage(error: AuthError) {
-  if (error instanceof CredentialsSignin) {
-    return error.code === "rate_limit"
-      ? "Has hecho demasiados intentos. Espera unos minutos antes de volver a probar."
-      : "El correo o la contraseña no son correctos.";
+  return typeof code === "string" ? code : undefined;
+}
+
+function getLoginErrorMessage(error: APIError) {
+  const code = getAuthErrorCode(error);
+
+  if (
+    code === "INVALID_EMAIL_OR_PASSWORD" ||
+    code === "INVALID_PASSWORD" ||
+    code === "USER_NOT_FOUND"
+  ) {
+    return "El correo o la contraseña no son correctos.";
+  }
+
+  if (error.statusCode === 429) {
+    return "Has hecho demasiados intentos. Espera unos minutos antes de volver a probar.";
   }
 
   return "No hemos podido iniciar sesión. Inténtalo de nuevo.";
@@ -48,19 +54,20 @@ export async function loginAction(
   }
 
   try {
-    await signIn("credentials", {
-      ...credentials.data,
-      redirectTo: getSafeCallbackUrl(formData.get("callbackUrl")),
+    await auth.api.signInEmail({
+      body: credentials.data,
+      headers: await headers(),
     });
   } catch (error) {
-    if (error instanceof AuthError) {
-      return { message: getAuthErrorMessage(error) };
+    if (error instanceof APIError) {
+      return { message: getLoginErrorMessage(error) };
     }
 
-    throw error;
+    console.error("Login failed.", error);
+    return { message: "No hemos podido iniciar sesión. Inténtalo de nuevo." };
   }
 
-  return {};
+  redirect(getSafeCallbackUrl(formData.get("callbackUrl")));
 }
 
 export async function registerAction(
@@ -82,37 +89,25 @@ export async function registerAction(
     };
   }
 
-  const requestHeaders = await headers();
   const { name, email, password } = registration.data;
-  const rateLimit = consumeRegistrationRateLimit(requestHeaders, email);
-
-  if (!rateLimit.allowed) {
-    return {
-      message:
-        "Has creado demasiadas cuentas recientemente. Espera antes de volver a intentarlo.",
-    };
-  }
 
   try {
-    const passwordHash = await hash(password, BCRYPT_COST);
-    const prisma = await getPrisma();
-
-    await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-        role: "USER",
-      },
+    await auth.api.signUpEmail({
+      body: { name, email, password },
+      headers: await headers(),
     });
   } catch (error) {
-    if (
-      error instanceof Prisma.PrismaClientKnownRequestError &&
-      error.code === "P2002"
-    ) {
-      return {
-        message: "Ya existe una cuenta con ese correo electrónico.",
-      };
+    if (error instanceof APIError) {
+      const code = getAuthErrorCode(error);
+
+      if (
+        code === "USER_ALREADY_EXISTS" ||
+        code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
+      ) {
+        return {
+          message: "Ya existe una cuenta con ese correo electrónico.",
+        };
+      }
     }
 
     console.error("Registration failed.", error);
@@ -121,26 +116,7 @@ export async function registerAction(
     };
   }
 
-  clearLoginIdentityRateLimit(requestHeaders, email);
-
-  try {
-    await signIn("credentials", {
-      email,
-      password,
-      redirectTo: getSafeCallbackUrl(formData.get("callbackUrl")),
-    });
-  } catch (error) {
-    if (error instanceof AuthError) {
-      return {
-        message:
-          "Tu cuenta se ha creado, pero no hemos podido iniciar la sesión. Accede con tus nuevos datos.",
-      };
-    }
-
-    throw error;
-  }
-
-  return {};
+  redirect(getSafeCallbackUrl(formData.get("callbackUrl")));
 }
 
 export async function signInWithGoogleAction(formData: FormData) {
@@ -148,11 +124,24 @@ export async function signInWithGoogleAction(formData: FormData) {
     return;
   }
 
-  await signIn("google", {
-    redirectTo: getSafeCallbackUrl(formData.get("callbackUrl")),
+  const callbackURL = getSafeCallbackUrl(formData.get("callbackUrl"));
+  const errorCallbackURL = `/login?callbackUrl=${encodeURIComponent(callbackURL)}`;
+  const result = await auth.api.signInSocial({
+    body: {
+      provider: "google",
+      callbackURL,
+      errorCallbackURL,
+    },
+    headers: await headers(),
   });
+
+  redirect(result.url ?? `${errorCallbackURL}&error=OAUTH_SIGN_IN_FAILED`);
 }
 
 export async function logoutAction() {
-  await signOut({ redirectTo: "/menu" });
+  await auth.api.signOut({
+    headers: await headers(),
+  });
+
+  redirect("/menu");
 }

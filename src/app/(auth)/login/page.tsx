@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 
-import { isGoogleAuthConfigured } from "@/auth";
 import { AuthFrame } from "@/components/auth/auth-frame";
 import { GoogleSignInForm } from "@/components/auth/google-sign-in-form";
 import { LoginForm } from "@/components/auth/login-form";
 import { getCurrentUser } from "@/lib/auth";
+import { isGoogleAuthConfigured } from "@/lib/auth.server";
 import { getSafeCallbackUrl } from "@/lib/validators/auth";
 
 export const metadata: Metadata = {

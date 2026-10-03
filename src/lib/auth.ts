@@ -1,7 +1,8 @@
+import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { cache } from "react";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth.server";
 import { getPrisma } from "@/lib/prisma";
 import { resolveUserRole, type UserRole } from "@/lib/validators/user";
 
@@ -15,7 +16,9 @@ export interface AuthenticatedUser {
 
 export const getCurrentUser = cache(
   async function getCurrentUser(): Promise<AuthenticatedUser | null> {
-    const session = await auth();
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
 
     if (!session?.user.id) {
       return null;

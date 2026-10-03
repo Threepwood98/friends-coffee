@@ -163,15 +163,15 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                   type="password"
                   autoComplete="new-password"
                   placeholder="************"
-                  minLength={12}
-                  maxLength={72}
+                  minLength={8}
+                  maxLength={128}
                   disabled={isPending}
                   aria-invalid={fieldState.invalid}
                   className="rounded-full bg-peephole text-sm h-6"
                   required
                 />
                 <FieldDescription className="text-xs">
-                  Usa al menos 12 caracteres
+                  Usa al menos 8 caracteres
                 </FieldDescription>
                 {fieldState.invalid ? (
                   <FieldError errors={[fieldState.error]} />
@@ -201,7 +201,7 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                   type="password"
                   autoComplete="new-password"
                   placeholder="************"
-                  maxLength={72}
+                  maxLength={128}
                   disabled={isPending}
                   aria-invalid={fieldState.invalid}
                   className="rounded-full bg-peephole text-sm h-6"
