@@ -22,7 +22,7 @@ Status: accepted
 Status: accepted
 
 - Add required packages in the phase where they are first used instead of installing the entire final stack as inactive dependencies.
-- Defer Prisma, Auth.js, form, Cloudinary, animation, and test packages to their owning phases.
+- Defer Prisma, authentication, form, Cloudinary, animation, and test packages to their owning phases.
 
 ## 2026-09-29 - SQLite and Seed Baseline
 
@@ -34,11 +34,11 @@ Status: accepted
 - Configure SQLite lazily once per application process with WAL mode and a 5000 ms busy timeout. Application modules can be evaluated during `next build` without opening the runtime-only Railway volume, while every database consumer awaits `getPrisma()` before querying.
 - Seed the sample catalog atomically only when there are no users, categories, or products. Any existing application data preserves catalog edits and deletions; a completely empty database is treated as uninitialized.
 - Create the configured admin only when its email does not exist. Never promote an existing user or replace an existing password during startup.
-- Require valid admin credentials for the production seed command and hash new admin passwords with bcrypt cost 12.
+- Require valid admin credentials for the production seed command. Password hashing now follows Better Auth's default scrypt provider; this supersedes the original bcrypt cost-12 seed implementation.
 
 ## 2026-09-29 - Authentication and Authorization
 
-Status: accepted
+Status: superseded by "2026-10-03 - Migration from Auth.js to Better Auth"
 
 - Pin Auth.js to `5.0.0-beta.32`, the current v5 release with explicit Next.js 16 support, because the project requires the v5 universal `auth()` API and `proxy.ts` integration.
 - Use encrypted JWT sessions because the Credentials provider requires the JWT strategy. Continue using the Prisma adapter to persist users and Google accounts.
@@ -178,7 +178,7 @@ Status: accepted
 Status: accepted (supersedes "2026-09-29 - Authentication and Authorization" where they conflict)
 
 - Replace Auth.js 5.0.0-beta.32 with Better Auth. The project rule is now to use **Better Auth's documented defaults**; any deviation must be justified here. Auth.js, `@auth/prisma-adapter` and `bcrypt` are removed.
-- **Password hashing and password length rules follow Better Auth's defaults.** Better Auth stores credentials in `Account` with `providerId: "credential"`, not in a column on `User`. No custom `emailAndPassword.password`, `minPasswordLength` or `maxPasswordLength` option is configured. The local SQLite database is reset during the migration, so the previous bcrypt hashes are not migrated and the obsolete 72-byte bcrypt restriction is removed from the application validator.
+- **Password hashing and password length rules follow Better Auth's defaults.** Better Auth stores credentials in `Account` with `providerId: "credential"`, not in a column on `User`. No custom `emailAndPassword.password`, `minPasswordLength` or `maxPasswordLength` option is configured. The migration deliberately resets existing Auth.js users and interactions, so the previous bcrypt hashes are not migrated and the obsolete 72-byte bcrypt restriction is removed from the application validator. A consistent backup is mandatory before production deploy; catalog data is preserved.
 - **The `admin` plugin is not used.** The admin area manages the catalog and comments, not users. That plugin would force lowercase `admin`/`user` role values and add `banned`, `banReason` and `banExpires` columns. `role` stays an `additionalFields` entry of type string with `defaultValue: "USER"` and `input: false`, validated authoritatively by `userRoleSchema` because SQLite cannot constrain the value. No client can ever write it.
 - **Sessions use Better Auth's database-backed defaults**, including the default seven-day expiration and disabled cookie cache. No JWT-session compatibility layer or custom session duration is retained.
 - **Account linking uses Better Auth's default policy.** The migration intentionally removes Auth.js-specific `OAuthAccountNotLinked` behaviour instead of carrying a compatibility override into the new authentication system.
@@ -186,7 +186,7 @@ Status: accepted (supersedes "2026-09-29 - Authentication and Authorization" whe
 - **Rate limiting uses Better Auth's built-in limiter for login and registration.** Documented limitation: `/docs/concepts/rate-limit` states that `auth.api.*` calls made from the server bypass rate limiting, so the rate limits only protect the HTTP route `/api/auth/*` and not our own login and registration Server Actions. Accepted because the project targets a single Railway instance and the alternative is duplicating the library's limiter. `src/lib/rate-limit.ts` is kept only for comments and likes, which have no library equivalent. `advanced.ipAddress.ipAddressHeaders` points at `cf-connecting-ip` so the limiter sees the real client IP behind Cloudflare.
 - **`nextCookies()` is the last plugin** in the configuration, as the Next.js integration requires, so Server Actions that call `auth.api.signInEmail`, `auth.api.signUpEmail` or `auth.api.signOut` can persist the session cookie.
 - **`proxy.ts` uses `getSessionCookie`** from `better-auth/cookies`. This is a cookie-presence check only and is explicitly documented as insecure; every admin layout, page and action re-checks the persisted role. No database call is made from the proxy.
-- **The Google button stays visible and disabled when credentials are missing.** This preserves the previous behaviour and the original 2026-09-29 decision; only the `FieldSeparator` wrapper is removed. A single credential without the other still fails fast at startup.
+- **The Google button and its separator stay visible but disabled when credentials are missing.** This preserves the existing interface. A single credential without the other still fails fast at startup.
 - **Environment variables follow Better Auth's contract:** `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET`. This renames `AUTH_SECRET`, `AUTH_GOOGLE_ID` and `AUTH_GOOGLE_SECRET`, so the Railway variables must be updated in the same deployment. `NEXT_PUBLIC_SITE_URL` is unrelated to auth and stays, it feeds `metadataBase`.
 - **No `authClient` instance is created.** Every auth mutation is a Server Action, and an unused client bundle would be dead code. The OAuth redirect URI is unchanged at `/api/auth/callback/google`, so the Google Cloud credentials need no change.
 - **All existing sessions are invalidated** by the migration because the cookie name and format change. This is documented in `README.md`.

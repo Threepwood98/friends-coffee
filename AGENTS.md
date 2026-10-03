@@ -161,7 +161,7 @@ docs/ decisions.md
 
 Trabaja **una fase por vez**. No avances a la siguiente sin que yo lo pida.
 
-### Migración a Better Auth (en curso)
+### Migración a Better Auth (completada el 2026-10-03)
 
 Reemplaza por completo a Auth.js. Un commit Conventional Commit por hito:
 

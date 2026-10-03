@@ -20,11 +20,15 @@ en el archivo `/data/app.db` dentro de un volumen montado solo en runtime.
    | Variable                                             | Valor                              |
    | ---------------------------------------------------- | ---------------------------------- |
    | `DATABASE_URL`                                       | `file:/data/app.db`                |
-   | `AUTH_SECRET`                                        | secreto generado (≥ 32 caracteres) |
-   | `AUTH_GOOGLE_ID` / `AUTH_GOOGLE_SECRET`              | si se usa Google                   |
+   | `BETTER_AUTH_SECRET`                                 | secreto generado (≥ 32 caracteres) |
+   | `BETTER_AUTH_URL`                                    | `https://tu-dominio.example`       |
+   | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`          | si se usa Google                   |
    | `NEXT_PUBLIC_SITE_URL`                               | `https://tu-dominio.example`       |
    | `CLOUDINARY_CLOUD_NAME` / `_API_KEY` / `_API_SECRET` | para imágenes y backups            |
    | `ADMIN_EMAIL` / `ADMIN_PASSWORD`                     | para crear el admin en el seed     |
+
+   Genera el secreto con `pnpm dlx auth@latest secret`. Las variables deben
+   existir antes del build: Better Auth valida el secreto al compilar.
 
 4. **Build command** (no migraciones aquí, el volumen no existe durante el
    build):
@@ -43,6 +47,23 @@ en el archivo `/data/app.db` dentro de un volumen montado solo en runtime.
 6. **Replicas = 1**. En Settings desactiva cualquier autoscaling.
 7. **Despliegue**: Railway genera la URL `*.up.railway.app`. Cuando lo
    verifiques, apunta tu dominio (ver `docs/cloudflare.md`).
+
+### Primer deploy con Better Auth
+
+La migración `20261003182000_better_auth_schema` sustituye completamente las
+tablas de Auth.js. Antes de desplegarla:
+
+1. Ejecuta `pnpm db:backup` con la versión anterior todavía activa y confirma
+   que existe una copia externa.
+2. Sustituye `AUTH_SECRET`, `AUTH_GOOGLE_ID` y `AUTH_GOOGLE_SECRET` por las
+   variables de Better Auth indicadas arriba.
+3. Mantén el callback de Google en
+   `https://tu-dominio.example/api/auth/callback/google`.
+4. Despliega. Se eliminan usuarios, sesiones, valoraciones, comentarios y likes
+   del esquema Auth.js; el catálogo permanece y el seed crea el admin con su
+   nueva cuenta de credenciales.
+
+Todas las sesiones anteriores quedan invalidadas porque cambia la cookie.
 
 ## Comprobaciones tras el deploy
 
@@ -81,5 +102,7 @@ completa (detalles en `docs/backup.md`):
   revisa que el start command sea el indicado.
 - **Errores de escritura (database is locked)**: confirmar una sola réplica;
   WAL y `busy_timeout` ya están activados en `src/lib/prisma.ts`.
-- **Login falla en producción**: revisar `AUTH_SECRET` y que
-  `NEXT_PUBLIC_SITE_URL` sea el dominio final (no `localhost`).
+- **Login falla en producción**: revisar `BETTER_AUTH_SECRET`,
+  `BETTER_AUTH_URL` y, para Google, `GOOGLE_CLIENT_ID` /
+  `GOOGLE_CLIENT_SECRET`. Las dos URL públicas deben usar el dominio final y
+  HTTPS, no `localhost`.

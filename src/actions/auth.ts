@@ -4,6 +4,10 @@ import { APIError } from "better-auth/api";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import {
+  getLoginActionErrorMessage,
+  isExistingUserError,
+} from "@/lib/auth-errors";
 import { auth, isGoogleAuthConfigured } from "@/lib/auth.server";
 import {
   getSafeCallbackUrl,
@@ -16,24 +20,6 @@ function getAuthErrorCode(error: APIError) {
   const code = error.body?.code;
 
   return typeof code === "string" ? code : undefined;
-}
-
-function getLoginErrorMessage(error: APIError) {
-  const code = getAuthErrorCode(error);
-
-  if (
-    code === "INVALID_EMAIL_OR_PASSWORD" ||
-    code === "INVALID_PASSWORD" ||
-    code === "USER_NOT_FOUND"
-  ) {
-    return "El correo o la contraseña no son correctos.";
-  }
-
-  if (error.statusCode === 429) {
-    return "Has hecho demasiados intentos. Espera unos minutos antes de volver a probar.";
-  }
-
-  return "No hemos podido iniciar sesión. Inténtalo de nuevo.";
 }
 
 export async function loginAction(
@@ -60,7 +46,12 @@ export async function loginAction(
     });
   } catch (error) {
     if (error instanceof APIError) {
-      return { message: getLoginErrorMessage(error) };
+      return {
+        message: getLoginActionErrorMessage(
+          getAuthErrorCode(error),
+          error.statusCode,
+        ),
+      };
     }
 
     console.error("Login failed.", error);
@@ -100,10 +91,7 @@ export async function registerAction(
     if (error instanceof APIError) {
       const code = getAuthErrorCode(error);
 
-      if (
-        code === "USER_ALREADY_EXISTS" ||
-        code === "USER_ALREADY_EXISTS_USE_ANOTHER_EMAIL"
-      ) {
+      if (isExistingUserError(code)) {
         return {
           message: "Ya existe una cuenta con ese correo electrónico.",
         };
@@ -135,7 +123,7 @@ export async function signInWithGoogleAction(formData: FormData) {
     headers: await headers(),
   });
 
-  redirect(result.url ?? `${errorCallbackURL}&error=OAUTH_SIGN_IN_FAILED`);
+  redirect(result.url ?? `${errorCallbackURL}&error=oauth_sign_in_failed`);
 }
 
 export async function logoutAction() {
