@@ -23,7 +23,7 @@ Web de la carta de una cafetería, inspirada estéticamente en la serie FRIENDS.
 
 - Next.js (App Router) + TypeScript estricto
 - Tailwind CSS + shadcn/ui + Framer Motion
-- Auth.js (NextAuth v5) con Prisma adapter: Google + email/contraseña (bcrypt)
+- Better Auth con adaptador Prisma: Google + email/contraseña. Se usa la **configuración por defecto de la librería** salvo que el motivo se documente en `docs/decisions.md`
 - Prisma ORM + **SQLite** (archivo en volumen persistente de Railway; ver sección "Base de datos")
 - Zod + react-hook-form
 - Imágenes: Cloudinary (subida firmada desde el servidor)
@@ -49,10 +49,11 @@ Una fase no está terminada si `lint`, `typecheck` o `build` fallan.
 
 ## Modelo de datos
 
-Fuente de verdad: `prisma/schema.prisma` con `provider = "sqlite"`. Modelos: `User` (role USER|ADMIN), `Category`, `Product`, `Rating`, `Comment`, `CommentLike`, más tablas de Auth.js.
+Fuente de verdad: `prisma/schema.prisma` con `provider = "sqlite"`. Modelos: `User` (role USER|ADMIN), `Category`, `Product`, `Rating`, `Comment`, `CommentLike`, más las tablas de Better Auth (`User` con `emailVerified Boolean` y `updatedAt`, `Account`, `Session`, `Verification`).
 
 Diferencias por usar SQLite:
-- `User.role` es `String @default("USER")`, validado con Zod y un tipo TypeScript `"USER" | "ADMIN"`. No usar `enum` de Prisma.
+- `User.role` es `String @default("USER")`, validado con Zod y un tipo TypeScript `"USER" | "ADMIN"`. No usar `enum` de Prisma. Es un `additionalFields` de Better Auth con `input: false` para que el cliente nunca pueda escribirlo.
+- La tabla `Verification` es obligatoria aunque no haya verificación de correo: Better Auth guarda en ella el `state` del flujo OAuth de Google.
 - Índice de comentarios sin modificador de orden: `@@index([productId, likeCount, createdAt])`.
 - `DATABASE_URL` es una ruta a archivo: `file:./dev.db` en local, `file:/data/app.db` en producción.
 
@@ -90,12 +91,12 @@ Objetivo: costo mínimo, sin servicio de BD aparte.
 
 - Toda mutación pasa por Server Action o Route Handler y **valida sesión y rol en el servidor**. Ocultar botones en la UI no cuenta como seguridad.
 - Helpers `requireUser()` y `requireAdmin()` en `lib/auth.ts`. Úsalos en cada acción protegida.
-- `proxy.ts` protege `/admin/**`, pero cada acción de admin comprueba `role === ADMIN` por su cuenta.
+- `proxy.ts` protege `/admin/**` con una comprobación **optimista** (`getSessionCookie` de Better Auth: solo presencia de cookie). Nunca es la barrera de seguridad. Cada layout, página y acción de admin comprueba `role === ADMIN` por su cuenta.
 - Validar toda entrada con Zod en el servidor.
 - Nunca usar `dangerouslySetInnerHTML`. Comentarios se renderizan como texto.
-- Rate limiting en comentarios, likes, login y registro. Documenta limitaciones si es en memoria.
-- bcrypt con coste ≥ 10. Cookies seguras en producción.
-- Ningún secreto en el repo. Mantener `.env.example` actualizado: `DATABASE_URL` (ej. `file:./dev.db`; en Railway `file:/data/app.db`), `AUTH_SECRET`, `AUTH_GOOGLE_ID`, `AUTH_GOOGLE_SECRET`, `NEXT_PUBLIC_SITE_URL`, `CLOUDINARY_*`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
+- Rate limiting en comentarios y likes con el limitador en memoria propio de `src/lib/rate-limit.ts`. Login y registro usan el limitador por defecto de Better Auth, que protege la ruta HTTP `/api/auth/*` pero **no** las llamadas `auth.api.*` hechas desde Server Actions: esa limitación está documentada en `docs/decisions.md`.
+- El hash de contraseña es el proveedor por defecto de Better Auth (scrypt). Cookies seguras en producción.
+- Ningún secreto en el repo. Mantener `.env.example` actualizado: `DATABASE_URL` (ej. `file:./dev.db`; en Railway `file:/data/app.db`), `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `NEXT_PUBLIC_SITE_URL`, `CLOUDINARY_*`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`.
 - Subida de imágenes: solo admin, máx. 3 MB, jpg/png/webp.
 - Errores al usuario sin detalles internos.
 
@@ -137,10 +138,10 @@ src/
     (public)/ menu/page.tsx, menu/[slug]/page.tsx, cuenta/page.tsx
     (auth)/ login/, registro/
     admin/ (productos, categorías, comentarios)
-    api/auth/[...nextauth]/route.ts
+    api/auth/[...all]/route.ts
     sitemap.ts, robots.ts, not-found.tsx
   components/ (ui/, product/, comments/, rating/, layout/)
-  lib/ (prisma.ts, auth.ts, validators/, seo.ts, rate-limit.ts, cloudinary.ts)
+  lib/ (prisma.ts, auth.ts, auth.server.ts, validators/, seo.ts, rate-limit.ts, cloudinary.ts)
   actions/ (rating.ts, comments.ts, likes.ts, products.ts, categories.ts)
 prisma/ schema.prisma, seed.ts
 docs/ decisions.md
@@ -150,7 +151,7 @@ docs/ decisions.md
 
 1. Setup: proyecto, Tailwind, shadcn/ui, ESLint/Prettier, tsconfig estricto, `.env.example`.
 2. Datos: schema Prisma con `provider = "sqlite"`, migración, seed idempotente (categorías, ~10 productos, admin desde `ADMIN_EMAIL`/`ADMIN_PASSWORD`), PRAGMAs WAL y `busy_timeout`.
-3. Auth: Auth.js, registro/login, roles, proxy, `requireUser()`/`requireAdmin()`.
+3. Auth (histórico, Auth.js; sustituido por Better Auth, ver `docs/decisions.md`): registro/login, roles, proxy, `requireUser()`/`requireAdmin()`.
 4. Público: layout, menú y detalle con ISR y metadata básica.
 5. Interacción: ratings, comentarios, likes con orden por likes, UI optimista, rate limiting.
 6. Admin: CRUD productos y categorías, Cloudinary, moderación, revalidación.
@@ -159,6 +160,18 @@ docs/ decisions.md
 9. Calidad y deploy: tests (Vitest para validadores y lógica de likes/rating; Playwright opcional para login → rating → comentario → like), `README.md`, guía Railway (crear volumen en `/data`, `DATABASE_URL=file:/data/app.db`, migraciones en el start command, una sola réplica), script y guía de backup/restauración de SQLite, checklist Cloudflare (DNS, proxy, SSL Full strict).
 
 Trabaja **una fase por vez**. No avances a la siguiente sin que yo lo pida.
+
+### Migración a Better Auth (en curso)
+
+Reemplaza por completo a Auth.js. Un commit Conventional Commit por hito:
+
+1. Auditoría y reglas: reescritura de las reglas de auth de este archivo y entrada en `docs/decisions.md`.
+2. Dependencias: `pnpm add better-auth @better-auth/prisma-adapter` y creación de `src/lib/auth.server.ts` conviviendo con Auth.js.
+3. Esquema: backup, `prisma/schema.prisma` al modelo de Better Auth, migración, reset y seed (el admin se crea con su `Account` de credenciales).
+4. Corte: ruta `api/auth/[...all]`, `nextCookies()` como último plugin, `proxy.ts` con `getSessionCookie`, Server Actions reescritas y desinstalación de `next-auth` + `@auth/prisma-adapter`.
+5. Calidad: tests y actualización de `README.md` y `docs/deploy.md`.
+
+Reglas de la migración: no usar `agent-browser`, Playwright ni automatización de navegador; la verificación es `pnpm lint`, `pnpm typecheck`, `pnpm test` y `pnpm build`. Las sesiones existentes se invalidan al cambiar la cookie, lo que se documenta en `README.md`.
 
 ## Reglas de trabajo
 
