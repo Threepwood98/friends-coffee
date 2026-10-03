@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { isGoogleAuthConfigured } from "@/auth";
-import { AuthShell } from "@/components/auth/auth-shell";
+import { AuthFrame } from "@/components/auth/auth-frame";
 import { GoogleSignInForm } from "@/components/auth/google-sign-in-form";
 import { RegisterForm } from "@/components/auth/register-form";
-import { FieldSeparator } from "@/components/ui/field";
 import { getCurrentUser } from "@/lib/auth";
 import { getSafeCallbackUrl } from "@/lib/validators/auth";
 
@@ -37,30 +35,17 @@ export default async function RegistrationPage({
   }
 
   return (
-    <AuthShell
-      eyebrow="Haz sitio en el sofá"
-      title="Crea tu cuenta"
-      description="Guarda tus valoraciones y comparte cada sobremesa."
-      footer={
-        <>
-          ¿Ya tienes cuenta?&nbsp;
-          <Link
-            href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-            className="font-medium text-foreground underline underline-offset-4 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            Entra aquí
-          </Link>
-        </>
-      }
-    >
-      <RegisterForm callbackUrl={callbackUrl} />
-
-      {isGoogleAuthConfigured ? (
-        <>
-          <FieldSeparator>o continúa con</FieldSeparator>
-          <GoogleSignInForm callbackUrl={callbackUrl} />
-        </>
-      ) : null}
-    </AuthShell>
+    <AuthFrame title="Crea tu cuenta">
+      <RegisterForm
+        callbackUrl={callbackUrl}
+        googleSignIn={
+          <GoogleSignInForm
+            callbackUrl={callbackUrl}
+            disabled={!isGoogleAuthConfigured}
+            label="Registrarse con Google"
+          />
+        }
+      />
+    </AuthFrame>
   );
 }

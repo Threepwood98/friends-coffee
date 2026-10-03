@@ -1,12 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { isGoogleAuthConfigured } from "@/auth";
-import { AuthShell } from "@/components/auth/auth-shell";
+import { AuthFrame } from "@/components/auth/auth-frame";
 import { GoogleSignInForm } from "@/components/auth/google-sign-in-form";
 import { LoginForm } from "@/components/auth/login-form";
-import { FieldSeparator } from "@/components/ui/field";
 import { getCurrentUser } from "@/lib/auth";
 import { getSafeCallbackUrl } from "@/lib/validators/auth";
 
@@ -74,30 +72,18 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
   );
 
   return (
-    <AuthShell
-      eyebrow="Bienvenido de nuevo"
-      title="Entra en tu cuenta"
-      description="Valora tus cafés favoritos y únete a la conversación."
-      footer={
-        <>
-          ¿Aún no tienes cuenta?&nbsp;
-          <Link
-            href={`/registro?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-            className="font-medium text-foreground underline underline-offset-4 focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            Regístrate
-          </Link>
-        </>
-      }
-    >
-      <LoginForm callbackUrl={callbackUrl} initialMessage={initialMessage} />
-
-      {isGoogleAuthConfigured ? (
-        <>
-          <FieldSeparator>o continúa con</FieldSeparator>
-          <GoogleSignInForm callbackUrl={callbackUrl} />
-        </>
-      ) : null}
-    </AuthShell>
+    <AuthFrame title="Entra en tu cuenta">
+      <LoginForm
+        callbackUrl={callbackUrl}
+        initialMessage={initialMessage}
+        googleSignIn={
+          <GoogleSignInForm
+            callbackUrl={callbackUrl}
+            disabled={!isGoogleAuthConfigured}
+            label="Iniciar sesión con Google"
+          />
+        }
+      />
+    </AuthFrame>
   );
 }
