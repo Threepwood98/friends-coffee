@@ -229,7 +229,7 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
 
       {googleSignIn ? (
         <>
-          <FieldSeparator className="my-0 text-[0.65rem] [&_[data-slot=field-separator-content]]:bg-door">
+          <FieldSeparator className="my-0 text-[0.65rem] **:data-[slot=field-separator-content]:bg-door">
             o continúa con
           </FieldSeparator>
           {googleSignIn}
