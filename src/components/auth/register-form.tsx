@@ -58,7 +58,7 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
       <form
         action={formAction}
         onSubmit={form.handleSubmit(submitForm)}
@@ -82,11 +82,11 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
               <Field
                 data-invalid={fieldState.invalid}
                 data-disabled={isPending}
-                className="gap-0"
+                className="gap-1"
               >
                 <FieldLabel
                   htmlFor="register-name"
-                  className="font-heading text-xs pl-4"
+                  className="pl-3 font-heading"
                 >
                   Nombre
                 </FieldLabel>
@@ -98,11 +98,17 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                   maxLength={60}
                   disabled={isPending}
                   aria-invalid={fieldState.invalid}
-                  className="rounded-full bg-peephole text-sm h-6"
+                  aria-errormessage={
+                    fieldState.invalid ? "register-name-error" : undefined
+                  }
+                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
+                  <FieldError
+                    id="register-name-error"
+                    errors={[fieldState.error]}
+                  />
                 ) : null}
               </Field>
             )}
@@ -115,11 +121,11 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
               <Field
                 data-invalid={fieldState.invalid}
                 data-disabled={isPending}
-                className="gap-0"
+                className="gap-1"
               >
                 <FieldLabel
                   htmlFor="register-email"
-                  className="font-heading text-xs pl-4"
+                  className="pl-3 font-heading"
                 >
                   Correo
                 </FieldLabel>
@@ -128,15 +134,23 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                   id="register-email"
                   type="email"
                   autoComplete="email"
-                  placeholder="friends@unagi.cat"
+                  inputMode="email"
+                  spellCheck={false}
+                  placeholder="unagi@pivot.cat"
                   maxLength={254}
                   disabled={isPending}
                   aria-invalid={fieldState.invalid}
-                  className="rounded-full bg-peephole text-sm h-6"
+                  aria-errormessage={
+                    fieldState.invalid ? "register-email-error" : undefined
+                  }
+                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
+                  <FieldError
+                    id="register-email-error"
+                    errors={[fieldState.error]}
+                  />
                 ) : null}
               </Field>
             )}
@@ -149,11 +163,11 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
               <Field
                 data-invalid={fieldState.invalid}
                 data-disabled={isPending}
-                className="gap-0"
+                className="gap-1"
               >
                 <FieldLabel
                   htmlFor="register-password"
-                  className="font-heading text-xs pl-4"
+                  className="pl-3 font-heading"
                 >
                   Contraseña
                 </FieldLabel>
@@ -162,19 +176,29 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                   id="register-password"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="************"
+                  placeholder="********"
                   minLength={8}
                   maxLength={128}
                   disabled={isPending}
                   aria-invalid={fieldState.invalid}
-                  className="rounded-full bg-peephole text-sm h-6"
+                  aria-describedby="register-password-description"
+                  aria-errormessage={
+                    fieldState.invalid ? "register-password-error" : undefined
+                  }
+                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
                   required
                 />
-                <FieldDescription className="text-xs">
+                <FieldDescription
+                  id="register-password-description"
+                  className="pl-3 text-xs"
+                >
                   Usa al menos 8 caracteres
                 </FieldDescription>
                 {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
+                  <FieldError
+                    id="register-password-error"
+                    errors={[fieldState.error]}
+                  />
                 ) : null}
               </Field>
             )}
@@ -187,28 +211,36 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
               <Field
                 data-invalid={fieldState.invalid}
                 data-disabled={isPending}
-                className="gap-0"
+                className="gap-1"
               >
                 <FieldLabel
                   htmlFor="register-confirm-password"
-                  className="font-heading text-xs pl-4"
+                  className="pl-3 font-heading"
                 >
-                  Confirmar Contraseña
+                  Confirmar
                 </FieldLabel>
                 <Input
                   {...field}
                   id="register-confirm-password"
                   type="password"
                   autoComplete="new-password"
-                  placeholder="************"
+                  placeholder="********"
                   maxLength={128}
                   disabled={isPending}
                   aria-invalid={fieldState.invalid}
-                  className="rounded-full bg-peephole text-sm h-6"
+                  aria-errormessage={
+                    fieldState.invalid
+                      ? "register-confirm-password-error"
+                      : undefined
+                  }
+                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
+                  <FieldError
+                    id="register-confirm-password-error"
+                    errors={[fieldState.error]}
+                  />
                 ) : null}
               </Field>
             )}
@@ -218,29 +250,28 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
         <Button
           type="submit"
           variant="accent"
-          size="xs"
-          className="w-full rounded-full font-heading text-xs"
+          className="h-12 w-full rounded-full font-heading focus-visible:border-peephole focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
           disabled={isPending}
         >
           {isPending ? <Spinner data-icon="inline-start" /> : null}
-          {isPending ? "Creando cuenta..." : "Crear cuenta"}
+          {isPending ? "Creando cuenta…" : "Crear cuenta"}
         </Button>
       </form>
 
       {googleSignIn ? (
         <>
-          <FieldSeparator className="my-0 text-[0.65rem] **:data-[slot=field-separator-content]:bg-door">
+          <FieldSeparator className="my-0 text-xs **:data-[slot=field-separator-content]:bg-door">
             o continúa con
           </FieldSeparator>
           {googleSignIn}
         </>
       ) : null}
 
-      <p className="text-center text-[0.65rem] text-primary-foreground/80">
+      <p className="text-center text-sm leading-6 text-primary-foreground/80">
         ¿Ya tienes cuenta?{" "}
         <Link
           href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-          className="inline-flex min-h-6 items-center font-heading text-peephole underline underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
+          className="inline-flex min-h-11 items-center font-heading text-peephole underline underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
         >
           Inicia sesión
         </Link>

@@ -54,7 +54,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="es"
       className={`${friendsLettering.variable} ${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-dvh flex-col">{children}</body>
     </html>
   );
 }

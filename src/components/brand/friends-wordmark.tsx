@@ -20,7 +20,7 @@ export function FriendsWordmark({
   const chars = Array.from(text ?? exampleBusinessDetails.name);
 
   return (
-    <span className={className} style={style}>
+    <span className={className} style={style} translate="no">
       {chars.map((char, index) =>
         char === " " ? (
           <span key={`${index}-space`}>&nbsp;</span>

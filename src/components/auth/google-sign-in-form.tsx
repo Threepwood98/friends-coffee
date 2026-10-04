@@ -1,5 +1,3 @@
-import { LogInIcon } from "lucide-react";
-
 import { signInWithGoogleAction } from "@/actions/auth";
 import { Button } from "@/components/ui/button";
 
@@ -20,11 +18,9 @@ export function GoogleSignInForm({
       <Button
         type="submit"
         variant="outline"
-        size="xs"
-        className="w-full rounded-full bg-peephole font-heading text-xs text-coffee hover:bg-peephole/90"
+        className="h-auto min-h-12 w-full rounded-full bg-peephole px-3 py-3 text-center font-heading text-sm leading-snug whitespace-normal text-coffee hover:bg-peephole/90 focus-visible:border-peephole focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
         disabled={disabled}
       >
-        <LogInIcon data-icon="inline-start" />
         {label}
       </Button>
     </form>

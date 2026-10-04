@@ -42,7 +42,11 @@ export function CategoryForm({ category }: CategoryFormProps) {
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form
+      action={formAction}
+      aria-busy={isPending}
+      className="flex min-w-0 flex-col gap-6"
+    >
       {state.message ? (
         <Alert variant="destructive">
           <CircleAlertIcon />
@@ -58,8 +62,8 @@ export function CategoryForm({ category }: CategoryFormProps) {
             id="category-name"
             name="name"
             defaultValue={category?.name}
-            placeholder="Ej. Cafés"
-            className="h-11"
+            placeholder="Ej. Cafés…"
+            maxLength={50}
             disabled={isPending}
             required
           />
@@ -71,8 +75,8 @@ export function CategoryForm({ category }: CategoryFormProps) {
             id="category-slug"
             name="slug"
             defaultValue={category?.slug}
-            placeholder="se genera desde el nombre"
-            className="h-11"
+            placeholder="Se genera desde el nombre…"
+            maxLength={120}
             disabled={isPending}
           />
         </Field>
@@ -87,24 +91,27 @@ export function CategoryForm({ category }: CategoryFormProps) {
             step="1"
             min="0"
             defaultValue={category?.position ?? 0}
-            className="h-11"
             disabled={isPending}
             required
           />
         </Field>
       </FieldGroup>
 
-      <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" className="h-11" disabled={isPending}>
+      <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:flex-wrap sm:items-center">
+        <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
           {isPending ? <Spinner data-icon="inline-start" /> : null}
           {isPending
-            ? "Guardando..."
+            ? "Guardando…"
             : category
               ? "Guardar cambios"
               : "Crear categoría"}
         </Button>
         {category ? (
-          <LinkButton href="/admin/categorias" variant="ghost">
+          <LinkButton
+            href="/admin/categorias"
+            variant="ghost"
+            className="w-full sm:w-auto"
+          >
             Cancelar
           </LinkButton>
         ) : null}

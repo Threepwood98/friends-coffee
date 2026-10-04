@@ -1,4 +1,4 @@
-ESPECIALIDADES CAFE ☕
+Café ☕
 Expreso... 170
 Cortado... 250
 Leche con Chocolate... 260
@@ -17,7 +17,7 @@ Frapuccino...550
 Frapuccino Irlandés...650
 Machiatto...450
 
-ESPECIALIDADES FRIAS🥤
+Espc. Frías🥤
 Vaca Negra...600
 Manicero...550
 Delicia Manicera...800
@@ -28,7 +28,7 @@ Batioreo...820
 Limonada Brasileña...500
 Mónica Ice...700
 
-SNACKS🍔
+Snacks🍔
 Croquetas...700
 Papas Fritas...550
 Salchipapa...1000
@@ -38,7 +38,7 @@ Hamburguesa Especial...900
 Joey's...1400
 Sandwich de J&Q...550
 
-COCTELERIA🍹
+Coctelería🍹
 Cerveza...670
 Cuba Libre...600
 Mojito...600
@@ -50,8 +50,6 @@ Rachel's Kiss...750
 Varadero Sunrise...750
 Caipi Blue...750
 
-TRAGOS AL STRAIGHT🥃
+TRAGOS 🥃
 Whisky...450
 Vodka...450
-
-Que lo disfruten♥️♥️😉

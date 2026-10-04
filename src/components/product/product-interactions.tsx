@@ -8,6 +8,7 @@ import {
 } from "@/actions/interactions";
 import { CommentsSection } from "@/components/comments/comments-section";
 import { RatingSection } from "@/components/rating/rating-section";
+import { Button } from "@/components/ui/button";
 import type {
   ProductCommentDto,
   RatingSummaryDto,
@@ -37,7 +38,10 @@ export function ProductInteractions({
   children,
 }: ProductInteractionsProps) {
   const [state, setState] = useState<MyInteractionState>(GUEST_STATE);
-  const [isLoaded, setIsLoaded] = useState(false);
+  const [loadStatus, setLoadStatus] = useState<"loading" | "ready" | "error">(
+    "loading",
+  );
+  const [requestVersion, setRequestVersion] = useState(0);
 
   useEffect(() => {
     let active = true;
@@ -46,26 +50,44 @@ export function ProductInteractions({
       .then((nextState) => {
         if (active) {
           setState(nextState);
+          setLoadStatus("ready");
         }
       })
       .catch(() => {
-        // Keep the guest state on failure; the page still works read-only.
-      })
-      .finally(() => {
         if (active) {
-          setIsLoaded(true);
+          setLoadStatus("error");
         }
       });
 
     return () => {
       active = false;
     };
-  }, [productId]);
+  }, [productId, requestVersion]);
 
+  const isLoaded = loadStatus === "ready";
   const resolvedState = isLoaded ? state : GUEST_STATE;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 flex-col">
+      {loadStatus === "error" ? (
+        <div
+          role="alert"
+          className="mb-4 flex flex-col items-start gap-3 rounded-xl border border-destructive/40 bg-card p-4 text-sm text-destructive"
+        >
+          <p>No hemos podido cargar tus opciones de participación.</p>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setLoadStatus("loading");
+              setRequestVersion((current) => current + 1);
+            }}
+          >
+            Reintentar
+          </Button>
+        </div>
+      ) : null}
       <RatingSection
         productId={productId}
         productSlug={productSlug}

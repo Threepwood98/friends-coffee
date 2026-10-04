@@ -3,7 +3,13 @@
 import { ThumbsUp, Trash2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useOptimistic, useState, useTransition } from "react";
+import {
+  useEffect,
+  useOptimistic,
+  useRef,
+  useState,
+  useTransition,
+} from "react";
 
 import { createCommentAction, deleteCommentAction } from "@/actions/comments";
 import type { MyInteractionState } from "@/actions/interactions";
@@ -47,6 +53,12 @@ export function CommentsSection({
   const [isSending, setIsSending] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [focusTargetId, setFocusTargetId] = useState<string | null | undefined>(
+    undefined,
+  );
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const commentRefs = useRef(new Map<string, HTMLLIElement>());
   const [confirmedLikes, setConfirmedLikes] = useState<LikeStates>({});
   const [optimisticLikes, setOptimisticLike] = useOptimistic(
     confirmedLikes,
@@ -56,6 +68,24 @@ export function CommentsSection({
     }),
   );
   const [isLikePending, startLikeTransition] = useTransition();
+
+  useEffect(() => {
+    if (focusTargetId === undefined) {
+      return;
+    }
+
+    const frame = requestAnimationFrame(() => {
+      if (focusTargetId) {
+        commentRefs.current.get(focusTargetId)?.focus();
+      } else {
+        headingRef.current?.focus();
+      }
+
+      setFocusTargetId(undefined);
+    });
+
+    return () => cancelAnimationFrame(frame);
+  }, [focusTargetId]);
 
   function getLikeState(comment: ProductCommentDto): LikeState {
     const override = optimisticLikes[comment.id];
@@ -72,6 +102,7 @@ export function CommentsSection({
 
   async function handleSubmit() {
     setMessage(null);
+    setStatusMessage(null);
     setIsSending(true);
 
     try {
@@ -87,6 +118,7 @@ export function CommentsSection({
       }
 
       setText("");
+      setStatusMessage("Comentario publicado.");
     } catch {
       setMessage("No hemos podido publicar tu comentario.");
     } finally {
@@ -111,6 +143,7 @@ export function CommentsSection({
     };
 
     setMessage(null);
+    setStatusMessage(null);
     startLikeTransition(async () => {
       setOptimisticLike({ commentId: comment.id, state: next });
 
@@ -137,12 +170,16 @@ export function CommentsSection({
     });
   }
 
-  async function handleDelete(commentId: string) {
+  async function handleDelete(
+    commentId: string,
+    nextFocusTargetId: string | null,
+  ) {
     if (!window.confirm("¿Quieres borrar este comentario?")) {
       return;
     }
 
     setMessage(null);
+    setStatusMessage(null);
     setDeletingId(commentId);
 
     try {
@@ -156,6 +193,8 @@ export function CommentsSection({
       setItems((current) =>
         current.filter((comment) => comment.id !== commentId),
       );
+      setStatusMessage("Comentario borrado.");
+      setFocusTargetId(nextFocusTargetId);
     } catch {
       setMessage("No hemos podido borrar el comentario.");
     } finally {
@@ -177,14 +216,22 @@ export function CommentsSection({
   return (
     <section
       aria-labelledby="comments-heading"
-      className="flex scroll-mt-28 flex-col gap-4"
+      className="flex min-w-0 scroll-mt-[calc(var(--site-header-height)+env(safe-area-inset-top)+1rem)] flex-col gap-4 border-t border-coffee/10 pt-5 sm:pt-6"
     >
       <h2
+        ref={headingRef}
         id="comments-heading"
-        className="font-heading text-2xl font-normal text-coffee"
+        tabIndex={-1}
+        className="font-heading text-2xl font-normal text-coffee focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
       >
         Comentarios:
       </h2>
+
+      {statusMessage ? (
+        <p role="status" className="text-sm text-muted-foreground">
+          {statusMessage}
+        </p>
+      ) : null}
 
       {message ? (
         <p role="alert" className="text-sm text-destructive">
@@ -195,6 +242,7 @@ export function CommentsSection({
       {isHydrated && state.isAuthed ? (
         <form
           className="flex flex-col gap-3"
+          aria-busy={isSending}
           onSubmit={(event) => {
             event.preventDefault();
             if (!text.trim()) {
@@ -215,18 +263,22 @@ export function CommentsSection({
             }}
             maxLength={COMMENT_MAX_LENGTH}
             rows={3}
+            aria-describedby={`comment-${productId}-count`}
             placeholder="¿Qué te ha parecido?…"
-            className="min-h-28 rounded-xl bg-background/70 p-4"
+            className="min-h-28 rounded-xl bg-background/70 p-4 md:text-base"
             disabled={isSending}
           />
-          <div className="flex items-center justify-between gap-3">
-            <span className="text-xs text-muted-foreground tabular-nums">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <span
+              id={`comment-${productId}-count`}
+              className="text-xs text-muted-foreground tabular-nums"
+            >
               {text.length}/{COMMENT_MAX_LENGTH}
             </span>
             <Button
               type="submit"
               size="sm"
-              className="min-h-11"
+              className="min-h-11 max-w-full"
               disabled={isSending || !text.trim()}
             >
               {isSending ? "Publicando…" : "Publicar comentario"}
@@ -234,24 +286,37 @@ export function CommentsSection({
           </div>
         </form>
       ) : isHydrated ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="flex flex-wrap items-center gap-x-1 text-sm text-muted-foreground">
           <Link
             href={loginUrl(productSlug)}
-            className="font-medium underline underline-offset-4 hover:text-foreground"
+            className="inline-flex min-h-11 items-center rounded-sm font-medium underline underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             Inicia sesión
-          </Link>{" "}
+          </Link>
           para comentar y dar like.
         </p>
       ) : null}
 
       {displayedItems.length > 0 ? (
-        <ul className="flex flex-col">
-          {displayedItems.map((comment) => {
+        <ul className="flex min-w-0 flex-col">
+          {displayedItems.map((comment, index) => {
+            const nextFocusTargetId =
+              displayedItems[index + 1]?.id ??
+              displayedItems[index - 1]?.id ??
+              null;
+
             return (
               <li
                 key={comment.id}
-                className="flex flex-col gap-3 border-t border-coffee/10 py-4 first:border-t-0"
+                ref={(node) => {
+                  if (node) {
+                    commentRefs.current.set(comment.id, node);
+                  } else {
+                    commentRefs.current.delete(comment.id);
+                  }
+                }}
+                tabIndex={-1}
+                className="flex min-w-0 flex-col gap-3 border-t border-coffee/10 py-4 first:border-t-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 <div className="flex items-center gap-3">
                   <span
@@ -260,8 +325,10 @@ export function CommentsSection({
                   >
                     {comment.authorName.trim()[0]?.toUpperCase() ?? "F"}
                   </span>
-                  <div className="min-w-0">
-                    <p className="truncate font-medium">{comment.authorName}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="break-words font-medium leading-snug">
+                      {comment.authorName}
+                    </p>
                     <time
                       dateTime={comment.createdAt}
                       className="text-xs text-muted-foreground"
@@ -273,7 +340,7 @@ export function CommentsSection({
 
                 <p className="text-sm leading-6 break-words">{comment.text}</p>
 
-                <div className="flex items-center gap-2">
+                <div className="flex flex-wrap items-center gap-2">
                   <Button
                     type="button"
                     variant="ghost"
@@ -285,7 +352,8 @@ export function CommentsSection({
                     onClick={() => handleToggleLike(comment)}
                   >
                     <ThumbsUp
-                      className={cn("size-4", comment.liked && "fill-current")}
+                      data-icon="inline-start"
+                      className={cn(comment.liked && "fill-current")}
                       aria-hidden
                     />
                     <span className="tabular-nums">{comment.likeCount}</span>
@@ -296,12 +364,18 @@ export function CommentsSection({
                       type="button"
                       variant="ghost"
                       size="sm"
-                      aria-label="Borrar comentario"
+                      aria-label={
+                        deletingId === comment.id
+                          ? `Borrando comentario de ${comment.authorName}`
+                          : `Borrar comentario de ${comment.authorName}`
+                      }
                       className="min-h-11 text-destructive hover:text-destructive"
                       disabled={deletingId !== null}
-                      onClick={() => handleDelete(comment.id)}
+                      onClick={() =>
+                        handleDelete(comment.id, nextFocusTargetId)
+                      }
                     >
-                      <Trash2 className="size-4" aria-hidden />
+                      <Trash2 data-icon="inline-start" aria-hidden />
                       <span className="text-sm">
                         {deletingId === comment.id ? "Borrando…" : "Borrar"}
                       </span>

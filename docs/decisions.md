@@ -191,3 +191,13 @@ Status: accepted (supersedes "2026-09-29 - Authentication and Authorization" whe
 - **No `authClient` instance is created.** Every auth mutation is a Server Action, and an unused client bundle would be dead code. The OAuth redirect URI is unchanged at `/api/auth/callback/google`, so the Google Cloud credentials need no change.
 - **All existing sessions are invalidated** by the migration because the cookie name and format change. This is documented in `README.md`.
 - Contradictions found against the official documentation while planning: the Prisma adapter requires `@better-auth/prisma-adapter` in addition to `better-auth`, and the CLI is documented as `pnpm dlx auth@latest generate`, not `npx @better-auth/cli@latest generate`. The Prisma adapter is available from `better-auth/adapters/prisma`. Because the project is on Prisma 6.19.3, no driver adapter is required.
+
+## 2026-10-03 - Mobile-first responsive UI
+
+Status: accepted
+
+- Evolve the existing FRIENDS design in focused phases instead of replacing it. The acceptance widths are 360, 768, 1024 and 1440 pixels, with 320 pixels and mobile landscape used as stress cases. Existing colors, fonts and Server Component boundaries stay unchanged.
+- Shared page gutters start at 16 pixels, grow to 24 and 32 pixels, and respect each page's existing maximum width. Interactive controls target at least 44 pixels; form inputs target 48 pixels and retain a 16-pixel mobile font size to prevent iOS zoom.
+- Keep the complete yellow frame visible around authentication at every viewport, as explicitly chosen by the owner. The frame is content-driven rather than locked to an aspect ratio or viewport height, so validation errors, registration fields and the software keyboard extend the document and use normal page scrolling instead of clipping content.
+- The future mobile admin navigation uses one horizontally scrollable row of tabs rather than a disclosure menu. This keeps all four destinations visible with no additional client state.
+- Do not add a responsive UI dependency. Tailwind CSS, shared CSS variables and the existing component primitives are sufficient.

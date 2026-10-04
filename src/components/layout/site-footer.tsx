@@ -5,27 +5,30 @@ const { address, hours } = exampleBusinessDetails;
 
 export function SiteFooter() {
   return (
-    <footer id="visitanos" className="mt-16 px-4 pb-6">
-      <div className="friends-surface mx-auto max-w-7xl overflow-hidden">
+    <footer
+      id="visitanos"
+      className="site-container site-footer mt-12 sm:mt-16"
+    >
+      <div className="friends-surface overflow-hidden">
         <div
           aria-hidden
           className="h-1.5 bg-gradient-to-r from-primary via-peephole to-accent"
         />
-        <div className="grid gap-8 px-6 py-9 sm:grid-cols-2 lg:grid-cols-3 lg:px-10">
+        <div className="grid gap-6 px-5 py-7 sm:grid-cols-2 sm:gap-8 sm:px-6 sm:py-9 lg:grid-cols-3 lg:px-10">
           <div className="flex flex-col gap-2">
             <p className="font-heading text-4xl font-normal text-coffee">
               <FriendsWordmark />
             </p>
-            <p className="text-sm text-muted-foreground">
+            <p className="break-words text-sm text-muted-foreground">
               {exampleBusinessDetails.tagline}
             </p>
           </div>
 
           <address className="flex flex-col gap-2 text-sm not-italic">
-            <p className="font-heading text-2xl font-normal text-coffee not-italic">
+            <h2 className="font-heading text-2xl font-normal text-coffee not-italic">
               Dónde estamos
-            </p>
-            <p className="text-muted-foreground">
+            </h2>
+            <p className="break-words text-muted-foreground">
               {address.streetAddress}
               <br />
               {address.postalCode} {address.addressLocality}
@@ -33,7 +36,7 @@ export function SiteFooter() {
             <p>
               <a
                 href={`tel:${exampleBusinessDetails.telephone.replace(/\s/g, "")}`}
-                className="inline-flex min-h-11 items-center text-muted-foreground underline underline-offset-4 hover:text-coffee"
+                className="inline-flex min-h-11 items-center rounded-sm text-muted-foreground underline underline-offset-4 hover:text-coffee focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               >
                 {exampleBusinessDetails.telephone}
               </a>
@@ -41,14 +44,17 @@ export function SiteFooter() {
           </address>
 
           <div className="flex flex-col gap-2 text-sm">
-            <p className="font-heading text-2xl font-normal text-coffee">
+            <h2 className="font-heading text-2xl font-normal text-coffee">
               Horarios
-            </p>
+            </h2>
             <ul className="flex flex-col gap-1 text-muted-foreground">
               {hours.map((entry) => (
-                <li key={entry.day} className="flex justify-between gap-4">
+                <li
+                  key={entry.day}
+                  className="flex flex-wrap justify-between gap-x-4 gap-y-1"
+                >
                   <span>{entry.label}</span>
-                  <span className="tabular-nums">
+                  <span className="shrink-0 tabular-nums">
                     {entry.opens} – {entry.closes}
                   </span>
                 </li>
@@ -58,8 +64,8 @@ export function SiteFooter() {
         </div>
 
         <div className="border-t border-coffee/10 bg-secondary/15">
-          <div className="px-6 py-4 text-xs text-muted-foreground lg:px-10">
-            <p>
+          <div className="px-5 py-4 text-xs text-muted-foreground sm:px-6 lg:px-10">
+            <p className="break-words">
               © {new Date().getFullYear()} {exampleBusinessDetails.name}. Datos
               de contacto de ejemplo, pendientes de confirmar.
             </p>

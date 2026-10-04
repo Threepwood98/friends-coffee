@@ -3,12 +3,16 @@ interface CategoryNavProps {
 }
 
 export function CategoryNav({ categories }: CategoryNavProps) {
+  if (categories.length === 0) {
+    return null;
+  }
+
   return (
     <nav
       aria-label="Categorías del menú"
-      className="sticky top-15 z-10 overflow-x-auto px-4 py-2 backdrop-blur-xs [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      className="sticky top-[calc(var(--site-header-height)+env(safe-area-inset-top))] z-20 -mx-4 overflow-x-auto overscroll-x-contain bg-cream/90 px-4 py-2 shadow-sm backdrop-blur-sm [scrollbar-width:none] sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8 [&::-webkit-scrollbar]:hidden"
     >
-      <ul className="flex w-max gap-2">
+      <ul className="flex w-max gap-2 pr-4 sm:pr-6 lg:pr-8">
         {categories.map((category) => (
           <li key={category.slug}>
             <a

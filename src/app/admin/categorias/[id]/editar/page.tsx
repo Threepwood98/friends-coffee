@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { CategoryForm } from "@/components/admin/category-form";
 import { LinkButton } from "@/components/admin/link-button";
+import { requireAdmin } from "@/lib/auth";
 import { getPrisma } from "@/lib/prisma";
 
 interface AdminEditCategoryPageProps {
@@ -17,6 +18,7 @@ export const metadata: Metadata = {
 export default async function AdminEditCategoryPage({
   params,
 }: AdminEditCategoryPageProps) {
+  await requireAdmin();
   const { id } = await params;
   const prisma = await getPrisma();
   const category = await prisma.category.findUnique({
@@ -29,12 +31,12 @@ export default async function AdminEditCategoryPage({
   }
 
   return (
-    <div className="mx-auto flex max-w-3xl flex-col gap-8">
+    <div className="mx-auto flex max-w-3xl flex-col gap-6 sm:gap-8">
       <div className="flex flex-col gap-2">
         <p className="text-sm font-medium tracking-widest text-muted-foreground uppercase">
           Carta · Categorías
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight">
+        <h1 className="text-balance break-words text-2xl font-semibold tracking-tight sm:text-3xl">
           Editar «{category.name}»
         </h1>
       </div>
@@ -42,7 +44,11 @@ export default async function AdminEditCategoryPage({
       <CategoryForm category={category} />
 
       <div>
-        <LinkButton href="/admin/categorias" variant="ghost">
+        <LinkButton
+          href="/admin/categorias"
+          variant="ghost"
+          className="w-full sm:w-auto"
+        >
           Volver a categorías
         </LinkButton>
       </div>

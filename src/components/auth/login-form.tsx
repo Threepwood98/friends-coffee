@@ -59,7 +59,7 @@ export function LoginForm({
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-4">
       <form
         action={formAction}
         onSubmit={form.handleSubmit(submitForm)}
@@ -75,7 +75,7 @@ export function LoginForm({
           </Alert>
         ) : null}
 
-        <FieldGroup className="gap-2">
+        <FieldGroup className="gap-3">
           <Controller
             name="email"
             control={form.control}
@@ -83,11 +83,11 @@ export function LoginForm({
               <Field
                 data-invalid={fieldState.invalid}
                 data-disabled={isPending}
-                className="gap-0"
+                className="gap-1"
               >
                 <FieldLabel
                   htmlFor="login-email"
-                  className="pl-4 font-heading text-xs"
+                  className="pl-3 font-heading text-sm"
                 >
                   Correo
                 </FieldLabel>
@@ -96,14 +96,22 @@ export function LoginForm({
                   id="login-email"
                   type="email"
                   autoComplete="email"
-                  placeholder="friends@unagi.cat"
+                  inputMode="email"
+                  spellCheck={false}
+                  placeholder="nombre@ejemplo.com"
                   disabled={isPending}
                   aria-invalid={fieldState.invalid}
-                  className="h-6 rounded-full bg-peephole text-sm"
+                  aria-errormessage={
+                    fieldState.invalid ? "login-email-error" : undefined
+                  }
+                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
+                  <FieldError
+                    id="login-email-error"
+                    errors={[fieldState.error]}
+                  />
                 ) : null}
               </Field>
             )}
@@ -116,11 +124,11 @@ export function LoginForm({
               <Field
                 data-invalid={fieldState.invalid}
                 data-disabled={isPending}
-                className="gap-0"
+                className="gap-1"
               >
                 <FieldLabel
                   htmlFor="login-password"
-                  className="pl-4 font-heading text-xs"
+                  className="pl-3 font-heading text-sm"
                 >
                   Contraseña
                 </FieldLabel>
@@ -132,11 +140,17 @@ export function LoginForm({
                   placeholder="************"
                   disabled={isPending}
                   aria-invalid={fieldState.invalid}
-                  className="h-6 rounded-full bg-peephole text-sm"
+                  aria-errormessage={
+                    fieldState.invalid ? "login-password-error" : undefined
+                  }
+                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (
-                  <FieldError errors={[fieldState.error]} />
+                  <FieldError
+                    id="login-password-error"
+                    errors={[fieldState.error]}
+                  />
                 ) : null}
               </Field>
             )}
@@ -146,29 +160,28 @@ export function LoginForm({
         <Button
           type="submit"
           variant="accent"
-          size="xs"
-          className="w-full rounded-full font-heading text-xs"
+          className="min-h-12 w-full rounded-full font-heading text-sm focus-visible:border-peephole focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
           disabled={isPending}
         >
           {isPending ? <Spinner data-icon="inline-start" /> : null}
-          {isPending ? "Entrando..." : "Entrar"}
+          {isPending ? "Entrando…" : "Entrar"}
         </Button>
       </form>
 
       {googleSignIn ? (
         <>
-          <FieldSeparator className="my-0 text-[0.65rem] **:data-[slot=field-separator-content]:bg-door">
+          <FieldSeparator className="my-0 text-xs **:data-[slot=field-separator-content]:bg-door">
             o continúa con
           </FieldSeparator>
           {googleSignIn}
         </>
       ) : null}
 
-      <p className="text-center text-[0.65rem] text-primary-foreground/80">
+      <p className="text-center text-sm leading-6 text-primary-foreground/80">
         ¿No tienes cuenta?{" "}
         <Link
           href={`/registro?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-          className="inline-flex min-h-6 items-center font-heading text-peephole underline underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
+          className="inline-flex min-h-11 items-center font-heading text-peephole underline underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
         >
           Regístrate
         </Link>

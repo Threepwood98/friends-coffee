@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { deleteProductAction } from "@/actions/products";
 import { Badge } from "@/components/ui/badge";
+import { requireAdmin } from "@/lib/auth";
 import { formatPrice } from "@/lib/format";
 import { getPrisma } from "@/lib/prisma";
 
@@ -23,6 +24,7 @@ export const metadata: Metadata = {
 };
 
 export default async function AdminProductsPage() {
+  await requireAdmin();
   const prisma = await getPrisma();
   const products = await prisma.product.findMany({
     orderBy: { createdAt: "asc" },
@@ -38,13 +40,15 @@ export default async function AdminProductsPage() {
   });
 
   return (
-    <div className="flex flex-col gap-8">
-      <div className="flex flex-wrap items-end justify-between gap-4">
+    <div className="flex flex-col gap-6 sm:gap-8">
+      <div className="flex flex-wrap items-start justify-between gap-4 sm:items-end">
         <div className="flex flex-col gap-2">
           <p className="text-sm font-medium tracking-widest text-muted-foreground uppercase">
             Carta
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight">Productos</h1>
+          <h1 className="text-balance break-words text-2xl font-semibold tracking-tight sm:text-3xl">
+            Productos
+          </h1>
           <p className="max-w-2xl text-muted-foreground">
             {products.length}{" "}
             {products.length === 1
@@ -53,8 +57,8 @@ export default async function AdminProductsPage() {
             .
           </p>
         </div>
-        <LinkButton href="/admin/productos/nuevo">
-          <Plus className="size-4" aria-hidden />
+        <LinkButton href="/admin/productos/nuevo" className="w-full sm:w-auto">
+          <Plus data-icon="inline-start" aria-hidden />
           Nuevo producto
         </LinkButton>
       </div>
@@ -69,55 +73,67 @@ export default async function AdminProductsPage() {
           </CardHeader>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2">
+        <ul className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {products.map((product) => (
-            <Card key={product.id}>
-              {product.imageUrl ? (
-                <div className="relative aspect-[4/3] overflow-hidden bg-muted">
-                  <Image
-                    src={product.imageUrl}
-                    alt={`Fotografía de ${product.name}`}
-                    fill
-                    sizes="(max-width: 1024px) 50vw, 33vw"
-                    className="object-cover"
-                  />
-                </div>
-              ) : null}
-              <CardHeader>
-                <CardTitle>{product.name}</CardTitle>
-                <CardDescription>{product.category.name}</CardDescription>
-                <CardAction>
-                  <div className="flex flex-col items-end gap-2">
-                    <Badge
-                      variant={product.available ? "default" : "secondary"}
-                    >
-                      {product.available ? "Disponible" : "Oculto"}
-                    </Badge>
-                    <span className="font-heading text-lg font-medium">
-                      {formatPrice(product.price)}
-                    </span>
+            <li key={product.id} className="min-w-0">
+              <Card className={product.imageUrl ? "h-full pt-0" : "h-full"}>
+                {product.imageUrl ? (
+                  <div className="relative aspect-[4/3] overflow-hidden bg-muted">
+                    <Image
+                      src={product.imageUrl}
+                      alt={`Fotografía de ${product.name}`}
+                      fill
+                      sizes="(min-width: 1280px) 22rem, (min-width: 768px) calc(50vw - 2.5rem), calc(100vw - 2rem)"
+                      className="object-cover"
+                    />
                   </div>
-                </CardAction>
-              </CardHeader>
-              <CardContent className="flex flex-wrap items-center gap-2">
-                <LinkButton
-                  href={`/admin/productos/${product.id}/editar`}
-                  variant="outline"
-                >
-                  Editar
-                </LinkButton>
-                <LinkButton href={`/menu/${product.slug}`} variant="ghost">
-                  Ver en carta
-                  <ArrowRight className="size-4" aria-hidden />
-                </LinkButton>
-                <ConfirmDeleteButton
-                  title="Borrar"
-                  onConfirm={() => deleteProductAction(product.id)}
-                />
-              </CardContent>
-            </Card>
+                ) : null}
+                <CardHeader className="min-w-0">
+                  <CardTitle className="min-w-0 break-words">
+                    {product.name}
+                  </CardTitle>
+                  <CardDescription className="break-words">
+                    {product.category.name}
+                  </CardDescription>
+                  <CardAction className="min-w-0 max-w-[45%]">
+                    <div className="flex min-w-0 flex-col items-end gap-2">
+                      <Badge
+                        variant={product.available ? "default" : "secondary"}
+                      >
+                        {product.available ? "Disponible" : "Oculto"}
+                      </Badge>
+                      <span className="max-w-full text-right font-heading text-lg font-medium break-all">
+                        {formatPrice(product.price)}
+                      </span>
+                    </div>
+                  </CardAction>
+                </CardHeader>
+                <CardContent className="mt-auto flex flex-wrap items-start gap-2">
+                  <LinkButton
+                    href={`/admin/productos/${product.id}/editar`}
+                    variant="outline"
+                    aria-label={`Editar ${product.name}`}
+                  >
+                    Editar
+                  </LinkButton>
+                  <LinkButton
+                    href={`/menu/${product.slug}`}
+                    variant="ghost"
+                    aria-label={`Ver ${product.name} en la carta`}
+                  >
+                    Ver en carta
+                    <ArrowRight data-icon="inline-end" aria-hidden />
+                  </LinkButton>
+                  <ConfirmDeleteButton
+                    title="Borrar"
+                    itemLabel={product.name}
+                    onConfirm={() => deleteProductAction(product.id)}
+                  />
+                </CardContent>
+              </Card>
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </div>
   );

@@ -39,15 +39,15 @@ export default async function AdminDashboardPage() {
   ]);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6 sm:gap-8">
       <div className="flex flex-col gap-3">
         <p className="text-sm font-medium tracking-widest text-muted-foreground uppercase">
           Zona privada
         </p>
-        <h1 className="text-3xl font-semibold tracking-tight">
+        <h1 className="text-balance break-words text-2xl font-semibold tracking-tight sm:text-3xl">
           Panel de administración
         </h1>
-        <p className="max-w-2xl text-muted-foreground">
+        <p className="max-w-2xl break-words text-muted-foreground">
           Sesión iniciada como {user.name ?? user.email}.
         </p>
       </div>
@@ -136,11 +136,11 @@ export default async function AdminDashboardPage() {
       </section>
 
       <div className="flex flex-wrap items-center gap-3">
-        <LinkButton href="/menu" variant="outline" className="min-h-11">
+        <LinkButton href="/menu" variant="outline" className="w-full sm:w-auto">
           Ver carta pública
         </LinkButton>
-        <form action={logoutAction}>
-          <Button type="submit" variant="ghost" className="h-11">
+        <form action={logoutAction} className="w-full sm:w-auto">
+          <Button type="submit" variant="ghost" className="w-full sm:w-auto">
             Cerrar sesión
           </Button>
         </form>

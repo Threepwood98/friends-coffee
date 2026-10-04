@@ -107,10 +107,17 @@ export function RatingSection({
 
   return (
     <section
-      aria-label="Valorar producto"
-      aria-busy={isPending}
-      className="flex flex-col gap-2"
+      aria-labelledby="rating-heading"
+      aria-busy={!isHydrated || isPending}
+      className="flex min-w-0 flex-col gap-2 pb-5 sm:pb-6"
     >
+      <h2
+        id="rating-heading"
+        className="font-heading text-2xl font-normal text-coffee"
+      >
+        Tu valoración:
+      </h2>
+
       <div className="flex flex-wrap items-center gap-3">
         <div
           role="group"
@@ -130,8 +137,10 @@ export function RatingSection({
                 aria-pressed={displayedRating === value}
                 disabled={!isHydrated || isPending}
                 className={cn(
-                  "inline-flex min-h-11 min-w-11 items-center justify-center rounded-lg transition-transform hover:scale-110 hover:text-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-60",
-                  selected ? "text-accent" : "text-coffee/25",
+                  "inline-flex size-11 items-center justify-center rounded-lg hover:bg-accent/15 hover:text-coffee motion-safe:transition-[color,background-color,transform] motion-safe:hover:scale-110 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring disabled:pointer-events-none disabled:opacity-60",
+                  selected
+                    ? "bg-accent/15 text-coffee"
+                    : "text-muted-foreground",
                 )}
               >
                 <StarIcon
@@ -143,17 +152,23 @@ export function RatingSection({
           })}
         </div>
 
-        <p className="text-sm text-muted-foreground">{summaryText}</p>
+        <p
+          aria-live="polite"
+          aria-atomic="true"
+          className="text-sm text-muted-foreground"
+        >
+          {summaryText}
+        </p>
       </div>
 
       {isHydrated && !state.isAuthed ? (
-        <p className="text-sm text-muted-foreground">
+        <p className="flex flex-wrap items-center gap-x-1 text-sm text-muted-foreground">
           <Link
             href={loginUrl(productSlug)}
-            className="font-medium underline underline-offset-4 hover:text-foreground"
+            className="inline-flex min-h-11 items-center rounded-sm font-medium underline underline-offset-4 hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           >
             Inicia sesión
-          </Link>{" "}
+          </Link>
           para dejar tu valoración.
         </p>
       ) : null}

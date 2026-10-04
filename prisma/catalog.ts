@@ -14,8 +14,8 @@ interface CatalogCategory {
 
 export const catalog = [
   {
-    name: "Especialidades Café",
-    slug: "especialidades-cafe",
+    name: "Café",
+    slug: "cafe",
     position: 1,
     products: [
       {
@@ -140,8 +140,8 @@ export const catalog = [
     ],
   },
   {
-    name: "Especialidades Frías",
-    slug: "especialidades-frias",
+    name: "Espc. Frías",
+    slug: "espc-frias",
     position: 2,
     products: [
       {
@@ -346,8 +346,8 @@ export const catalog = [
     ],
   },
   {
-    name: "Tragos al Straight",
-    slug: "tragos-al-straight",
+    name: "Tragos",
+    slug: "tragos",
     position: 5,
     products: [
       {

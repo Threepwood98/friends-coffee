@@ -1,5 +1,5 @@
-/* eslint-disable @next/next/no-img-element */
 import type { Metadata } from "next";
+import Image from "next/image";
 
 import { CategoryNav } from "@/components/product/category-nav";
 import { ProductCard } from "@/components/product/product-card";
@@ -21,26 +21,36 @@ export default async function MenuPage() {
   const categories = await getMenuCategories();
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 py-8 sm:py-12">
+    <div className="site-container flex max-w-6xl flex-col gap-10 py-6 sm:gap-12 sm:py-10">
       <JsonLd data={cafeOrCoffeeShopJsonLd()} />
-      <Card className="friends-surface relative mx-4 flex animate-fade-up overflow-hidden bg-primary text-primary-foreground">
-        <CardHeader className="pr-28 pl-8 font-heading text-2xl leading-none tracking-wider">
-          <h1>{"I'll Be There For You..."}</h1>
+      <Card className="friends-surface relative min-h-64 animate-fade-up gap-0 overflow-hidden bg-primary py-0 text-primary-foreground sm:min-h-56 sm:flex-row sm:items-center sm:justify-between">
+        <Image
+          src="/images/friends_frame.svg"
+          alt=""
+          width={980}
+          height={1225}
+          loading="eager"
+          className="pointer-events-none absolute -top-24 -right-12 h-auto w-40 opacity-70 sm:-top-28 sm:right-0 sm:w-52 lg:w-60"
+        />
+        <CardHeader className="relative z-10 w-full gap-2 px-6 pt-8 pb-4 text-center sm:min-w-0 sm:flex-1 sm:px-8 sm:py-8 sm:text-left lg:px-12">
+          <h1 className="friends-kicker text-xs font-semibold text-peephole sm:text-sm">
+            Menú
+          </h1>
+          <p
+            lang="en"
+            className="text-balance font-heading text-3xl leading-none tracking-wide sm:text-4xl lg:text-5xl"
+          >
+            I’ll Be There for You…
+          </p>
         </CardHeader>
-        <CardContent>
-          <img
-            src="/images/friends_frame.png"
-            alt=""
-            width={1072}
-            height={1340}
-            className="absolute -top-28 -right-14 -z-10 h-auto w-44"
-          />
-          <img
-            src="/images/friends_couch.png"
+        <CardContent className="relative z-10 flex w-full justify-center px-6 pt-0 pb-6 sm:w-auto sm:shrink-0 sm:justify-end sm:px-6 sm:py-6 lg:pr-12">
+          <Image
+            src="/images/friends_couch.svg"
             alt=""
             width={1528}
             height={721}
-            className="h-auto w-64"
+            fetchPriority="high"
+            className="h-auto w-full max-w-64 md:max-w-80 lg:max-w-96"
           />
         </CardContent>
       </Card>
@@ -62,11 +72,11 @@ export default async function MenuPage() {
             key={category.id}
             id={category.slug}
             aria-labelledby={`${category.slug}-titulo`}
-            className="flex scroll-mt-36 flex-col px-4"
+            className="flex scroll-mt-[calc(var(--site-header-height)+env(safe-area-inset-top)+5rem)] flex-col gap-3"
           >
             <h2
               id={`${category.slug}-titulo`}
-              className="font-heading text-xl text-coffee sm:text-5xl"
+              className="text-balance break-words font-heading text-3xl leading-none text-coffee sm:text-4xl lg:text-5xl"
             >
               {category.name}
             </h2>
@@ -76,7 +86,7 @@ export default async function MenuPage() {
                 No hay productos en esta categoría todavía.
               </p>
             ) : (
-              <ul className="grid grid-cols-2 gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
+              <ul className="grid grid-cols-2 gap-3 max-[359px]:grid-cols-1 sm:gap-4 md:grid-cols-3 md:gap-5 xl:grid-cols-4">
                 {category.products.map((product) => (
                   <li key={product.id}>
                     <ProductCard

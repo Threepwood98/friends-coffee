@@ -7,14 +7,8 @@ interface AuthFrameProps {
 
 export function AuthFrame({ title, children }: AuthFrameProps) {
   return (
-    <main className="relative flex min-h-svh items-center justify-center overflow-hidden bg-door p-4">
-      <div
-        className="relative z-10 aspect-4/6 shrink-0"
-        style={{
-          width:
-            "min(calc(100vw - 2rem), calc((100svh - 2rem) / 1.5), 53.6rem)",
-        }}
-      >
+    <main className="relative flex min-h-svh items-center justify-center overflow-x-hidden bg-door pt-[max(1rem,env(safe-area-inset-top))] pr-[max(1rem,env(safe-area-inset-right))] pb-[max(1rem,env(safe-area-inset-bottom))] pl-[max(1rem,env(safe-area-inset-left))] sm:py-8">
+      <div className="relative z-10 w-full max-w-2xl px-[12%] py-16 sm:px-[15%] sm:py-20">
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 bg-peephole"
@@ -25,7 +19,7 @@ export function AuthFrame({ title, children }: AuthFrameProps) {
           }}
         />
 
-        <div className="absolute top-1/2 left-1/2 z-10 flex h-[60%] w-[56%] -translate-x-1/2 -translate-y-1/2 flex-col justify-center rounded-4xl bg-door p-4">
+        <div className="auth-frame relative z-10 mx-auto flex min-w-0 flex-col rounded-4xl bg-door py-2 text-primary-foreground sm:px-4 sm:py-4">
           <h1 className="sr-only">{title}</h1>
           {children}
         </div>

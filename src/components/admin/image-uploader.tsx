@@ -10,11 +10,13 @@ import { validateImageUploadFile } from "@/lib/image-upload-policy";
 interface ImageUploaderProps {
   imageUrl: string;
   onImageUrlChange: (imageUrl: string) => void;
+  onUploadingChange: (isUploading: boolean) => void;
 }
 
 export function ImageUploader({
   imageUrl,
   onImageUrlChange,
+  onUploadingChange,
 }: ImageUploaderProps) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
@@ -35,6 +37,7 @@ export function ImageUploader({
     }
 
     setIsUploading(true);
+    onUploadingChange(true);
 
     try {
       const result = await getProductUploadSignatureAction();
@@ -76,6 +79,7 @@ export function ImageUploader({
       setError("Ha fallado la subida. Inténtalo de nuevo.");
     } finally {
       setIsUploading(false);
+      onUploadingChange(false);
 
       if (inputRef.current) {
         inputRef.current.value = "";
@@ -84,49 +88,57 @@ export function ImageUploader({
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex min-w-0 flex-col gap-3">
       <input
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
         className="sr-only"
         id="product-image-input"
+        tabIndex={-1}
+        aria-hidden
+        disabled={isUploading}
         onChange={(event) => {
           void handleFileChange(event.target.files?.[0]);
         }}
       />
 
-      <div className="flex flex-wrap items-center gap-4">
+      <div className="flex flex-wrap items-start gap-4 sm:items-center">
         {imageUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={imageUrl}
             alt="Vista previa del producto"
-            className="size-20 rounded-lg object-cover ring-1 ring-foreground/10"
+            className="size-20 shrink-0 rounded-lg object-cover ring-1 ring-foreground/10"
           />
         ) : (
-          <div className="flex size-20 items-center justify-center rounded-lg border border-dashed text-muted-foreground">
+          <div className="flex size-20 shrink-0 items-center justify-center rounded-lg border border-dashed text-muted-foreground">
             <UploadCloud className="size-6" aria-hidden />
           </div>
         )}
 
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-wrap items-center gap-2">
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <div className="flex flex-col items-stretch gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <Button
               type="button"
               variant="outline"
               size="sm"
-              className="min-h-11"
+              className="w-full sm:w-auto"
               disabled={isUploading}
+              aria-describedby="product-image-help"
               onClick={() => inputRef.current?.click()}
             >
               {isUploading ? (
-                <LoaderCircle className="size-4 animate-spin" aria-hidden />
+                <LoaderCircle
+                  data-icon="inline-start"
+                  className="motion-safe:animate-spin"
+                  aria-hidden
+                />
               ) : (
-                <UploadCloud className="size-4" aria-hidden />
+                <UploadCloud data-icon="inline-start" aria-hidden />
               )}
               {isUploading
-                ? "Subiendo..."
+                ? "Subiendo…"
                 : imageUrl
                   ? "Cambiar imagen"
                   : "Subir imagen"}
@@ -137,23 +149,24 @@ export function ImageUploader({
                 type="button"
                 variant="ghost"
                 size="sm"
-                className="min-h-11 text-destructive hover:text-destructive"
+                className="w-full text-destructive hover:text-destructive sm:w-auto"
+                disabled={isUploading}
                 onClick={() => onImageUrlChange("")}
               >
-                <Trash2 className="size-4" aria-hidden />
+                <Trash2 data-icon="inline-start" aria-hidden />
                 Quitar imagen
               </Button>
             ) : null}
           </div>
 
-          <p className="text-xs text-muted-foreground">
+          <p id="product-image-help" className="text-xs text-muted-foreground">
             JPG, PNG o WebP · máximo 3 MB
           </p>
         </div>
       </div>
 
       {error ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-sm break-words text-destructive">
           {error}
         </p>
       ) : null}

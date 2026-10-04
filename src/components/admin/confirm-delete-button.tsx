@@ -2,26 +2,40 @@
 
 import { LoaderCircle, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
 interface ConfirmDeleteButtonProps {
   onConfirm: () => Promise<unknown>;
-  confirmLabel?: string;
   title?: string;
+  itemLabel: string;
 }
 
 export function ConfirmDeleteButton({
   onConfirm,
-  confirmLabel = "¿Seguro?",
   title,
+  itemLabel,
 }: ConfirmDeleteButtonProps) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const confirmRef = useRef<HTMLButtonElement>(null);
+  const shouldRestoreFocusRef = useRef(false);
   const router = useRouter();
+
+  useEffect(() => {
+    if (isConfirming) {
+      confirmRef.current?.focus();
+      return;
+    }
+
+    if (shouldRestoreFocusRef.current) {
+      shouldRestoreFocusRef.current = false;
+      triggerRef.current?.focus();
+    }
+  }, [isConfirming]);
 
   function beginConfirm() {
     setError(null);
@@ -29,11 +43,8 @@ export function ConfirmDeleteButton({
   }
 
   function cancelConfirm() {
+    shouldRestoreFocusRef.current = true;
     setIsConfirming(false);
-
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
   }
 
   async function confirm() {
@@ -49,15 +60,18 @@ export function ConfirmDeleteButton({
         if (message) {
           setError(message);
           setIsDeleting(false);
+          shouldRestoreFocusRef.current = true;
           setIsConfirming(false);
           return;
         }
       }
 
       setIsConfirming(false);
+      document.getElementById("admin-content")?.focus();
       router.refresh();
     } catch {
       setError("No hemos podido completar el borrado.");
+      shouldRestoreFocusRef.current = true;
       setIsConfirming(false);
     } finally {
       setIsDeleting(false);
@@ -69,22 +83,30 @@ export function ConfirmDeleteButton({
       <div className="flex flex-col items-start gap-2">
         <div className="flex flex-wrap items-center gap-2">
           <Button
+            ref={confirmRef}
             type="button"
             variant="destructive"
             size="sm"
             className="min-h-11"
-            aria-label={confirmLabel}
+            aria-label={
+              isDeleting ? `Borrando ${itemLabel}` : `Sí, borrar ${itemLabel}`
+            }
+            aria-busy={isDeleting}
             onClick={() => {
               void confirm();
             }}
             disabled={isDeleting}
           >
             {isDeleting ? (
-              <LoaderCircle className="size-4 animate-spin" aria-hidden />
+              <LoaderCircle
+                data-icon="inline-start"
+                className="motion-safe:animate-spin"
+                aria-hidden
+              />
             ) : (
-              <Trash2 className="size-4" aria-hidden />
+              <Trash2 data-icon="inline-start" aria-hidden />
             )}
-            Sí, borrar
+            {isDeleting ? "Borrando…" : "Sí, borrar"}
           </Button>
           <Button
             type="button"
@@ -99,7 +121,7 @@ export function ConfirmDeleteButton({
         </div>
 
         {error ? (
-          <p role="alert" className="text-sm text-destructive">
+          <p role="alert" className="text-sm break-words text-destructive">
             {error}
           </p>
         ) : null}
@@ -110,18 +132,20 @@ export function ConfirmDeleteButton({
   return (
     <div className="flex flex-col items-start gap-2">
       <Button
+        ref={triggerRef}
         type="button"
         variant="ghost"
         size="sm"
         className="min-h-11 text-destructive hover:text-destructive"
+        aria-label={`${title ?? "Eliminar"} ${itemLabel}`}
         onClick={beginConfirm}
       >
-        <Trash2 className="size-4" aria-hidden />
+        <Trash2 data-icon="inline-start" aria-hidden />
         {title ?? "Eliminar"}
       </Button>
 
       {error && !isConfirming ? (
-        <p role="alert" className="text-sm text-destructive">
+        <p role="alert" className="text-sm break-words text-destructive">
           {error}
         </p>
       ) : null}

@@ -27,11 +27,11 @@ describe("resolveProductImage", () => {
 
   it("falls back to the placeholder of the product category", () => {
     const cases = [
-      ["especialidades-cafe", "/images/placeholders/cafes.svg"],
-      ["especialidades-frias", "/images/placeholders/especialidades.svg"],
+      ["cafe", "/images/placeholders/cafes.svg"],
+      ["espc-frias", "/images/placeholders/especialidades.svg"],
       ["snacks", "/images/placeholders/salados.svg"],
       ["cocteleria", "/images/placeholders/especialidades.svg"],
-      ["tragos-al-straight", "/images/placeholders/especialidades.svg"],
+      ["tragos", "/images/placeholders/especialidades.svg"],
     ] as const;
 
     for (const [slug, expected] of cases) {
@@ -54,7 +54,7 @@ describe("resolveProductImage", () => {
     expect(
       resolveProductImage({
         imageUrl: "",
-        category: { slug: "especialidades-cafe" },
+        category: { slug: "cafe" },
       }),
     ).toBe("/images/placeholders/cafes.svg");
   });

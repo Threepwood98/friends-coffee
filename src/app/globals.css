@@ -55,6 +55,7 @@
 }
 
 :root {
+  --site-header-height: 3.75rem;
   --cream: oklch(0.965 0.018 90);
   --coffee: oklch(0.29 0.028 55);
   --door: oklch(0.44 0.13 305);
@@ -76,9 +77,9 @@
   --muted-foreground: oklch(0.5 0.02 60);
   --accent: oklch(0.72 0.15 45);
   --accent-foreground: oklch(0.24 0.03 50);
-  --destructive: oklch(0.577 0.245 27.325);
+  --destructive: oklch(0.52 0.21 27.325);
   --border: oklch(0.86 0.03 75);
-  --input: oklch(0.86 0.03 75);
+  --input: oklch(0.64 0.03 75);
   --ring: oklch(0.55 0.13 305);
   --chart-1: oklch(0.44 0.13 305);
   --chart-2: oklch(0.72 0.15 45);
@@ -160,6 +161,29 @@
 }
 
 @layer components {
+  .site-container {
+    margin-inline: auto;
+    width: 100%;
+    max-width: 80rem;
+    padding-inline: 1rem;
+  }
+
+  .site-footer {
+    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
+  }
+
+  @media (min-width: 40rem) {
+    .site-container {
+      padding-inline: 1.5rem;
+    }
+  }
+
+  @media (min-width: 64rem) {
+    .site-container {
+      padding-inline: 2rem;
+    }
+  }
+
   .friends-canvas {
     background-color: var(--cream);
     background-image:
@@ -196,6 +220,16 @@
     letter-spacing: 0.16em;
     text-transform: uppercase;
   }
+
+  .auth-frame [data-slot="field"][data-invalid="true"],
+  .auth-frame [data-slot="field-error"] {
+    color: var(--peephole);
+  }
+
+  .auth-frame [data-slot="field-description"],
+  .auth-frame [data-slot="field-separator-content"] {
+    color: color-mix(in oklch, var(--primary-foreground) 82%, transparent);
+  }
 }
 
 @layer base {
@@ -209,6 +243,21 @@
 
   html {
     @apply font-sans;
+    scroll-padding-top: calc(
+      var(--site-header-height) + env(safe-area-inset-top) + 1rem
+    );
+  }
+
+  a,
+  button,
+  [role="button"] {
+    touch-action: manipulation;
+  }
+}
+
+@media (min-width: 40rem) {
+  :root {
+    --site-header-height: 4.25rem;
   }
 }
 

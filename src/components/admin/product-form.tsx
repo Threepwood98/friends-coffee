@@ -41,6 +41,7 @@ const initialProductState: ProductFormActionState = { message: "" };
 
 export function ProductForm({ categories, product }: ProductFormProps) {
   const [imageUrl, setImageUrl] = useState(product?.imageUrl ?? "");
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const submittedAction = useMemo(
     () =>
       product
@@ -54,7 +55,11 @@ export function ProductForm({ categories, product }: ProductFormProps) {
   );
 
   return (
-    <form action={formAction} className="flex flex-col gap-6">
+    <form
+      action={formAction}
+      aria-busy={isPending || isImageUploading}
+      className="flex min-w-0 flex-col gap-6"
+    >
       {state.message ? (
         <Alert variant="destructive">
           <CircleAlertIcon />
@@ -70,8 +75,8 @@ export function ProductForm({ categories, product }: ProductFormProps) {
             id="product-name"
             name="name"
             defaultValue={product?.name}
-            placeholder="Ej. El americano de la tertulia"
-            className="h-11"
+            placeholder="Ej. El americano de la tertulia…"
+            maxLength={100}
             disabled={isPending}
             required
           />
@@ -83,8 +88,8 @@ export function ProductForm({ categories, product }: ProductFormProps) {
             id="product-slug"
             name="slug"
             defaultValue={product?.slug}
-            placeholder="se genera desde el nombre"
-            className="h-11"
+            placeholder="Se genera desde el nombre…"
+            maxLength={120}
             disabled={isPending}
           />
           <p className="text-sm text-muted-foreground">
@@ -100,8 +105,9 @@ export function ProductForm({ categories, product }: ProductFormProps) {
             name="description"
             defaultValue={product?.description}
             rows={4}
-            placeholder="Describe el producto para la carta."
-            className="min-h-24"
+            placeholder="Describe el producto para la carta…"
+            maxLength={1000}
+            className="min-h-28 md:text-base"
             disabled={isPending}
             required
           />
@@ -119,7 +125,6 @@ export function ProductForm({ categories, product }: ProductFormProps) {
               min="0"
               defaultValue={product ? String(product.price) : ""}
               placeholder="0"
-              className="h-11"
               disabled={isPending}
               required
             />
@@ -132,7 +137,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
               name="categoryId"
               defaultValue={product?.categoryId}
               disabled={isPending || categories.length === 0}
-              className="h-11 w-full rounded-lg border border-input bg-transparent px-2.5 text-base transition-colors outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm"
+              className="h-12 w-full rounded-lg border border-input bg-background px-3 text-base text-foreground transition-colors outline-none focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
               required
             >
               {categories.map((category) => (
@@ -152,7 +157,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
         <Field>
           <label
             htmlFor="product-available"
-            className="flex min-h-11 items-center gap-3 rounded-lg border px-3 text-sm font-medium"
+            className="flex min-h-12 items-center gap-3 rounded-lg border px-3 text-sm font-medium"
           >
             <input
               id="product-available"
@@ -161,7 +166,7 @@ export function ProductForm({ categories, product }: ProductFormProps) {
               value="on"
               defaultChecked={product?.available ?? true}
               disabled={isPending}
-              className="size-4 accent-primary"
+              className="size-5 accent-primary"
             />
             Disponible en la carta
           </label>
@@ -169,16 +174,24 @@ export function ProductForm({ categories, product }: ProductFormProps) {
 
         <Field>
           <FieldLabel>Imagen del producto</FieldLabel>
-          <ImageUploader imageUrl={imageUrl} onImageUrlChange={setImageUrl} />
+          <ImageUploader
+            imageUrl={imageUrl}
+            onImageUrlChange={setImageUrl}
+            onUploadingChange={setIsImageUploading}
+          />
           <input type="hidden" name="imageUrl" value={imageUrl} />
         </Field>
       </FieldGroup>
 
       <div className="flex flex-wrap items-center gap-3">
-        <Button type="submit" className="h-11" disabled={isPending}>
+        <Button
+          type="submit"
+          className="w-full sm:w-auto"
+          disabled={isPending || isImageUploading}
+        >
           {isPending ? <Spinner data-icon="inline-start" /> : null}
           {isPending
-            ? "Guardando..."
+            ? "Guardando…"
             : product
               ? "Guardar cambios"
               : "Crear producto"}

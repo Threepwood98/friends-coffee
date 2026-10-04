@@ -20,15 +20,25 @@ export default async function AdminLayout({
 
   return (
     <div className="min-h-dvh bg-muted/40">
-      <header className="sticky top-0 z-40 border-b bg-background/95 backdrop-blur">
-        <div className="mx-auto flex w-full max-w-6xl flex-wrap items-center gap-x-6 gap-y-1 px-4 py-3 sm:px-6">
-          <p className="font-heading text-2xl font-normal text-coffee">
+      <a
+        href="#admin-content"
+        className="sr-only rounded-md bg-background px-4 py-2 text-sm font-medium focus:not-sr-only focus:fixed focus:top-[calc(env(safe-area-inset-top)+0.75rem)] focus:left-3 focus:z-50 focus:outline-2 focus:outline-offset-2 focus:outline-ring"
+      >
+        Saltar al contenido
+      </a>
+      <header className="sticky top-0 z-40 border-b bg-background/95 pt-[env(safe-area-inset-top)] backdrop-blur">
+        <div className="site-container flex max-w-6xl flex-col gap-2 py-3 lg:flex-row lg:items-center lg:gap-6">
+          <p className="shrink-0 font-heading text-xl font-normal text-coffee sm:text-2xl">
             Panel de administración
           </p>
           <AdminNav />
         </div>
       </header>
-      <main className="mx-auto w-full max-w-6xl px-4 py-8 sm:px-6">
+      <main
+        id="admin-content"
+        tabIndex={-1}
+        className="site-container max-w-6xl py-6 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring sm:py-8"
+      >
         {children}
       </main>
     </div>

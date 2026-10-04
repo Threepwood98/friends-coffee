@@ -28,7 +28,7 @@ export function ProductImage({
   return (
     <Image
       src={src}
-      alt={alt}
+      alt={imageUrl ? alt : ""}
       fill
       sizes={sizes}
       priority={priority}
