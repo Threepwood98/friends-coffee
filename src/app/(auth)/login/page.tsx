@@ -8,6 +8,7 @@ import { getCurrentUser } from "@/lib/auth";
 import { getOAuthErrorMessage } from "@/lib/auth-errors";
 import { isGoogleAuthConfigured } from "@/lib/auth.server";
 import { getSafeCallbackUrl } from "@/lib/validators/auth";
+import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
   title: "Acceso",
@@ -47,11 +48,19 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
         callbackUrl={callbackUrl}
         initialMessage={initialMessage}
         googleSignIn={
-          <GoogleSignInForm
-            callbackUrl={callbackUrl}
-            disabled={!isGoogleAuthConfigured}
-            label="Iniciar sesión con Google"
-          />
+          <>
+            <div className="relative text-xs">
+              <Separator className="absolute inset-0 top-1/2" />
+              <span className="relative mx-auto block w-fit bg-door px-2 text-muted-foreground">
+                o continúa con
+              </span>
+            </div>
+            <GoogleSignInForm
+              callbackUrl={callbackUrl}
+              disabled={!isGoogleAuthConfigured}
+              label="Google"
+            />
+          </>
         }
       />
     </AuthFrame>

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { AuthFrame } from "@/components/auth/auth-frame";
 import { GoogleSignInForm } from "@/components/auth/google-sign-in-form";
 import { RegisterForm } from "@/components/auth/register-form";
+import { Separator } from "@/components/ui/separator";
 import { getCurrentUser } from "@/lib/auth";
 import { isGoogleAuthConfigured } from "@/lib/auth.server";
 import { getSafeCallbackUrl } from "@/lib/validators/auth";
@@ -39,11 +40,19 @@ export default async function RegistrationPage({
       <RegisterForm
         callbackUrl={callbackUrl}
         googleSignIn={
-          <GoogleSignInForm
-            callbackUrl={callbackUrl}
-            disabled={!isGoogleAuthConfigured}
-            label="Registrarse con Google"
-          />
+          <>
+            <div className="relative text-xs">
+              <Separator className="absolute inset-0 top-1/2" />
+              <span className="relative mx-auto block w-fit bg-door px-2 text-muted-foreground">
+                o continúa con
+              </span>
+            </div>
+            <GoogleSignInForm
+              callbackUrl={callbackUrl}
+              disabled={!isGoogleAuthConfigured}
+              label="Google"
+            />
+          </>
         }
       />
     </AuthFrame>

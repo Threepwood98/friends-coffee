@@ -15,7 +15,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -58,7 +57,7 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 px-2">
       <form
         action={formAction}
         onSubmit={form.handleSubmit(submitForm)}
@@ -101,7 +100,7 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                   aria-errormessage={
                     fieldState.invalid ? "register-name-error" : undefined
                   }
-                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
+                  className="h-8 rounded-full bg-peephole text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (
@@ -143,7 +142,7 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                   aria-errormessage={
                     fieldState.invalid ? "register-email-error" : undefined
                   }
-                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
+                  className="h-8 rounded-full bg-peephole text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (
@@ -185,7 +184,7 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                   aria-errormessage={
                     fieldState.invalid ? "register-password-error" : undefined
                   }
-                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
+                  className="h-8 rounded-full bg-peephole text-coffee md:text-base"
                   required
                 />
                 <FieldDescription
@@ -233,7 +232,7 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                       ? "register-confirm-password-error"
                       : undefined
                   }
-                  className="h-12 rounded-full bg-peephole px-4 text-base text-coffee md:text-base"
+                  className="h-8 rounded-full bg-peephole text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (
@@ -250,7 +249,7 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
         <Button
           type="submit"
           variant="accent"
-          className="h-12 w-full rounded-full font-heading focus-visible:border-peephole focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
+          className="h-8 w-full rounded-full font-heading focus-visible:border-peephole focus-visible:ring-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
           disabled={isPending}
         >
           {isPending ? <Spinner data-icon="inline-start" /> : null}
@@ -258,20 +257,13 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
         </Button>
       </form>
 
-      {googleSignIn ? (
-        <>
-          <FieldSeparator className="my-0 text-xs **:data-[slot=field-separator-content]:bg-door">
-            o continúa con
-          </FieldSeparator>
-          {googleSignIn}
-        </>
-      ) : null}
+      {googleSignIn}
 
-      <p className="text-center text-sm leading-6 text-primary-foreground/80">
+      <p className="text-center text-sm text-primary-foreground">
         ¿Ya tienes cuenta?{" "}
         <Link
           href={`/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
-          className="inline-flex min-h-11 items-center font-heading text-peephole underline underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
+          className="inline-flex items-center font-heading text-peephole underline underline-offset-2 focus-visible:rounded-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-peephole"
         >
           Inicia sesión
         </Link>
