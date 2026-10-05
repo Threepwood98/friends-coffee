@@ -7,6 +7,7 @@ import { startTransition, useActionState, type ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { loginAction } from "@/actions/auth";
+import { PasswordInput } from "@/components/auth/password-input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,7 +15,6 @@ import {
   FieldError,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
@@ -59,7 +59,7 @@ export function LoginForm({
   }
 
   return (
-    <div className="flex flex-col gap-4 px-2 py-14">
+    <div className="flex flex-col gap-4 px-2 py-16">
       <form
         action={formAction}
         onSubmit={form.handleSubmit(submitForm)}
@@ -132,10 +132,9 @@ export function LoginForm({
                 >
                   Contraseña
                 </FieldLabel>
-                <Input
+                <PasswordInput
                   {...field}
                   id="login-password"
-                  type="password"
                   autoComplete="current-password"
                   placeholder="********"
                   disabled={isPending}
@@ -143,7 +142,6 @@ export function LoginForm({
                   aria-errormessage={
                     fieldState.invalid ? "login-password-error" : undefined
                   }
-                  className="h-8 rounded-full bg-peephole text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (

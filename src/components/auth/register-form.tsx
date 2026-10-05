@@ -7,6 +7,7 @@ import { startTransition, useActionState, type ReactNode } from "react";
 import { Controller, useForm } from "react-hook-form";
 
 import { registerAction } from "@/actions/auth";
+import { PasswordInput } from "@/components/auth/password-input";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import {
@@ -170,10 +171,9 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                 >
                   Contraseña
                 </FieldLabel>
-                <Input
+                <PasswordInput
                   {...field}
                   id="register-password"
-                  type="password"
                   autoComplete="new-password"
                   placeholder="********"
                   minLength={8}
@@ -184,7 +184,6 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                   aria-errormessage={
                     fieldState.invalid ? "register-password-error" : undefined
                   }
-                  className="h-8 rounded-full bg-peephole text-coffee md:text-base"
                   required
                 />
                 <FieldDescription
@@ -218,10 +217,9 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                 >
                   Confirmar
                 </FieldLabel>
-                <Input
+                <PasswordInput
                   {...field}
                   id="register-confirm-password"
-                  type="password"
                   autoComplete="new-password"
                   placeholder="********"
                   maxLength={128}
@@ -232,7 +230,6 @@ export function RegisterForm({ callbackUrl, googleSignIn }: RegisterFormProps) {
                       ? "register-confirm-password-error"
                       : undefined
                   }
-                  className="h-8 rounded-full bg-peephole text-coffee md:text-base"
                   required
                 />
                 {fieldState.invalid ? (
