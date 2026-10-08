@@ -7,12 +7,12 @@ export function SiteFooter() {
   return (
     <footer
       id="visitanos"
-      className="site-container site-footer mt-12 sm:mt-16"
+      className="mx-auto mt-12 w-full max-w-7xl px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:mt-16 sm:px-6 lg:px-8"
     >
-      <div className="friends-surface overflow-hidden">
+      <div className="overflow-hidden rounded-[1.75rem] border border-coffee/10 bg-card shadow-sm">
         <div
           aria-hidden
-          className="h-1.5 bg-gradient-to-r from-primary via-peephole to-accent"
+          className="h-1.5 bg-gradient-to-r from-friends-red via-friends-blue to-friends-yellow"
         />
         <div className="grid gap-6 px-5 py-7 sm:grid-cols-2 sm:gap-8 sm:px-6 sm:py-9 lg:grid-cols-3 lg:px-10">
           <div className="flex flex-col gap-2">

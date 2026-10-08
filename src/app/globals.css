@@ -16,6 +16,9 @@
   --color-cream: var(--cream);
   --color-coffee: var(--coffee);
   --color-caramel: var(--caramel);
+  --color-friends-red: var(--friends-red);
+  --color-friends-blue: var(--friends-blue);
+  --color-friends-yellow: var(--friends-yellow);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -62,6 +65,9 @@
   --peephole: oklch(0.91 0.17 95);
   --sofa: oklch(0.72 0.15 45);
   --caramel: oklch(0.88 0.06 80);
+  --friends-red: #e91e23;
+  --friends-blue: #02b2e7;
+  --friends-yellow: #fabc16;
 
   --background: oklch(0.965 0.018 90);
   --foreground: oklch(0.29 0.028 55);
@@ -138,100 +144,6 @@
   --sidebar-ring: oklch(0.72 0.12 305);
 }
 
-@utility frame-peephole {
-  position: relative;
-
-  &::before {
-    border: 2px solid var(--peephole);
-    border-radius: inherit;
-    content: "";
-    inset: 0;
-    pointer-events: none;
-    position: absolute;
-  }
-
-  &::after {
-    border: 1px solid var(--border);
-    border-radius: calc(var(--radius) - 2px);
-    content: "";
-    inset: 7px;
-    pointer-events: none;
-    position: absolute;
-  }
-}
-
-@layer components {
-  .site-container {
-    margin-inline: auto;
-    width: 100%;
-    max-width: 80rem;
-    padding-inline: 1rem;
-  }
-
-  .site-footer {
-    padding-bottom: max(1.5rem, env(safe-area-inset-bottom));
-  }
-
-  @media (min-width: 40rem) {
-    .site-container {
-      padding-inline: 1.5rem;
-    }
-  }
-
-  @media (min-width: 64rem) {
-    .site-container {
-      padding-inline: 2rem;
-    }
-  }
-
-  .friends-canvas {
-    background-color: var(--cream);
-    background-image:
-      radial-gradient(
-        circle at 14% 10%,
-        color-mix(in oklch, var(--peephole) 22%, transparent) 0 2px,
-        transparent 3px
-      ),
-      radial-gradient(
-        circle at 86% 28%,
-        color-mix(in oklch, var(--door) 12%, transparent) 0 2px,
-        transparent 3px
-      );
-    background-size:
-      42px 42px,
-      58px 58px;
-  }
-
-  .friends-surface {
-    border: 1px solid color-mix(in oklch, var(--coffee) 12%, transparent);
-    border-radius: 1.75rem;
-    background: color-mix(in oklch, var(--card) 94%, var(--cream));
-    box-shadow: 0 24px 60px -34px
-      color-mix(in oklch, var(--coffee) 58%, transparent);
-  }
-
-  .friends-raised {
-    box-shadow:
-      0 18px 40px -28px color-mix(in oklch, var(--coffee) 52%, transparent),
-      0 3px 0 color-mix(in oklch, var(--coffee) 8%, transparent);
-  }
-
-  .friends-kicker {
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-  }
-
-  .auth-frame [data-slot="field"][data-invalid="true"],
-  .auth-frame [data-slot="field-error"] {
-    color: var(--peephole);
-  }
-
-  .auth-frame [data-slot="field-description"],
-  .auth-frame [data-slot="field-separator-content"] {
-    color: color-mix(in oklch, var(--primary-foreground) 82%, transparent);
-  }
-}
-
 @layer base {
   * {
     @apply border-border outline-ring/50;
@@ -258,29 +170,5 @@
 @media (min-width: 40rem) {
   :root {
     --site-header-height: 4.25rem;
-  }
-}
-
-@utility animate-fade-up {
-  animation: fade-up 0.6s ease-out both;
-}
-
-@keyframes fade-up {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-fade-up {
-    animation: none;
-    opacity: 1;
-    transform: none;
   }
 }

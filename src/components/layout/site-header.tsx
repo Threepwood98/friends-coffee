@@ -10,7 +10,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 bg-primary pt-[env(safe-area-inset-top)]">
-      <div className="site-container flex h-(--site-header-height) items-center justify-between gap-4 py-2">
+      <div className="mx-auto flex h-(--site-header-height) w-full max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-8">
         <Link
           href="/menu"
           aria-label="Friends Coffee — Menú"

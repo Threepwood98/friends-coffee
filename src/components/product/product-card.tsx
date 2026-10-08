@@ -23,7 +23,6 @@ interface ProductCardProps {
 export function ProductCard({
   product,
   categorySlug,
-  priority = false,
   className,
 }: ProductCardProps) {
   const ratingLabel =
@@ -39,13 +38,11 @@ export function ProductCard({
           className,
         )}
       >
-        <div className="relative aspect-square w-full overflow-hidden bg-secondary/25">
+        <div className="relative aspect-square w-full overflow-hidden">
           <ProductImage
             imageUrl={product.imageUrl}
             categorySlug={categorySlug}
-            alt={`Fotografía de ${product.name}`}
-            sizes="(max-width: 359px) calc(100vw - 2rem), (min-width: 1280px) 17rem, (min-width: 768px) 30vw, 46vw"
-            priority={priority}
+            alt={`${product.name}`}
             className={cn(
               "motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-105",
               !product.available && "grayscale brightness-75",
@@ -54,10 +51,10 @@ export function ProductCard({
           {!product.available && (
             <Badge
               id={`product-${product.id}-availability`}
-              variant="outline"
-              className="absolute top-3 left-3 border-card bg-card/95 text-coffee shadow-sm"
+              variant="destructive"
+              className="absolute top-4 right-4 border-2 border-destructive uppercase tracking-wide font-bold"
             >
-              Agotado
+              AGOTADO
             </Badge>
           )}
         </div>
@@ -76,10 +73,10 @@ export function ProductCard({
           </Link>
         </h3>
 
-        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-3 pt-1 text-xs sm:px-4 sm:text-sm">
+        <div className="mt-auto flex flex-wrap items-center justify-between gap-x-2 gap-y-1 px-3 pt-1 font-heading text-base sm:px-4 sm:text-lg">
           <span
             aria-label={`Precio: ${product.price} pesos cubanos`}
-            className="font-heading text-base tabular-nums"
+            className="font-heading tabular-nums"
           >
             {formatPrice(product.price)}
           </span>
@@ -88,13 +85,13 @@ export function ProductCard({
               className="flex items-center gap-1"
               aria-label={`${product.commentCount} ${product.commentCount === 1 ? "comentario" : "comentarios"}`}
             >
-              <MessageCircle className="size-4" aria-hidden />
+              <MessageCircle className="size-4 stroke-3" aria-hidden />
               <span aria-hidden>{product.commentCount}</span>
             </span>
             <span className="flex items-center gap-1" aria-label={ratingLabel}>
               <StarIcon
                 className={cn(
-                  "size-4",
+                  "size-4 stroke-3",
                   product.ratingAverage != null && "fill-current text-accent",
                 )}
                 aria-hidden

@@ -19,7 +19,7 @@ export function AuthFrame({ title, children }: AuthFrameProps) {
           }}
         />
 
-        <div className="auth-frame relative z-10 mx-auto flex min-w-0 flex-col rounded-4xl bg-door py-2 text-primary-foreground sm:px-4 sm:py-4">
+        <div className="relative z-10 mx-auto flex min-w-0 flex-col rounded-4xl bg-door py-2 text-primary-foreground sm:px-4 sm:py-4">
           <h1 className="sr-only">{title}</h1>
           {children}
         </div>

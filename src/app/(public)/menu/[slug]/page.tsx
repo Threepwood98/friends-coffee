@@ -3,7 +3,6 @@ import { notFound, permanentRedirect } from "next/navigation";
 import { CircleOff, MessageCircle, StarIcon } from "lucide-react";
 
 import { ProductImage } from "@/components/product/product-image";
-import { ProductInteractions } from "@/components/product/product-interactions";
 import { JsonLd } from "@/components/seo/json-ld";
 import { Badge } from "@/components/ui/badge";
 import { getProductBySlug, getProductRedirectSlug } from "@/lib/catalog";
@@ -13,6 +12,9 @@ import { getPrisma } from "@/lib/prisma";
 import { getProductRatingSummary } from "@/lib/ratings";
 import { breadcrumbListJsonLd, productJsonLd } from "@/lib/seo";
 import { exampleBusinessDetails } from "@/lib/site";
+import { cn } from "@/lib/utils";
+
+import { ProductInteractionsClient } from "./product-interactions-client";
 
 export const revalidate = 300;
 
@@ -81,7 +83,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       : `Valoración media: ${ratingFormatter.format(summary.average)} de 5`;
 
   return (
-    <div className="site-container flex max-w-5xl flex-col gap-8 py-6 sm:py-10">
+    <div className="flex max-w-5xl flex-col gap-8 sm:py-10">
       <JsonLd
         data={productJsonLd({
           slug: product.slug,
@@ -105,7 +107,7 @@ export default async function ProductPage({ params }: ProductPageProps) {
       />
 
       <article className="grid min-w-0 gap-6 sm:grid-cols-2 sm:items-start lg:gap-10">
-        <div className="relative aspect-square w-full min-w-0 overflow-hidden rounded-3xl bg-secondary/25 sm:rounded-4xl lg:sticky lg:top-[calc(var(--site-header-height)+env(safe-area-inset-top)+1.5rem)]">
+        <div className="relative aspect-square w-full min-w-0 overflow-hidden rounded-b-4xl bg-secondary/25 sm:rounded-4xl lg:sticky lg:top-[calc(var(--site-header-height)+env(safe-area-inset-top)+1.5rem)]">
           <ProductImage
             imageUrl={product.imageUrl}
             categorySlug={product.category.slug}
@@ -127,31 +129,34 @@ export default async function ProductPage({ params }: ProductPageProps) {
           )}
         </div>
 
-        <div className="flex min-w-0 w-full flex-col justify-center gap-3 sm:py-2 lg:py-4">
-          <h1 className="text-balance break-words font-heading text-3xl leading-tight text-coffee sm:text-4xl lg:text-5xl">
+        <div className="flex min-w-0 px-4 w-full flex-col justify-center gap-2 sm:py-2 lg:py-4">
+          <h1 className="font-heading text-3xl text-coffee sm:text-4xl lg:text-5xl">
             {product.name}
           </h1>
 
-          <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 text-coffee">
+          <div className="flex flex-wrap items-center gap-4 font-heading text-2xl sm:text-3xl text-coffee">
             <span
               aria-label={`Precio: ${product.price} pesos cubanos`}
-              className="font-heading text-2xl tabular-nums sm:text-3xl"
+              className="tabular-nums"
             >
               {formatPrice(product.price)}
             </span>
-            <div className="flex shrink-0 gap-3 font-heading text-xl">
+            <div className="flex gap-4">
               <span
-                className="flex items-center gap-1"
+                className="flex items-center gap-2"
                 aria-label={`${comments.length} ${comments.length === 1 ? "comentario" : "comentarios"}`}
               >
-                <MessageCircle className="size-5" aria-hidden />
+                <MessageCircle aria-hidden />
                 <span aria-hidden>{comments.length}</span>
               </span>
               <span
-                className="flex items-center gap-1"
+                className="flex items-center gap-2"
                 aria-label={ratingLabel}
               >
-                <StarIcon className="size-5" aria-hidden />
+                <StarIcon
+                  aria-hidden
+                  className={cn(summary.average && "fill-coffee")}
+                />
                 <span aria-hidden>
                   {summary.average == null
                     ? "–"
@@ -160,29 +165,22 @@ export default async function ProductPage({ params }: ProductPageProps) {
               </span>
             </div>
           </div>
+          <div className="flex min-w-0 flex-col">
+            <h2 className="font-heading text-2xl text-coffee">Descripción:</h2>
+            <div className="bg-cream p-4 rounded-xl border-2 border-caramel">
+              <p className="wrap-break-word text-base text-muted-foreground sm:text-lg">
+                {product.description}
+              </p>
+            </div>
+          </div>
 
-          <ProductInteractions
+          <ProductInteractionsClient
             key={product.id}
             productId={product.id}
             productSlug={product.slug}
             summary={summary}
             comments={comments}
-          >
-            <section
-              aria-labelledby="description-heading"
-              className="flex min-w-0 flex-col gap-1 border-t border-coffee/10 py-5 sm:py-6"
-            >
-              <h2
-                id="description-heading"
-                className="font-heading text-2xl text-coffee"
-              >
-                Descripción:
-              </h2>
-              <p className="break-words text-base leading-7 text-muted-foreground sm:text-lg">
-                {product.description}
-              </p>
-            </section>
-          </ProductInteractions>
+          />
         </div>
       </article>
     </div>

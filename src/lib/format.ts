@@ -4,11 +4,11 @@ const dateTimeFormatter = new Intl.DateTimeFormat("es-ES", {
 });
 
 const PLACEHOLDER_BY_CATEGORY: Record<string, string> = {
-  cafe: "/images/placeholders/cafes.svg",
-  "espc-frias": "/images/placeholders/especialidades.svg",
-  snacks: "/images/placeholders/salados.svg",
-  cocteleria: "/images/placeholders/especialidades.svg",
-  tragos: "/images/placeholders/especialidades.svg",
+  cafe: "/images/placeholders/coffee.svg",
+  "espc-frias": "/images/placeholders/beverage.svg",
+  snacks: "/images/placeholders/snack.svg",
+  cocteleria: "/images/placeholders/cocktail.svg",
+  tragos: "/images/placeholders/drink.svg",
 };
 
 export const DEFAULT_PLACEHOLDER_IMAGE = "/images/placeholders/default.svg";

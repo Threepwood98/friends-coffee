@@ -99,9 +99,9 @@ Status: accepted
 - The visual theme was initially inspired only abstractly by the series' apartment set (purple door, yellow peephole frame, orange couch, cream walls, coffee-brown text), without using any logo, screenshots, official typography, imagery, or verbatim quotes. The copy stays original. That "no official material" constraint was later relaxed: see `2026-09-30 – Friends lettering`.
 - Typography (initial): Google `Caveat Brush` (via `next/font/google`, `display: swap`) was the `--font-heading` token for titles and product names; the existing Geist Sans stays as the readable body font. Replaced later by the Friends lettering (see below).
 - The palette lives as CSS custom properties in `:root` (`--door`, `--peephole`, `--sofa`, `--cream`, `--coffee`, `--caramel`) and is mapped through `@theme inline` to Tailwind color utilities (`text-coffee`, `border-peephole`, `via-peephole`, etc.). Semantic tokens were re-derived from that palette (background = cream, foreground = coffee, primary = door purple, accent = sofa orange, secondary = caramel) so every existing component re-themes consistently; dark-mode tokens keep the same hue story.
-- A shared `frame-peephole` utility draws the yellow peephole frame around product cards, category links, and the product detail image using two nested pseudo-element borders.
-- The home hero pairs the headline with an inline SVG `CouchScene` (orange sofa + purple door with a yellow frame and peephole), and the site header/footer use a thin purple→yellow→orange gradient strip as the recurring identity detail.
-- Entrance animation is intentional and SEO-safe: a CSS `fade-up` keyframe (opacity + translate) applied to hero/heading blocks, gated behind `prefers-reduced-motion: no-preference`, so the static HTML always contains visible text and content is never hidden under JS-dependent initial states. Framer Motion (`framer-motion@13`) is only used for real interaction: opening/closing the mobile menu with `AnimatePresence`.
+- Decorative frames, rounded surfaces and responsive containers use colocated Tailwind classes instead of custom global component utilities, keeping `globals.css` aligned with the shadcn structure.
+- The menu hero retains the FRIENDS frame and couch artwork, while the footer uses the logo's red→blue→yellow accent strip as its recurring identity detail.
+- Entrance animation is intentional and SEO-safe: `tw-animate-css` supplies `animate-in`, `fade-in` and `slide-in-from-bottom-4`, gated by `motion-safe`, so reduced-motion users receive immediately visible static content without custom keyframes.
 - Rating cups, category pills, and "Disponible" callouts use the sofa/accent and peephole tokens instead of hardcoded amber shortcuts, keeping palette edits centralized in CSS variables.
 
 ## 2026-09-29 - Complete SEO (Phase 8)
@@ -140,7 +140,7 @@ Status: accepted
 Status: accepted
 
 - Use `public/example_app.png` as structural inspiration only: compact mobile hierarchy, large rounded surfaces, prominent imagery and a persistent bottom navigation. The screenshot is not rendered, cropped or shipped as page content, and the implementation keeps the existing FRIENDS palette, lettering and original copy.
-- Apply the new shell only to public and authentication routes. Shared opt-in utilities (`friends-canvas`, `friends-surface`, `friends-raised`, `friends-kicker`) avoid changing the global Base UI cards, forms or admin screens.
+- Apply the new shell only to public and authentication routes. Route and component-level Tailwind utilities keep those styles local without changing the global Base UI cards, forms or admin screens.
 - Keep public catalog pages as Server Components and preserve their ISR, metadata and structured data. Only route-aware navigation and product interactions cross a client boundary; no public shell component reads the session.
 - Replace the mobile drawer with a three-destination bottom navigation (`Inicio`, `Carta`, `Cuenta`) that respects the device safe area. Desktop keeps a compact sticky header. Both expose real destinations only; no search, cart, quantity or ordering controls are invented from the visual reference.
 - Add `/cuenta` as a protected, dynamic page using `requireUser("/cuenta")`. It is excluded from robots and offers profile context, logout and an admin shortcut only when the persisted role is `ADMIN`.
@@ -201,3 +201,10 @@ Status: accepted
 - Keep the complete yellow frame visible around authentication at every viewport, as explicitly chosen by the owner. The frame is content-driven rather than locked to an aspect ratio or viewport height, so validation errors, registration fields and the software keyboard extend the document and use normal page scrolling instead of clipping content.
 - The future mobile admin navigation uses one horizontally scrollable row of tabs rather than a disclosure menu. This keeps all four destinations visible with no additional client state.
 - Do not add a responsive UI dependency. Tailwind CSS, shared CSS variables and the existing component primitives are sufficient.
+
+## 2026-10-05 - FRIENDS logo accent colors
+
+Status: accepted
+
+- The exact red (`#E91E23`), blue (`#02B2E7`) and yellow (`#FABC16`) from `public/images/friends_logo.svg` are exposed as stable CSS and Tailwind tokens: `friends-red`, `friends-blue` and `friends-yellow`.
+- These colors are brand accents rather than semantic text colors because blue and yellow do not provide sufficient body-text contrast on the cream background. The footer strip uses all three decoratively; the existing light and dark semantic palettes remain unchanged.

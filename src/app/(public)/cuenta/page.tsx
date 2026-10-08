@@ -21,9 +21,9 @@ export default async function AccountPage() {
   const initial = (user.name?.trim()[0] ?? user.email[0] ?? "F").toUpperCase();
 
   return (
-    <div className="site-container flex max-w-5xl flex-col gap-6 py-6 sm:gap-8 sm:py-10 lg:py-14">
-      <header className="flex animate-fade-up flex-col gap-3">
-        <p className="friends-kicker text-xs font-semibold text-primary">
+    <div className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:gap-8 sm:px-6 sm:py-10 lg:px-8 lg:py-14">
+      <header className="flex flex-col gap-3 motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:fill-mode-both motion-safe:duration-[600ms] motion-safe:ease-out">
+        <p className="text-xs font-semibold tracking-[0.16em] text-primary uppercase">
           Tu rincón reservado
         </p>
         <h1 className="text-balance break-words font-heading text-4xl font-normal tracking-tight text-coffee sm:text-5xl lg:text-6xl">
@@ -36,7 +36,7 @@ export default async function AccountPage() {
 
       <section
         aria-label="Datos de la cuenta"
-        className="friends-surface grid overflow-hidden md:grid-cols-[0.82fr_1.18fr]"
+        className="grid overflow-hidden rounded-[1.75rem] border border-coffee/10 bg-card shadow-sm md:grid-cols-[0.82fr_1.18fr]"
       >
         <div className="relative flex min-h-60 flex-col justify-between overflow-hidden bg-primary p-5 text-primary-foreground sm:min-h-72 sm:p-9">
           <div

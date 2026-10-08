@@ -1,8 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600" role="img" aria-label="Salados">
-  <rect width="800" height="600" fill="#fff8ef" />
-  <circle cx="400" cy="288" r="188" fill="#f2dfaa" />
-  <circle cx="252" cy="426" r="20" fill="#e8642c" />
-  <circle cx="550" cy="166" r="16" fill="#4c2e8f" />
-  <path d="M296 232c0-38 30-68 68-68h72c38 0 68 30 68 68 0 46-24 74-24 100 0 30 16 52 16 76 0 34-30 56-72 56H372c-42 0-72-22-72-56 0-24 16-46 16-76 0-26-20-54-20-100z" fill="#fff8ef" stroke="#3a2a20" stroke-width="10" />
-  <path d="M340 190h120M330 250h140M336 312h128" stroke="#e8642c" stroke-width="9" stroke-linecap="round" />
-</svg>

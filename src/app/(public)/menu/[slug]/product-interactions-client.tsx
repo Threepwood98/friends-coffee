@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState } from "react";
 
 import {
   getMyInteractionState,
@@ -22,21 +22,19 @@ const GUEST_STATE: MyInteractionState = {
   userId: null,
 };
 
-interface ProductInteractionsProps {
+interface ProductInteractionsClientProps {
   productId: string;
   productSlug: string;
   summary: RatingSummaryDto;
   comments: ProductCommentDto[];
-  children: ReactNode;
 }
 
-export function ProductInteractions({
+export function ProductInteractionsClient({
   productId,
   productSlug,
   summary,
   comments,
-  children,
-}: ProductInteractionsProps) {
+}: ProductInteractionsClientProps) {
   const [state, setState] = useState<MyInteractionState>(GUEST_STATE);
   const [loadStatus, setLoadStatus] = useState<"loading" | "ready" | "error">(
     "loading",
@@ -95,7 +93,6 @@ export function ProductInteractions({
         state={resolvedState}
         isHydrated={isLoaded}
       />
-      {children}
       <CommentsSection
         productId={productId}
         productSlug={productSlug}
