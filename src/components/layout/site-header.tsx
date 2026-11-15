@@ -4,19 +4,39 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserRoundIcon } from "lucide-react";
 import { cn } from "cn";
+import Image from "next/image";
 
 export function SiteHeader() {
   const pathname = usePathname();
 
   return (
-    <header className="sticky top-0 z-30 bg-primary pt-[env(safe-area-inset-top)]">
-      <div className="mx-auto flex h-(--site-header-height) w-full max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-8">
+    <header className="flex sticky top-0 z-30 bg-primary h-16">
+      <Link
+        href="/menu"
+        aria-label="Friends Coffee — Menú"
+        // className="flex min-h-11 shrink-0 flex-col items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-peephole"
+        className="flex flex-col"
+      >
+        <Image
+          src="/images/friends_logo.svg"
+          alt="logo"
+          width={1186}
+          height={196}
+          className="h-6 w-auto"
+        />
+        <span className="bg-peephole px-2 font-heading text-lg leading-none">
+          coffee
+        </span>
+        {/* <span className="bg-peephole px-2 font-heading text-lg leading-none tracking-[0.35em] text-black lowercase sm:tracking-[0.45em]">
+          coffee
+        </span> */}
+      </Link>
+      {/* <div className="mx-auto flex h-(--site-header-height) w-full max-w-7xl items-center justify-between gap-4 px-4 py-2 sm:px-6 lg:px-8">
         <Link
           href="/menu"
           aria-label="Friends Coffee — Menú"
           className="flex min-h-11 shrink-0 flex-col items-center justify-center focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-peephole"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element -- static local SVG, no optimization needed */}
           <img
             src="/images/friends_logo.svg"
             alt=""
@@ -28,7 +48,6 @@ export function SiteHeader() {
             coffee
           </span>
         </Link>
-
         <nav aria-label="Principal" className="flex items-center gap-2">
           <Link
             href="/menu"
@@ -57,7 +76,7 @@ export function SiteHeader() {
             <span className="hidden sm:inline">Cuenta</span>
           </Link>
         </nav>
-      </div>
+      </div> */}
     </header>
   );
 }
