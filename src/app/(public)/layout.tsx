@@ -9,14 +9,14 @@ export default function PublicLayout({
   return (
     <div className="flex min-h-full flex-1 flex-col">
       <SiteHeader />
-      {/* <main
+      <main
         id="contenido"
         tabIndex={-1}
         className="flex-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
       >
         {children}
       </main>
-      <SiteFooter /> */}
+      {/* <SiteFooter /> */}
     </div>
   );
 }
