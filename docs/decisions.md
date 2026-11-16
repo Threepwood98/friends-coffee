@@ -144,16 +144,24 @@ Status: accepted
   arguments. The database is removed before the runtime image is assembled;
   the persistent `/data/app.db` is still migrated and seeded only by the
   container start command.
-- Manage the empty Railway project through the GA TypeScript IaC DSL in
-  `.railway/railway.ts`, pinned to `railway@3.17.0`. It owns one `web` service,
-  one 512 MB volume mounted at `/data`, and exactly one replica colocated in US
-  East. Generated Railway domains stay platform-managed.
+- The production start command invokes the checked-in image's local Prisma and
+  Next binaries directly instead of running through pnpm. Runtime startup must
+  never resolve or install dependencies. The same command is declared in the
+  Dockerfile and Railway IaC so a stale dashboard override cannot reintroduce
+  package installation.
+- Manage the Railway project through the GA TypeScript IaC DSL in
+  `.railway/railway.ts`, pinned to `railway@3.17.0`. It adopts the existing
+  `friends-coffee` service by name, owns one 512 MB volume mounted at `/data`,
+  and keeps exactly one replica colocated in US East. Matching the existing
+  resource name prevents a destructive service replacement. Generated Railway
+  domains stay platform-managed.
 - Keep Railway-held credentials as `preserve()` values. IaC manages
   `DATABASE_URL` and derives Better Auth/SEO public URLs from
   `RAILWAY_PUBLIC_DOMAIN`; no secret or generated domain is committed.
-- GitHub Actions runs formatting, lint, type-checking, Vitest, and a real Docker
-  build on pull requests and `main`. The GitHub source has `checkSuites`
-  enabled, so autodeploy waits for CI. A separate official
+- GitHub Actions runs formatting, lint, type-checking, Vitest, a real Docker
+  build, and a container smoke test that migrates an ephemeral SQLite database
+  and verifies `/api/health`. The GitHub source has `checkSuites` enabled, so
+  autodeploy waits for CI. A separate official
   `railwayapp/config` workflow pins an IaC plan to each pull request and
   applies that reviewed plan only after merge. The action revision is pinned
   to the official commit that supports pnpm lockfiles, and both jobs pin

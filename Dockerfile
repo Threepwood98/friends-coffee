@@ -3,7 +3,7 @@
 FROM node:24-bookworm-slim AS base
 
 ENV PNPM_HOME="/pnpm"
-ENV PATH="${PNPM_HOME}:${PATH}"
+ENV PATH="/app/node_modules/.bin:${PNPM_HOME}:${PATH}"
 ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN apt-get update \
@@ -40,7 +40,9 @@ RUN pnpm prisma migrate deploy \
     && pnpm prisma db seed \
     && pnpm build \
     && rm -f prisma/build.db prisma/build.db-journal prisma/build.db-shm prisma/build.db-wal \
-    && pnpm prune --prod
+    && pnpm prune --prod \
+    && test -x node_modules/.bin/prisma \
+    && test -x node_modules/.bin/next
 
 FROM base AS runner
 
@@ -48,6 +50,8 @@ ENV NODE_ENV=production
 ENV HOSTNAME="0.0.0.0"
 
 COPY --from=builder /app/package.json ./package.json
+COPY --from=builder /app/pnpm-lock.yaml ./pnpm-lock.yaml
+COPY --from=builder /app/pnpm-workspace.yaml ./pnpm-workspace.yaml
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/.next ./.next
 COPY --from=builder /app/public ./public
@@ -60,4 +64,4 @@ COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 EXPOSE 3000
 
-CMD ["sh", "-c", "pnpm prisma migrate deploy && pnpm db:seed:prod && exec pnpm start"]
+CMD ["sh", "-c", "./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/prisma db seed -- --require-admin && exec ./node_modules/.bin/next start"]

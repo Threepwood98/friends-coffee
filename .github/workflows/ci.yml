@@ -41,3 +41,42 @@ jobs:
 
       - name: Build deployment image
         run: docker build --tag friends-coffee:ci .
+
+      - name: Start deployment image
+        run: |
+          docker run --detach \
+            --name friends-coffee-ci \
+            --publish 127.0.0.1:3000:3000 \
+            --env DATABASE_URL=file:/tmp/app.db \
+            --env BETTER_AUTH_SECRET=friends-coffee-ci-secret-at-least-32-characters \
+            --env BETTER_AUTH_URL=http://127.0.0.1:3000 \
+            --env NEXT_PUBLIC_SITE_URL=http://127.0.0.1:3000 \
+            --env ADMIN_EMAIL=admin@example.invalid \
+            --env ADMIN_PASSWORD=friends-coffee-ci-password \
+            friends-coffee:ci
+
+      - name: Verify deployment image
+        run: |
+          set -euo pipefail
+
+          for attempt in {1..60}; do
+            if response="$(curl --fail --silent http://127.0.0.1:3000/api/health)"; then
+              if [ "$response" = '{"status":"ok"}' ]; then
+                exit 0
+              fi
+            fi
+
+            if [ "$(docker inspect --format '{{.State.Running}}' friends-coffee-ci)" != "true" ]; then
+              docker logs friends-coffee-ci
+              exit 1
+            fi
+
+            sleep 1
+          done
+
+          docker logs friends-coffee-ci
+          exit 1
+
+      - name: Stop deployment image
+        if: always()
+        run: docker rm --force friends-coffee-ci || true

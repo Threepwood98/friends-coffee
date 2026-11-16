@@ -11,15 +11,19 @@ infraestructura está declarada en `.railway/railway.ts`.
 
 - Repositorio: `Threepwood98/friends-coffee`, rama `main`.
 - Builder: Dockerfile multi-stage con Node.js 24 y pnpm 12.
-- Servicio: `web`, una réplica en US East.
+- Servicio: `friends-coffee`, una réplica en US East.
 - Volumen: `sqlite-data`, 512 MB, montado en `/data`.
 - Base persistente: `DATABASE_URL=file:/data/app.db`.
 - Arranque:
 
   ```bash
-  pnpm prisma migrate deploy && pnpm db:seed:prod && pnpm start
+  ./node_modules/.bin/prisma migrate deploy &&
+    ./node_modules/.bin/prisma db seed -- --require-admin &&
+    ./node_modules/.bin/next start
   ```
 
+- El arranque usa exclusivamente las dependencias fijadas dentro de la imagen;
+  nunca ejecuta `pnpm install` en runtime.
 - Readiness: `GET /api/health`, con una consulta real a SQLite.
 - Despliegue: automático después de que los checks de GitHub terminen
   correctamente.
@@ -31,7 +35,8 @@ lista, pero no elimina esa limitación.
 
 ## Bootstrap único
 
-El proyecto Railway ya debe existir y estar vacío.
+El proyecto Railway ya debe existir con el servicio original
+`friends-coffee`. IaC adopta ese recurso por nombre en lugar de reemplazarlo.
 
 ### 1. Conectar GitHub
 
@@ -42,7 +47,8 @@ Instala o autoriza la aplicación de Railway en GitHub y dale acceso a
 
 En el entorno `production`:
 
-1. Crea un servicio vacío llamado exactamente `web`.
+1. Confirma que el servicio existente se llama exactamente `friends-coffee` y
+   está conectado a `Threepwood98/friends-coffee`.
 2. En **Settings → Networking**, genera un dominio Railway
    `*.up.railway.app`.
 3. No crees el volumen manualmente: Railway IaC creará `sqlite-data` y lo
@@ -54,7 +60,7 @@ revisión.
 
 ### 3. Configurar variables
 
-Añade estas variables al servicio `web` antes del primer despliegue:
+Añade estas variables al servicio `friends-coffee` antes del primer despliegue:
 
 | Variable                                    | Obligatoria | Valor                                           |
 | ------------------------------------------- | ----------- | ----------------------------------------------- |
@@ -109,7 +115,12 @@ Los cambios de `.railway/**` deben entrar mediante pull request:
 4. Al hacer merge, el workflow aplica exactamente el plan revisado.
 
 La configuración crea el volumen, conecta el repositorio, selecciona el
-Dockerfile y activa la espera de checks de GitHub (`checkSuites`).
+Dockerfile, fija el start command y activa la espera de checks de GitHub
+(`checkSuites`).
+
+Un push directo a `main` no ejecuta este workflow y no aplica IaC. En el
+bootstrap inicial, no despliegues la aplicación hasta que el plan del PR se
+haya aplicado o hasta completar manualmente el plan y apply siguientes.
 
 También se puede hacer el primer apply localmente:
 
@@ -126,7 +137,8 @@ No ejecutes un apply destructivo sin revisar primero el plan.
 
 1. Un push a `main` inicia CI y el autodeploy de Railway.
 2. Railway mantiene el despliegue en espera.
-3. CI ejecuta formato, lint, tipos, los tests y un `docker build` real.
+3. CI ejecuta formato, lint, tipos, los tests, un `docker build` real y arranca
+   la imagen con una SQLite temporal para comprobar `/api/health`.
 4. Si CI falla, Railway omite el despliegue.
 5. Si CI pasa, Railway construye la imagen.
 6. Al arrancar el contenedor, con `/data` ya montado:
@@ -201,6 +213,13 @@ una base anterior a esa migración, crea y verifica primero un backup externo.
 
 - **El build no encuentra tablas:** confirma que Railway detecta `Dockerfile` y
   que la etapa `builder` ejecuta migraciones sobre `file:./build.db`.
+- **Prisma muestra `P1012` y falta `DATABASE_URL`:** IaC todavía no se aplicó o
+  la variable se eliminó del servicio. Confirma el plan, el volumen `/data` y
+  `DATABASE_URL=file:/data/app.db`; después fuerza un rebuild completo.
+- **El contenedor intenta instalar o actualizar paquetes al arrancar:** elimina
+  cualquier Start Command manual del panel y vuelve a aplicar IaC. El comando
+  administrado ejecuta `node_modules/.bin/*` y no debe mostrar una resolución
+  de dependencias pnpm.
 - **Los datos desaparecen:** verifica el volumen en `/data` y
   `DATABASE_URL=file:/data/app.db`.
 - **`db:seed:prod` falla:** revisa `ADMIN_EMAIL` y `ADMIN_PASSWORD`; ambas son
