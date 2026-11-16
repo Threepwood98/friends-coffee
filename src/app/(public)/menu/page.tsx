@@ -33,9 +33,6 @@ export default async function MenuPage() {
           className="pointer-events-none absolute -top-24 -right-12 h-auto w-40 opacity-70 sm:-top-28 sm:right-0 sm:w-52 lg:w-60"
         />
         <CardHeader className="relative z-10 w-full gap-2 px-6 pt-8 pb-4 text-center sm:min-w-0 sm:flex-1 sm:px-8 sm:py-8 sm:text-left lg:px-12">
-          <h1 className="text-xs font-semibold tracking-[0.16em] text-peephole uppercase sm:text-sm">
-            Menú
-          </h1>
           <p
             lang="en"
             className="text-balance font-heading text-3xl leading-none tracking-wide sm:text-4xl lg:text-5xl"
