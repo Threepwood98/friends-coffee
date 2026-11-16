@@ -8,6 +8,8 @@ import {
 } from "railway/iac";
 
 const productionRegion = "us-east4-eqdc4a";
+const productionStartCommand =
+  '/bin/sh -c "./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/prisma db seed -- --require-admin && exec ./node_modules/.bin/next start"';
 
 export default defineRailway((context) => {
   const sqliteData = volume("sqlite-data", {
@@ -15,7 +17,7 @@ export default defineRailway((context) => {
     sizeMB: 512,
   });
 
-  const web = service("web", {
+  const app = service("friends-coffee", {
     source: github("Threepwood98/friends-coffee", {
       branch: "main",
       checkSuites: true,
@@ -26,6 +28,7 @@ export default defineRailway((context) => {
     },
     healthcheck: "/api/health",
     healthcheckTimeout: 300,
+    start: productionStartCommand,
     replicas: {
       [productionRegion]: 1,
     },
@@ -48,6 +51,6 @@ export default defineRailway((context) => {
   });
 
   return project(context.projectName ?? "friends-coffee", {
-    resources: [web, sqliteData],
+    resources: [app, sqliteData],
   });
 });

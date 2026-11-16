@@ -74,7 +74,8 @@ Objetivo: costo mínimo, sin servicio de BD aparte.
 - Los volúmenes de Railway se montan **solo en runtime, no durante el build**.
   Por eso las migraciones y el seed de la base persistente van en el **start
   command**, nunca en una fase previa:
-  `pnpm prisma migrate deploy && pnpm db:seed:prod && pnpm start`
+  `./node_modules/.bin/prisma migrate deploy && ./node_modules/.bin/prisma db seed -- --require-admin && ./node_modules/.bin/next start`.
+  El runtime no instala ni actualiza dependencias.
 - Excepción de build autorizada: el `Dockerfile` crea una SQLite efímera
   (`prisma/build.db`), le aplica las migraciones y el catálogo sin admin para
   que `next build` pueda prerenderizar. Esa base nunca apunta a `/data`, no
