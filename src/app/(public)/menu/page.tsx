@@ -21,7 +21,7 @@ export default async function MenuPage() {
   const categories = await getMenuCategories();
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-10 px-4 py-6 sm:gap-12 sm:px-6 sm:py-10 lg:px-8">
+    <div className="mx-auto flex w-full max-w-6xl flex-col px-4 py-6 sm:gap-12 sm:px-6 sm:py-10 lg:px-8">
       <JsonLd data={cafeOrCoffeeShopJsonLd()} />
       <Card className="relative min-h-64 gap-0 overflow-hidden rounded-[1.75rem] border-coffee/10 bg-primary py-0 text-primary-foreground shadow-sm motion-safe:animate-in motion-safe:fade-in motion-safe:slide-in-from-bottom-4 motion-safe:fill-mode-both motion-safe:duration-600 motion-safe:ease-out sm:min-h-56 sm:flex-row sm:items-center sm:justify-between">
         <Image
