@@ -27,11 +27,11 @@ describe("resolveProductImage", () => {
 
   it("falls back to the placeholder of the product category", () => {
     const cases = [
-      ["cafe", "/images/placeholders/cafes.svg"],
-      ["espc-frias", "/images/placeholders/especialidades.svg"],
-      ["snacks", "/images/placeholders/salados.svg"],
-      ["cocteleria", "/images/placeholders/especialidades.svg"],
-      ["tragos", "/images/placeholders/especialidades.svg"],
+      ["cafe", "/images/placeholders/coffee.svg"],
+      ["espc-frias", "/images/placeholders/beverage.svg"],
+      ["snacks", "/images/placeholders/snack.svg"],
+      ["cocteleria", "/images/placeholders/cocktail.svg"],
+      ["tragos", "/images/placeholders/drink.svg"],
     ] as const;
 
     for (const [slug, expected] of cases) {
@@ -56,6 +56,6 @@ describe("resolveProductImage", () => {
         imageUrl: "",
         category: { slug: "cafe" },
       }),
-    ).toBe("/images/placeholders/cafes.svg");
+    ).toBe("/images/placeholders/coffee.svg");
   });
 });

@@ -43,6 +43,7 @@ export function ProductCard({
             imageUrl={product.imageUrl}
             categorySlug={categorySlug}
             alt={`${product.name}`}
+            sizes="(min-width: 1280px) 17rem, (min-width: 768px) calc((100vw - 7rem) / 3), (min-width: 360px) calc((100vw - 3rem) / 2), calc(100vw - 2rem)"
             className={cn(
               "motion-safe:transition-transform motion-safe:duration-500 motion-safe:group-hover:scale-105",
               !product.available && "grayscale brightness-75",

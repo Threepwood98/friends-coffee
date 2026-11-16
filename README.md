@@ -43,7 +43,8 @@ docs/             decisiones y guías (deploy, cloudflare, backup)
 
 ## Puesta en marcha local
 
-Requisitos: Node.js ≥ 20 y pnpm.
+Requisitos: Node.js 24 y pnpm 12. Docker es necesario para reproducir
+localmente la imagen de Railway.
 
 ```bash
 pnpm install
@@ -75,18 +76,19 @@ Nunca se commitea `.env`. `.env.example` es la fuente de referencia.
 
 ## Comandos
 
-| Comando                        | Descripción                          |
-| ------------------------------ | ------------------------------------ |
-| `pnpm dev`                     | Desarrollo                           |
-| `pnpm lint`                    | ESLint                               |
-| `pnpm typecheck`               | `tsc --noEmit`                       |
-| `pnpm build`                   | Build de producción                  |
-| `pnpm test`                    | Vitest                               |
-| `pnpm prisma migrate dev`      | Migración local                      |
-| `pnpm prisma migrate deploy`   | Migración en producción (ver deploy) |
-| `pnpm prisma db seed`          | Semilla idempotente                  |
-| `pnpm db:backup`               | Copia consistente de SQLite          |
-| `pnpm db:restore <archivo.db>` | Restaura un snapshot                 |
+| Comando                            | Descripción                          |
+| ---------------------------------- | ------------------------------------ |
+| `pnpm dev`                         | Desarrollo                           |
+| `pnpm lint`                        | ESLint                               |
+| `pnpm typecheck`                   | `tsc --noEmit`                       |
+| `pnpm build`                       | Build de producción                  |
+| `pnpm test`                        | Vitest                               |
+| `pnpm prisma migrate dev`          | Migración local                      |
+| `pnpm prisma migrate deploy`       | Migración en producción (ver deploy) |
+| `pnpm prisma db seed`              | Semilla idempotente                  |
+| `pnpm db:backup`                   | Copia consistente de SQLite          |
+| `pnpm db:restore <archivo.db>`     | Restaura un snapshot                 |
+| `docker build -t friends-coffee .` | Construye la imagen de despliegue    |
 
 ## Base de datos (SQLite)
 
@@ -116,8 +118,14 @@ pnpm db:restore backups/friends-coffee-2026-09-30T04-16-00-037Z.db
 
 ## Despliegue y CDN
 
-- **Railway**: guía paso a paso en `docs/deploy.md` (volumen en `/data`,
-  migraciones en el start command, una sola réplica).
+- **Railway**: infraestructura versionada en `.railway/railway.ts`, imagen
+  multi-stage en `Dockerfile` y automatización mediante GitHub Actions. La guía
+  de bootstrap, variables y operación está en `docs/deploy.md`.
+- Cada push a `main` espera a que CI pase y después despliega automáticamente
+  una sola instancia en US East, con el volumen SQLite montado en `/data`.
+- El contenedor aplica las migraciones y el seed idempotente antes de
+  `next start`; Railway solo activa el despliegue cuando `/api/health` confirma
+  que la aplicación y SQLite están disponibles.
 - **Cloudflare**: checklist de DNS, proxy y SSL en `docs/cloudflare.md`.
 
 La migración desde Auth.js cambia el formato y nombre de la cookie: todas las

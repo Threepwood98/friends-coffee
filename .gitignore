@@ -43,6 +43,9 @@ yarn-error.log*
 *.sqlite3
 /backups/
 
+# Railway IaC plan artifacts
+railway-plan.json
+
 # vercel
 .vercel
 

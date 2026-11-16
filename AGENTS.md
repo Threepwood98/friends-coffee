@@ -28,7 +28,8 @@ Web de la carta de una cafetería, inspirada estéticamente en la serie FRIENDS.
 - Zod + react-hook-form
 - Imágenes: Cloudinary (subida firmada desde el servidor)
 - Gestor de paquetes: **pnpm**
-- Deploy: Railway (Node normal, `next start`, **una sola instancia** con volumen). Cloudflare solo DNS/CDN delante.
+- Deploy: Railway con `Dockerfile` multi-stage (Node normal, `next start`,
+  **una sola instancia** con volumen). Cloudflare solo DNS/CDN delante.
 - Prohibido: APIs exclusivas de Vercel, runtime edge, Postgres u otra BD externa, múltiples réplicas de la app, dependencias fuera del stack sin justificar.
 
 ## Comandos
@@ -70,8 +71,14 @@ Objetivo: costo mínimo, sin servicio de BD aparte.
 
 - Un solo servicio Railway con un **volumen** montado en `/data`. El archivo vive en `/data/app.db`. Sin volumen, los datos se pierden en cada deploy.
 - **Una sola instancia** de la app. SQLite escribe en un solo archivo. No escalar horizontalmente.
-- Los volúmenes de Railway se montan **solo en runtime, no durante el build**. Por eso `prisma migrate deploy` y el seed van en el **start command**, nunca en el build command:
+- Los volúmenes de Railway se montan **solo en runtime, no durante el build**.
+  Por eso las migraciones y el seed de la base persistente van en el **start
+  command**, nunca en una fase previa:
   `pnpm prisma migrate deploy && pnpm db:seed:prod && pnpm start`
+- Excepción de build autorizada: el `Dockerfile` crea una SQLite efímera
+  (`prisma/build.db`), le aplica las migraciones y el catálogo sin admin para
+  que `next build` pueda prerenderizar. Esa base nunca apunta a `/data`, no
+  recibe secretos reales y se elimina antes de construir la imagen final.
 - Al iniciar, ejecutar una vez `PRAGMA journal_mode=WAL;` y `PRAGMA busy_timeout=5000;` (en `lib/prisma.ts`) para mejor concurrencia lectura/escritura.
 - Un único `PrismaClient` compartido (patrón singleton) para no abrir varias conexiones.
 - Escrituras cortas y rápidas. Las transacciones (likes, ratings) deben ser breves.
@@ -157,7 +164,13 @@ docs/ decisions.md
 6. Admin: CRUD productos y categorías, Cloudinary, moderación, revalidación.
 7. Diseño FRIENDS: tema, animaciones, 404, pulido responsive.
 8. SEO completo: puntos 1–12, JSON-LD, sitemap, robots, auditoría Lighthouse.
-9. Calidad y deploy: tests (Vitest para validadores y lógica de likes/rating; Playwright opcional para login → rating → comentario → like), `README.md`, guía Railway (crear volumen en `/data`, `DATABASE_URL=file:/data/app.db`, migraciones en el start command, una sola réplica), script y guía de backup/restauración de SQLite, checklist Cloudflare (DNS, proxy, SSL Full strict).
+9. Calidad y deploy: tests (Vitest para validadores y lógica de likes/rating;
+   Playwright opcional para login → rating → comentario → like), `README.md`,
+   `Dockerfile`, Railway IaC (volumen en `/data`,
+   `DATABASE_URL=file:/data/app.db`, migraciones persistentes en el start
+   command, una sola réplica), workflows CI/config, script y guía de
+   backup/restauración de SQLite, checklist Cloudflare (DNS, proxy, SSL Full
+   strict).
 
 Trabaja **una fase por vez**. No avances a la siguiente sin que yo lo pida.
 

@@ -125,6 +125,47 @@ Status: accepted
 - E2E with Playwright is intentionally **not** added: optional per AGENTS, the interaction logic (likes/ratings) is already covered by isolated Vitest tests, and a full browser suite would add significant toolchain weight. Documented as a future option in README.
 - Documentation: `README.md` (quickstart, scripts, environment, SEO, quality) plus `docs/deploy.md` (Railway volume in `/data`, migrations in the start command, one replica), `docs/cloudflare.md` (DNS proxy, SSL Full strict, no-cache exclusions, no horizontal scaling) and `docs/backup.md` (VACUUM INTO rationale, scheduling options, restore procedure). All user-facing docs are in Spanish.
 
+## 2026-11-15 - Automated Railway deployment
+
+Status: accepted
+
+- Build and run the application from a checked-in, multi-stage
+  `node:24-bookworm-slim` Dockerfile. Debian/glibc avoids unnecessary Prisma and
+  Sharp compatibility risk, while the final process remains the required
+  `next start` Node server.
+- Load Geist Sans and Mono from the official self-hosted `geist@1.9.2` package
+  instead of `next/font/google`. This preserves the same CSS variables and
+  typography while removing an external Google Fonts request that could make
+  Docker builds fail nondeterministically.
+- Railway does not mount `/data` while building. The builder therefore creates
+  a disposable `prisma/build.db`, applies the committed migrations, seeds only
+  the default catalog, and uses it for Next.js prerendering. It receives a
+  deliberately fake Better Auth build secret and only public URL build
+  arguments. The database is removed before the runtime image is assembled;
+  the persistent `/data/app.db` is still migrated and seeded only by the
+  container start command.
+- Manage the empty Railway project through the GA TypeScript IaC DSL in
+  `.railway/railway.ts`, pinned to `railway@3.17.0`. It owns one `web` service,
+  one 512 MB volume mounted at `/data`, and exactly one replica colocated in US
+  East. Generated Railway domains stay platform-managed.
+- Keep Railway-held credentials as `preserve()` values. IaC manages
+  `DATABASE_URL` and derives Better Auth/SEO public URLs from
+  `RAILWAY_PUBLIC_DOMAIN`; no secret or generated domain is committed.
+- GitHub Actions runs formatting, lint, type-checking, Vitest, and a real Docker
+  build on pull requests and `main`. The GitHub source has `checkSuites`
+  enabled, so autodeploy waits for CI. A separate official
+  `railwayapp/config` workflow pins an IaC plan to each pull request and
+  applies that reviewed plan only after merge. The action revision is pinned
+  to the official commit that supports pnpm lockfiles, and both jobs pin
+  Railway CLI `5.74.0` so plan and apply cannot drift between CLI releases.
+- `/api/health` is an uncached Node.js Route Handler that runs `SELECT 1`
+  through the initialized Prisma singleton. It returns only a sanitized
+  `200`/`503` response; Railway uses it as deployment readiness, not continuous
+  monitoring.
+- A volume prevents overlapping deployments, so a short redeploy downtime is
+  an accepted SQLite tradeoff even with the healthcheck. Horizontal scaling
+  remains prohibited.
+
 ## 2026-09-30 - Friends lettering
 
 Status: accepted

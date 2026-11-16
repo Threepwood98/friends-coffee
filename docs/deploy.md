@@ -1,108 +1,215 @@
-# Guía de despliegue en Railway
+# Despliegue automatizado en Railway
 
-Objetivo: **costo mínimo, sin servicio de base de datos aparte**. SQLite vive
-en el archivo `/data/app.db` dentro de un volumen montado solo en runtime.
+La producción usa un único servicio Railway, una imagen construida desde el
+`Dockerfile` del repositorio y una base SQLite en `/data/app.db`. La
+infraestructura está declarada en `.railway/railway.ts`.
 
-> Regla clave: **una sola instancia**. SQLite escribe en un solo archivo; no
-> escalar horizontalmente (Railway "replicas" = 1) ni añadir réplicas si se
-> supera el coste. Si algún día hubiera tráfico o varias instancias, migrar a
-> Postgres manteniendo todo el acceso a datos tras Prisma.
+> **Una sola instancia:** el volumen solo se puede montar en un despliegue a la
+> vez y SQLite escribe en un único archivo. No añadas réplicas ni autoscaling.
 
-## Configuración del servicio
+## Arquitectura
 
-1. **Crear el proyecto y el servicio** apuntando al repo (framework: se
-   detecta Node; build/start se ajustan abajo).
-2. **Crear un volumen** en el servicio, montado en `/data`
-   (Volume mount path: `/data`). Sin volumen, los datos desaparecen en cada
-   deploy.
-3. **Configurar las variables de entorno** (Settings → Variables):
+- Repositorio: `Threepwood98/friends-coffee`, rama `main`.
+- Builder: Dockerfile multi-stage con Node.js 24 y pnpm 12.
+- Servicio: `web`, una réplica en US East.
+- Volumen: `sqlite-data`, 512 MB, montado en `/data`.
+- Base persistente: `DATABASE_URL=file:/data/app.db`.
+- Arranque:
 
-   | Variable                                             | Valor                              |
-   | ---------------------------------------------------- | ---------------------------------- |
-   | `DATABASE_URL`                                       | `file:/data/app.db`                |
-   | `BETTER_AUTH_SECRET`                                 | secreto generado (≥ 32 caracteres) |
-   | `BETTER_AUTH_URL`                                    | `https://tu-dominio.example`       |
-   | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET`          | si se usa Google                   |
-   | `NEXT_PUBLIC_SITE_URL`                               | `https://tu-dominio.example`       |
-   | `CLOUDINARY_CLOUD_NAME` / `_API_KEY` / `_API_SECRET` | para imágenes y backups            |
-   | `ADMIN_EMAIL` / `ADMIN_PASSWORD`                     | para crear el admin en el seed     |
+  ```bash
+  pnpm prisma migrate deploy && pnpm db:seed:prod && pnpm start
+  ```
 
-   Genera el secreto con `pnpm dlx auth@latest secret`. Las variables deben
-   existir antes del build: Better Auth valida el secreto al compilar.
+- Readiness: `GET /api/health`, con una consulta real a SQLite.
+- Despliegue: automático después de que los checks de GitHub terminen
+  correctamente.
 
-4. **Build command** (no migraciones aquí, el volumen no existe durante el
-   build):
+Un servicio con volumen no puede solapar dos despliegues. Habrá un pequeño
+periodo de indisponibilidad mientras Railway desmonta la versión anterior y
+monta `/data` en la nueva; el healthcheck evita activar una versión que no esté
+lista, pero no elimina esa limitación.
 
-   ```bash
-   pnpm install --frozen-lockfile && pnpm build
-   ```
+## Bootstrap único
 
-5. **Start command** (las migraciones y el seed van aquí, con el volumen ya
-   montado en runtime):
+El proyecto Railway ya debe existir y estar vacío.
 
-   ```bash
-   pnpm prisma migrate deploy && pnpm db:seed:prod && pnpm start
-   ```
+### 1. Conectar GitHub
 
-6. **Replicas = 1**. En Settings desactiva cualquier autoscaling.
-7. **Despliegue**: Railway genera la URL `*.up.railway.app`. Cuando lo
-   verifiques, apunta tu dominio (ver `docs/cloudflare.md`).
+Instala o autoriza la aplicación de Railway en GitHub y dale acceso a
+`Threepwood98/friends-coffee`.
 
-### Primer deploy con Better Auth
+### 2. Preparar el servicio
 
-La migración `20261003182000_better_auth_schema` sustituye completamente las
-tablas de Auth.js. Antes de desplegarla:
+En el entorno `production`:
 
-1. Ejecuta `pnpm db:backup` con la versión anterior todavía activa y confirma
-   que existe una copia externa.
-2. Sustituye `AUTH_SECRET`, `AUTH_GOOGLE_ID` y `AUTH_GOOGLE_SECRET` por las
-   variables de Better Auth indicadas arriba.
-3. Mantén el callback de Google en
-   `https://tu-dominio.example/api/auth/callback/google`.
-4. Despliega. Se eliminan usuarios, sesiones, valoraciones, comentarios y likes
-   del esquema Auth.js; el catálogo permanece y el seed crea el admin con su
-   nueva cuenta de credenciales.
+1. Crea un servicio vacío llamado exactamente `web`.
+2. En **Settings → Networking**, genera un dominio Railway
+   `*.up.railway.app`.
+3. No crees el volumen manualmente: Railway IaC creará `sqlite-data` y lo
+   montará en `/data`.
 
-Todas las sesiones anteriores quedan invalidadas porque cambia la cookie.
+Si Railway no permite generar el dominio hasta conectar una fuente, aplica
+primero IaC, genera el dominio después y fuerza un redeploy de la última
+revisión.
 
-## Comprobaciones tras el deploy
+### 3. Configurar variables
 
-- `robots.txt` y `sitemap.xml` accesibles en el dominio final.
-- Primera carga: el start command ejecuta `migrate deploy` + `db:seed:prod`
-  (idempotente), así que es normal que tarde unos segundos.
-- Entra en `/admin` con el correo admin del seed y revisa que una subida de
-  imagen funciona (Cloudinary) o muestra el aviso de no configurado.
+Añade estas variables al servicio `web` antes del primer despliegue:
 
-## Backups
+| Variable                                    | Obligatoria | Valor                                           |
+| ------------------------------------------- | ----------- | ----------------------------------------------- |
+| `BETTER_AUTH_SECRET`                        | Sí          | Secreto criptográfico de al menos 32 caracteres |
+| `ADMIN_EMAIL`                               | Sí          | Correo inicial del administrador                |
+| `ADMIN_PASSWORD`                            | Sí          | Contraseña inicial de 8–128 caracteres          |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | No          | Ambas juntas si se habilita Google              |
+| `CLOUDINARY_CLOUD_NAME`                     | No          | Junto con las otras dos variables de Cloudinary |
+| `CLOUDINARY_API_KEY`                        | No          | Clave de Cloudinary                             |
+| `CLOUDINARY_API_SECRET`                     | No          | Secreto de Cloudinary                           |
 
-Sin servicio de cron integrado, opciones en orden de más simple a más
-completa (detalles en `docs/backup.md`):
+Genera el secreto de Better Auth con:
 
-- **Manual**: desde Railway, `Railway Shell` del servicio y ejecutar
-  `pnpm db:backup`. La copia cae en `backups/` del contenedor y, si
-  `CLOUDINARY_*` están definidas, se sube automáticamente a Cloudinary raw
-  (sobrevive a los deploys).
-- **Programado externo**: un job externo (p. ej. GitHub Actions, cron de
-  NAS) que dispare el comando o la subida de una copia generada.
-- No copiar `/data/app.db` directamente mientras la app escribe: usar
-  `pnpm db:backup` (VACUUM INTO) siempre.
+```bash
+pnpm dlx auth@latest secret
+```
 
-## Actualizaciones
+Después de comprobar los valores, sella `BETTER_AUTH_SECRET`,
+`ADMIN_PASSWORD`, `GOOGLE_CLIENT_SECRET` y `CLOUDINARY_API_SECRET` desde
+Railway.
 
-- `pnpm prisma migrate dev` en local crea la migración; se commitea. En cada
-  deploy, `migrate deploy` la aplica antes de `next start`.
-- Tras un deploy que cambie datos públicos, la ISR (revalidate de 5 minutos)
-  refresca las páginas automáticamente.
+IaC administra estas variables; no las dupliques manualmente:
+
+| Variable               | Valor administrado                     |
+| ---------------------- | -------------------------------------- |
+| `DATABASE_URL`         | `file:/data/app.db`                    |
+| `BETTER_AUTH_URL`      | `https://${{ RAILWAY_PUBLIC_DOMAIN }}` |
+| `NEXT_PUBLIC_SITE_URL` | `https://${{ RAILWAY_PUBLIC_DOMAIN }}` |
+
+El callback de Google será:
+
+```text
+https://<dominio-railway>/api/auth/callback/google
+```
+
+### 4. Autorizar el workflow IaC
+
+1. Crea un **Project Token** de Railway limitado al entorno `production`.
+2. En GitHub abre **Settings → Secrets and variables → Actions**.
+3. Crea el secreto `RAILWAY_TOKEN` con ese token.
+
+El token pertenece al workflow, no a la aplicación. Nunca se añade a
+`.env.example` ni al servicio.
+
+### 5. Aplicar la infraestructura
+
+Los cambios de `.railway/**` deben entrar mediante pull request:
+
+1. `.github/workflows/railway-config.yml` ejecuta `railway config plan`.
+2. El bot publica en el PR los recursos que creará o modificará.
+3. Revisa especialmente cualquier operación marcada como destructiva.
+4. Al hacer merge, el workflow aplica exactamente el plan revisado.
+
+La configuración crea el volumen, conecta el repositorio, selecciona el
+Dockerfile y activa la espera de checks de GitHub (`checkSuites`).
+
+También se puede hacer el primer apply localmente:
+
+```bash
+railway login
+railway link
+railway config plan
+railway config apply
+```
+
+No ejecutes un apply destructivo sin revisar primero el plan.
+
+## Flujo de cada despliegue
+
+1. Un push a `main` inicia CI y el autodeploy de Railway.
+2. Railway mantiene el despliegue en espera.
+3. CI ejecuta formato, lint, tipos, los tests y un `docker build` real.
+4. Si CI falla, Railway omite el despliegue.
+5. Si CI pasa, Railway construye la imagen.
+6. Al arrancar el contenedor, con `/data` ya montado:
+   - aplica las migraciones pendientes;
+   - ejecuta el seed idempotente y exige las credenciales del admin;
+   - inicia `next start` usando el `PORT` inyectado por Railway.
+7. Railway consulta `/api/health`; solo un `2xx` activa la versión.
+
+## Base SQLite usada durante el build
+
+`next build` prerenderiza `/menu` y `sitemap.xml`, por lo que necesita un
+esquema y catálogo válidos. El volumen Railway no existe durante el build.
+
+La etapa `builder` del Dockerfile:
+
+1. fija `DATABASE_URL=file:./build.db`;
+2. aplica las migraciones a `prisma/build.db`;
+3. ejecuta el seed sin `--require-admin`;
+4. construye Next.js;
+5. elimina la base y sus archivos WAL antes de ensamblar la imagen final.
+
+Esa base es descartable, nunca toca `/data` y no recibe las credenciales del
+admin. El builder usa un secreto ficticio de Better Auth. Los únicos valores
+Railway aceptados como `ARG` son `BETTER_AUTH_URL` y
+`NEXT_PUBLIC_SITE_URL`, que son URL públicas.
+
+## Healthcheck
+
+`GET /api/health`:
+
+- usa runtime Node.js;
+- espera la inicialización de Prisma y sus PRAGMAs;
+- ejecuta `SELECT 1`;
+- responde `200 {"status":"ok"}` o
+  `503 {"status":"unavailable"}`;
+- usa `Cache-Control: no-store`;
+- nunca devuelve detalles internos.
+
+Railway utiliza este endpoint durante el despliegue. No sustituye un monitor de
+disponibilidad continuo.
+
+## Verificaciones posteriores
+
+- `/api/health` devuelve `200`.
+- `/menu`, `/robots.txt` y `/sitemap.xml` usan el dominio público final.
+- El login por contraseña funciona con el admin sembrado.
+- Si Google está configurado, su callback coincide exactamente con el dominio.
+- Una edición del catálogo sobrevive a un redeploy.
+- Una subida de imagen funciona o muestra correctamente que Cloudinary no está
+  configurado.
+- El servicio muestra una sola réplica y el volumen aparece montado en `/data`.
+
+## Backups y migraciones
+
+Antes de una migración destructiva:
+
+```bash
+pnpm db:backup
+```
+
+El comando usa `VACUUM INTO`; no copies `/data/app.db` directamente mientras la
+aplicación escribe. Consulta `docs/backup.md` para programación y restauración.
+
+Una reversión de imagen no revierte automáticamente el esquema. Restaura un
+snapshot solo con el servicio detenido.
+
+La migración histórica a Better Auth invalidó las sesiones anteriores y
+eliminó los usuarios e interacciones del esquema Auth.js. Si se despliega sobre
+una base anterior a esa migración, crea y verifica primero un backup externo.
 
 ## Troubleshooting
 
-- **Los datos "se pierden" al redeploy**: falta el volumen o `DATABASE_URL`
-  no apunta a `file:/data/app.db`.
-- **`migrate deploy` falla en el build**: no ejecutar migraciones en build;
-  revisa que el start command sea el indicado.
-- **Errores de escritura (database is locked)**: confirmar una sola réplica;
-  WAL y `busy_timeout` ya están activados en `src/lib/prisma.ts`.
-- **Login falla en producción**: revisar `BETTER_AUTH_SECRET`,
-  `BETTER_AUTH_URL` y, para Google, `GOOGLE_CLIENT_ID` /
-  `GOOGLE_CLIENT_SECRET`. Las dos URL públicas deben usar el dominio final y
-  HTTPS, no `localhost`.
+- **El build no encuentra tablas:** confirma que Railway detecta `Dockerfile` y
+  que la etapa `builder` ejecuta migraciones sobre `file:./build.db`.
+- **Los datos desaparecen:** verifica el volumen en `/data` y
+  `DATABASE_URL=file:/data/app.db`.
+- **`db:seed:prod` falla:** revisa `ADMIN_EMAIL` y `ADMIN_PASSWORD`; ambas son
+  obligatorias y deben ser válidas.
+- **Healthcheck 503:** revisa primero los logs de migración/seed y después los
+  permisos y montaje del volumen.
+- **`database is locked`:** confirma una sola réplica. WAL y
+  `busy_timeout=5000` ya se configuran en `src/lib/prisma.ts`.
+- **Login o canonical apuntan a localhost:** genera el dominio Railway y fuerza
+  un nuevo build para que `NEXT_PUBLIC_SITE_URL` se vuelva a incrustar.
+- **El workflow IaC no se ejecuta:** comprueba el secreto `RAILWAY_TOKEN`, el
+  acceso de Railway GitHub App y que el PR modifica `.railway/**`.
