@@ -21,6 +21,7 @@ export function SiteHeader() {
           alt="logo"
           width={1186}
           height={196}
+          loading="eager"
           className="h-6 w-auto"
         />
         <span className="bg-peephole mx-auto px-2 font-heading text-lg leading-none text-black lowercase text-center">
